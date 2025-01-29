@@ -49,6 +49,15 @@ public abstract class AbstractBlockState implements BlockState {
         this.state = state;
     }
 
+    public org.spongepowered.api.block.BlockState spongeState(){
+        return this.state;
+    }
+
+    public ServerLocation spongeLocation(){
+        return  this.location;
+    }
+
+
     public static AbstractBlockState wrap(@Nullable ServerLocation location, org.spongepowered.api.block.BlockState state, boolean isSnapshot) {
         if (state.get(Keys.SIGN_WAXED).isPresent()) {
             return new SignBlockState(location, state, isSnapshot);

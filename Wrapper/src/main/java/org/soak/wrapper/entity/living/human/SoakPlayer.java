@@ -38,6 +38,8 @@ import org.soak.map.*;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
 import org.soak.utils.single.SoakSingleInstance;
+import org.soak.wrapper.block.data.SoakBlockData;
+import org.soak.wrapper.block.state.AbstractBlockState;
 import org.soak.wrapper.inventory.SoakInventory;
 import org.soak.wrapper.inventory.view.AbstractInventoryView;
 import org.soak.wrapper.inventory.view.SoakOpeningInventoryView;
@@ -1524,13 +1526,17 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void sendBlockChange(@NotNull Location arg0, @NotNull BlockData arg1) {
-        throw NotImplementedException.createByLazy(Player.class, "sendBlockChange", Location.class, BlockData.class);
+    public void sendBlockChange(@NotNull Location atPosition, @NotNull BlockData data) {
+        SoakBlockData soakData = (SoakBlockData) data;
+        this.spongeEntity().sendBlockChange(atPosition.getBlockX(), atPosition.getBlockY(), atPosition.getBlockZ(), soakData.sponge());
     }
 
     @Override
     public void sendBlockChanges(@NotNull Collection<BlockState> collection) {
-        throw NotImplementedException.createByLazy(Player.class, "sendBlockChanges", Collection.class);
+        collection.forEach(state -> {
+            var blockState = ((AbstractBlockState)state);
+            spongeEntity().sendBlockChange(blockState.spongeLocation().position().toInt(), blockState.spongeState());
+        });
     }
 
     @Override

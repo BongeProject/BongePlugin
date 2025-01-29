@@ -36,7 +36,6 @@ dependencies {
     implementation 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
     implementation 'net.bytebuddy:byte-buddy:1.15.10'
 
-
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

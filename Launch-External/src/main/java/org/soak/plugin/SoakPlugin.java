@@ -45,6 +45,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.lifecycle.*;
+import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -230,6 +231,12 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     //try not using
     public SoakServerProperties getServerProperties() {
         return this.serverProperties;
+    }
+
+    @Listener
+    public void registerMapView(LoadWorldEvent event){
+        System.out.println("Registering map view");
+        RegisterUtils.registerMapView(event.world());
     }
 
     @Override

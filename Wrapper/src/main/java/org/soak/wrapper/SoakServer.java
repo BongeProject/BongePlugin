@@ -64,6 +64,7 @@ import org.soak.wrapper.entity.living.human.user.SoakLoadingUser;
 import org.soak.wrapper.help.SoakHelpMap;
 import org.soak.wrapper.inventory.SoakInventory;
 import org.soak.wrapper.inventory.SoakItemFactory;
+import org.soak.wrapper.map.SoakMapView;
 import org.soak.wrapper.plugin.SoakPluginManager;
 import org.soak.wrapper.plugin.messaging.SoakMessenger;
 import org.soak.wrapper.profile.SoakPlayerProfile;
@@ -100,6 +101,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
@@ -299,11 +301,11 @@ public abstract class SoakServer implements Server {
 
     @Override
     public @Nullable World getWorld(@NotNull Key key) {
-        var namespace = NamespacedKey.fromString(key.asString());
+        var namespace = SoakResourceKeyMap.mapToSponge(key);
         if (namespace == null) {
             return null;
         }
-        return this.getWorld(namespace);
+        return Sponge.server().worldManager().worlds().stream().filter(world -> world.key().equals(namespace)).findAny().map(world ->SoakManager.<WrapperManager>getManager().getMemoryStore().get(world)).orElse(null);
     }
 
     @Override
@@ -725,12 +727,12 @@ public abstract class SoakServer implements Server {
 
     @Override
     public @Nullable MapView getMap(int id) {
-        throw NotImplementedException.createByLazy(SoakServer.class, "getMap", int.class);
+        return Sponge.server().mapStorage().allMapInfos().stream().map(SoakMapView::new).filter(view -> view.getId() == id).findAny().orElse(null);
     }
 
     @Override
     public @NotNull MapView createMap(@NotNull World world) {
-        throw NotImplementedException.createByLazy(SoakServer.class, "createMap", World.class);
+        return Sponge.server().mapStorage().allMapInfos().stream().map(SoakMapView::new).filter(view -> view.getWorld() == world).findAny().orElseThrow(() -> new IllegalStateException("Bukkit assumes one world map per world but couldnt find anything"));
     }
 
     @Override
@@ -1471,7 +1473,7 @@ public abstract class SoakServer implements Server {
     @Override
     public int broadcast(@NotNull Component message) {
         Audience audience = this.spongeServer().broadcastAudience();
-        Unfinal<Integer> count = new Unfinal<>(0);
+        AtomicInteger count = new AtomicInteger();
         audience.forEachAudience((au) -> count.set(count.get() + 1));
         audience.sendMessage(message);
         return count.get();
