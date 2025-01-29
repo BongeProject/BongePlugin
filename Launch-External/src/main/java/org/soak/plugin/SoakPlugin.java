@@ -6,6 +6,7 @@ import net.bytebuddy.jar.asm.MethodTooLargeException;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,7 @@ import org.soak.config.SoakConfiguration;
 import org.soak.data.sponge.PortalCooldownCustomData;
 import org.soak.data.sponge.SoakKeys;
 import org.soak.fix.forge.ForgeFixCommons;
-import org.soak.generate.bukkit.AttributeTypeList;
-import org.soak.generate.bukkit.EntityTypeList;
-import org.soak.generate.bukkit.MaterialList;
+import org.soak.generate.bukkit.*;
 import org.soak.hook.event.HelpMapListener;
 import org.soak.io.SoakServerProperties;
 import org.soak.plugin.external.SoakConfig;
@@ -35,15 +34,22 @@ import org.soak.wrapper.plugin.SoakPluginManager;
 import org.soak.wrapper.v1_21_R2.NMSBounceSoakServer;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.data.persistence.DataStore;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.lifecycle.*;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.tag.BlockTypeTags;
+import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import org.spongepowered.plugin.PluginContainer;
@@ -55,9 +61,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.jar.JarFile;
 import java.util.logging.ConsoleHandler;
@@ -75,7 +79,7 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     private final SoakMemoryStore memoryStore = new SoakMemoryStore();
     private final SoakServerProperties serverProperties = new SoakServerProperties();
     private final ConsoleHandler consoleHandler = new ConsoleHandler();
-    private final int generatedClassesCount = 3;
+    private final int generatedClassesCount = 5;
     private final Collection<SoakPluginContainer> loadedPlugins = new TreeSet<>((plugin, compare) -> {
         var opDepends = plugin.metadata().dependencies().stream().filter(p -> p.id().equals(compare.metadata().id())).findAny();
         if (opDepends.isPresent()) {
@@ -157,10 +161,22 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
             var attributeList = AttributeTypeList.createEntityTypeList();
             AttributeTypeList.LOADED_CLASS = attributeList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
             generatedClasses.add(AttributeTypeList.LOADED_CLASS);
+
+            creatingClass = "InventoryType";
+            var inventoryList = InventoryTypeList.createInventoryTypeList();
+            InventoryTypeList.LOADED_CLASS = inventoryList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+            generatedClasses.add(InventoryTypeList.LOADED_CLASS);
+
+            creatingClass = "SlotType";
+            SlotTypeList.LOADED_CLASS = (Class<? extends Enum<?>>) Arrays.stream(InventoryTypeList.LOADED_CLASS.getDeclaredClasses()).filter(clazz -> clazz.getSimpleName().equals("SlotType")).findFirst().orElseThrow();
+            generatedClasses.add(SlotTypeList.LOADED_CLASS);
         } catch (MethodTooLargeException e) {
             throw new IllegalStateException("This is a problem with Bukkit's design: PaperMC seem to be making a fix with its hardfork: Too many entries in " + creatingClass, e);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (!didClassesGenerate()) {
+            throw new IllegalStateException("Could not generate the class of " + creatingClass);
         }
     }
 
@@ -351,6 +367,7 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     private void loadPlugins(boolean late) {
         SoakPluginManager pluginManager = SoakPlugin.server().getSoakPluginManager();
         var latePlugins = this.configuration.getLoadingLatePlugins();
+        var loadingPlugins = new ArrayList<SoakPluginContainer>();
         Collection<File> files = Locator.files();
         for (File file : files) {
             try {
@@ -370,6 +387,9 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
                     continue;
                 }
                 if ((late && !latePlugins.contains(pluginName)) || (!late && latePlugins.contains(pluginName))) {
+                    continue;
+                }
+                if (late && loadedPlugins.stream().anyMatch(pl -> pl.getBukkitInstance().getName().equals(pluginName))) {
                     continue;
                 }
                 jarFile.close();
@@ -394,13 +414,14 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
             SoakPluginContainer container = new AbstractSoakPluginContainer(file, plugin, hasDependency(plugin) ? Order.EARLY : Order.DEFAULT);
             container.downloadLibraries();
             loadedPlugins.add(container);
+            loadingPlugins.add(container);
             Sponge.eventManager().registerListeners(container, container.instance(), MethodHandles.lookup());
         }
-        SoakPluginInjector.injectPlugins(loadedPlugins);
+        SoakPluginInjector.injectPlugins(loadingPlugins);
 
-        this.getPlugins().forEach(container -> ((AbstractSoakPluginContainer) container).instance().onPluginsConstructed());
+        loadingPlugins.forEach(container -> ((AbstractSoakPluginContainer) container).instance().onPluginsConstructed());
         if (late) {
-            this.getPlugins().forEach(container -> ((AbstractSoakPluginContainer) container).getBukkitInstance().onLoad());
+            loadingPlugins.forEach(container -> ((AbstractSoakPluginContainer) container).getBukkitInstance().onLoad());
         }
     }
 

@@ -16,7 +16,20 @@ public class ReflectionHelper {
     }
 
     public static <T> T getField(Object obj, String fieldName) throws NoSuchFieldException, IllegalAccessException {
-        return getField(obj.getClass(), obj, fieldName);
+        var target = obj.getClass();
+        NoSuchFieldException ex = null;
+        while (!target.equals(Object.class)) {
+            try {
+                return getField(target, obj, fieldName);
+            } catch (NoSuchFieldException e) {
+                target = target.getSuperclass();
+                ex = e;
+            }
+        }
+        if (ex == null) {
+            throw new RuntimeException("Cannot get fields from " + obj.getClass().getSimpleName());
+        }
+        throw ex;
     }
 
     public static <T> T getField(Class<?> fromClass, Object obj, String fieldName) throws IllegalAccessException, NoSuchFieldException {

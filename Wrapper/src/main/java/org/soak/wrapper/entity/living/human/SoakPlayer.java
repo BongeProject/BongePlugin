@@ -94,6 +94,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
+    public @NotNull Inventory getEnderChest() {
+        return SoakInventory.wrap(this.entity.enderChestInventory());
+    }
+
+    @Override
     public @NotNull InventoryView getOpenInventory() {
         var opOpenInventory = this.spongeEntity().openInventory();
         if (opOpenInventory.isEmpty()) {

@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.soak.WrapperManager;
 import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.item.inventory.SoakInventoryMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.inventory.view.AbstractInventoryView;
 import org.spongepowered.api.data.Keys;
@@ -63,9 +64,7 @@ public class SoakInventoryClickEvent {
         }
         var inventoryView = AbstractInventoryView.wrap(event.container());
         var action = mapAction(event);
-        //var slotType = InventoryType.SlotType.typeFor(slot.get());
-        var slotType = InventoryType.SlotType.QUICKBAR;
-        System.err.println("Need to do mapping of SlotType enum");
+        var slotType = SoakInventoryMap.toBukkit(slot.get());
 
 
         var bukkitEvent = new InventoryClickEvent(inventoryView, slotType, opSlotIndex.get(), clickType, action);

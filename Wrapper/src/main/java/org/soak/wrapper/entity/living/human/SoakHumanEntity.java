@@ -25,6 +25,11 @@ public class SoakHumanEntity extends AbstractHumanBase<Human> {
     }
 
     @Override
+    public @NotNull Inventory getEnderChest() {
+        throw NotImplementedException.createByLazy(SoakHumanEntity.class, "getEnderChest");
+    }
+
+    @Override
     public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {
         throw NotImplementedException.createByLazy(SoakHumanEntity.class, "openInventory", Inventory.class);
     }

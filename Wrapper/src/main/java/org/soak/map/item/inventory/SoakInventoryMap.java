@@ -1,6 +1,8 @@
 package org.soak.map.item.inventory;
 
 import org.bukkit.event.inventory.InventoryType;
+import org.soak.generate.bukkit.InventoryTypeList;
+import org.soak.generate.bukkit.SlotTypeList;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ContainerType;
 import org.spongepowered.api.item.inventory.ContainerTypes;
@@ -9,12 +11,10 @@ import org.spongepowered.api.item.inventory.Slot;
 public class SoakInventoryMap {
 
     public static InventoryType toBukkit(Container container) {
-        System.err.println("InventoryType requires ByteBuddy attention");
-        return InventoryType.CHEST;
+        return InventoryTypeList.value(container);
     }
 
     public static InventoryType.SlotType toBukkit(Slot slot) {
-        System.err.println("SlotType requires ByteBuddy attention");
-        return InventoryType.SlotType.RESULT;
+        return SlotTypeList.value(slot);
     }
 }

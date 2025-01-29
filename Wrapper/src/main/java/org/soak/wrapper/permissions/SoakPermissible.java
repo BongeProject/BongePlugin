@@ -93,6 +93,9 @@ public class SoakPermissible implements Permissible {
 
     @Override
     public boolean isOp() {
+        if(this.subject.equals(Sponge.systemSubject())){
+            return true;
+        }
         throw NotImplementedException.createByLazy(Permissible.class, "isOp");
     }
 

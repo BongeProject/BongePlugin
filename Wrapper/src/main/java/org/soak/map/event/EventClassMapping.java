@@ -200,6 +200,9 @@ public class EventClassMapping {
         if (name.equals(AsyncChatEvent.class.getName())) {
             return array(SoakAsyncChatEvent.class);
         }
+        if (name.equals(BlockBurnEvent.class.getName())) {
+            return array(SoakBlockBurnEvent.class);
+        }
         throw new RuntimeException("No mapping found for Bukkit Event: " + bukkitClass.getName());
     }
 

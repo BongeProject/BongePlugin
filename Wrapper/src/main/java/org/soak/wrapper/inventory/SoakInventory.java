@@ -3,6 +3,7 @@ package org.soak.wrapper.inventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -13,15 +14,21 @@ import org.jetbrains.annotations.Nullable;
 import org.mose.collection.stream.builder.CollectionStreamBuilder;
 import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
+import org.soak.map.SoakEntityMap;
 import org.soak.map.SoakLocationMap;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.map.item.inventory.SoakInventoryMap;
 import org.soak.plugin.SoakManager;
 import org.soak.utils.ListMappingUtils;
 import org.soak.utils.ReflectionHelper;
+import org.soak.wrapper.block.state.AbstractBlockState;
+import org.soak.wrapper.block.state.AbstractTileState;
+import org.soak.wrapper.entity.AbstractEntity;
 import org.soak.wrapper.entity.living.human.SoakPlayer;
+import org.spongepowered.api.block.entity.carrier.CarrierBlockEntity;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.item.inventory.BlockCarrier;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.entity.PlayerInventory;
@@ -367,13 +374,34 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     }
 
     @Override
+    @Nullable
     public InventoryHolder getHolder() {
-        throw NotImplementedException.createByLazy(Inventory.class, "getHolder");
+        return getHolder(false);
     }
 
     @Override
-    public InventoryHolder getHolder(boolean arg0) {
-        throw NotImplementedException.createByLazy(Inventory.class, "getHolder", boolean.class);
+    @Nullable
+    public InventoryHolder getHolder(boolean asSnapshot) {
+        if (!(this.spongeInventory instanceof CarriedInventory<?> inv)) {
+            return null;
+        }
+        var opCarrier = inv.carrier();
+        if (opCarrier.isEmpty()) {
+            return null;
+        }
+        var carrier = opCarrier.get();
+        if (carrier instanceof CarrierBlockEntity blockCarrier) {
+            if (asSnapshot) {
+                return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block().copy(), true);
+            } else {
+                return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block(), false);
+            }
+        }
+        if (!(carrier instanceof org.spongepowered.api.entity.Entity carrierEntity)) {
+            //TODO user
+            throw NotImplementedException.createByLazy(Inventory.class, "getHolder", boolean.class);
+        }
+        return (InventoryHolder) AbstractEntity.wrap(carrierEntity);
     }
 
     @Override

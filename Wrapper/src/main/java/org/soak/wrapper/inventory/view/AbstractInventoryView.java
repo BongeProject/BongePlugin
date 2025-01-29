@@ -157,6 +157,10 @@ public class AbstractInventoryView implements InventoryView {
             var player = this.spongeContainer.viewer();
             try {
                 var menuProvider = ReflectionHelper.getField(player, "inventory$menuProvider");
+                if (menuProvider == null) {
+                    //likely player inventory
+                    return getType().defaultTitle();
+                }
                 var spongeWrappedComponent = ReflectionHelper.getField(menuProvider, "title");
                 return ReflectionHelper.getField(spongeWrappedComponent, "wrapped");
             } catch (NoSuchFieldException | IllegalAccessException e) {

@@ -94,11 +94,6 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
     }
 
     @Override
-    public @NotNull Inventory getEnderChest() {
-        throw NotImplementedException.createByLazy(HumanEntity.class, "getEnderChest");
-    }
-
-    @Override
     public @NotNull MainHand getMainHand() {
         throw NotImplementedException.createByLazy(HumanEntity.class, "getMainHand");
     }

@@ -1,10 +1,47 @@
 package org.soak.utils;
 
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ContainerType;
 import org.spongepowered.api.item.inventory.ContainerTypes;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.registry.DefaultedRegistryReference;
 
 public class InventoryHelper {
+
+    public static enum VanillaInventoryIds {
+        PLAYER_INVENTORY(0);
+
+        private final int id;
+
+        VanillaInventoryIds(int id) {
+            this.id = id;
+        }
+
+        public int id() {
+            return this.id;
+        }
+
+        public boolean isInventory(Inventory inventory) {
+            Inventory target = inventory;
+            while (target != null) {
+                if (target instanceof Container container) {
+                    return isContainer(container);
+                }
+                target = target.parent();
+            }
+            System.err.println("Cannot find container from " + inventory.getClass().getName());
+            return false;
+        }
+
+        public boolean isContainer(Container container) {
+            try {
+                int containerId = ReflectionHelper.getField(container, "containerId");
+                return containerId == id();
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                return false;
+            }
+        }
+    }
 
     public static DefaultedRegistryReference<ContainerType> toChestContainerType(int row) {
         switch (row) {
