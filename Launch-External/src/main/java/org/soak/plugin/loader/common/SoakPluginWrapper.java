@@ -4,6 +4,8 @@ import io.leangen.geantyref.TypeToken;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.plugin.Plugin;
 import org.soak.command.BukkitRawCommand;
+import org.soak.map.event.AbstractSoakEvent;
+import org.soak.map.event.GeneralSoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.plugin.SoakPlugin;
 import org.soak.plugin.SoakPluginContainer;
@@ -21,6 +23,7 @@ import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 public class SoakPluginWrapper {
 
@@ -107,7 +110,7 @@ public class SoakPluginWrapper {
             return;
         }
         Plugin plugin = this.pluginContainer.getBukkitInstance();
-        if(!loadedCommandsEarly) {
+        if (!loadedCommandsEarly) {
             //load commands
             var registerCmd = Sponge.server().commandManager().registrar(Command.Raw.class).orElseThrow(() -> new IllegalStateException("Cannot load the command raw register for " + pluginContainer.metadata().id()));
             this.commands.forEach(cmd -> {
@@ -125,7 +128,26 @@ public class SoakPluginWrapper {
 
         try {
             plugin.onEnable();
-            SoakPlugin.plugin().logger().info(this.pluginContainer.metadata().id() + " loaded late");
+
+            String failedEvents = SoakPlugin.server().getSoakPluginManager().registeredEvents().stream().filter(soakEvent -> soakEvent.plugin().equals(plugin)).filter(soakEvent -> soakEvent instanceof GeneralSoakEvent<?>).map(AbstractSoakEvent::bukkitEvent).filter(clazz -> {
+                String name = clazz.getName();
+                if (name.startsWith("org.bukkit")) {
+                    return true;
+                }
+                if (name.startsWith("com.destroystokyo.paper")) {
+                    return true;
+                }
+                if (name.startsWith("io.papermc.paper")) {
+                    return true;
+                }
+                return name.startsWith("org.spigotmc");
+            }).distinct().map(clazz -> "\n\t- " + clazz.getSimpleName()).collect(Collectors.joining(" "));
+
+            if(!failedEvents.isBlank()){
+                this.pluginContainer.logger().error("Could not find mappings for the following events: " + failedEvents);
+            }
+
+            this.pluginContainer.logger().info(this.pluginContainer.metadata().id() + " loaded late");
         } catch (Throwable e) {
             SoakManager.getManager().displayError(e, plugin);
         }
