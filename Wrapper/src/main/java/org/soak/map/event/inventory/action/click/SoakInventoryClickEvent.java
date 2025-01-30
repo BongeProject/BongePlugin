@@ -1,78 +1,25 @@
 package org.soak.map.event.inventory.action.click;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.map.item.inventory.SoakInventoryMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.inventory.view.AbstractInventoryView;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.item.inventory.container.ClickContainerEvent;
 
-public class SoakInventoryClickEvent {
+public class SoakInventoryClickEvent extends SoakEvent<ClickContainerEvent, InventoryClickEvent> {
 
-    private final EventSingleListenerWrapper<InventoryClickEvent> singleEventListener;
-
-    public SoakInventoryClickEvent(EventSingleListenerWrapper<InventoryClickEvent> event) {
-        this.singleEventListener = event;
-    }
-
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ClickContainerEvent spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ClickContainerEvent spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ClickContainerEvent spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ClickContainerEvent spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ClickContainerEvent spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(ClickContainerEvent event, EventPriority priority) {
-        var clickType = mapClickType(event);
-        if (clickType == ClickType.UNKNOWN) {
-            return;
-        }
-        var slot = event.slot();
-        if (slot.isEmpty()) {
-            return;
-        }
-        var opSlotIndex = slot.get().get(Keys.SLOT_INDEX);
-        if (opSlotIndex.isEmpty()) {
-            return;
-        }
-        var inventoryView = AbstractInventoryView.wrap(event.container());
-        var action = mapAction(event);
-        var slotType = SoakInventoryMap.toBukkit(slot.get());
-
-
-        var bukkitEvent = new InventoryClickEvent(inventoryView, slotType, opSlotIndex.get(), clickType, action);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
-        if (bukkitEvent.isCancelled()) {
-            event.setCancelled(true);
-        }
+    public SoakInventoryClickEvent(Class<InventoryClickEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
     private InventoryAction mapAction(ClickContainerEvent event) {
@@ -153,5 +100,31 @@ public class SoakInventoryClickEvent {
             return ClickType.LEFT;
         }
         return ClickType.UNKNOWN;
+    }
+
+    @Override
+    public void handle(ClickContainerEvent event) throws Exception {
+        var clickType = mapClickType(event);
+        if (clickType == ClickType.UNKNOWN) {
+            return;
+        }
+        var slot = event.slot();
+        if (slot.isEmpty()) {
+            return;
+        }
+        var opSlotIndex = slot.get().get(Keys.SLOT_INDEX);
+        if (opSlotIndex.isEmpty()) {
+            return;
+        }
+        var inventoryView = AbstractInventoryView.wrap(event.container());
+        var action = mapAction(event);
+        var slotType = SoakInventoryMap.toBukkit(slot.get());
+
+
+        var bukkitEvent = new InventoryClickEvent(inventoryView, slotType, opSlotIndex.get(), clickType, action);
+        fireEvent(bukkitEvent);
+        if (bukkitEvent.isCancelled()) {
+            event.setCancelled(true);
+        }
     }
 }

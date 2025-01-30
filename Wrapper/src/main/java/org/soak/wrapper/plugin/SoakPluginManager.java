@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permissible;
@@ -18,13 +19,15 @@ import org.mosestream.MoseStream;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.SoakMessageMap;
 import org.soak.map.SoakPermissionMap;
+import org.soak.map.event.AbstractSoakEvent;
 import org.soak.map.event.EventClassMapping;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.plugin.SoakPluginContainer;
 import org.soak.plugin.paper.SoakPluginProviderContext;
 import org.soak.utils.GeneralHelper;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.util.Tristate;
@@ -33,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,7 +46,7 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     private final Supplier<PluginManager> spongePluginManager;
     private final Map<PluginProviderContext, JavaPlugin> loaders = new LinkedHashMap<>();
-    private final Collection<EventSingleListenerWrapper<?>> events = new HashSet<>();
+    private final Collection<AbstractSoakEvent<?>> events = new HashSet<>();
 
     public SoakPluginManager(Supplier<PluginManager> manager) {
         this.spongePluginManager = manager;
@@ -146,37 +150,43 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
         }
     }
 
-    public void callEvent(@NotNull Event event, EventPriority priority) throws IllegalStateException {
+    public <E extends Event> void callEvent(@NotNull E event, EventPriority priority) throws IllegalStateException {
         this
                 .events
                 .stream()
-                .filter(wrapper -> wrapper.event().getName().equals(event.getClass().getName()))
+                .filter(wrapper -> wrapper.bukkitEvent() == event.getClass())
+                .map(wrapper -> (SoakEvent<?, E>) wrapper)
                 .filter(wrapper -> wrapper.priority().equals(priority))
-                .forEach(wrapper -> callEvent(wrapper, event, priority));
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Event> void callEvent(EventSingleListenerWrapper<?> wrapper, T event, EventPriority priority) {
-        try {
-            ((EventSingleListenerWrapper<T>) wrapper).invoke(event, priority);
-        } catch (Exception e) {
-            SoakManager.getManager()
-                    .displayError(e,
-                            wrapper.plugin(),
-                            Map.entry("Event", wrapper.event().getSimpleName()),
-                            Map.entry("PluginListener", wrapper.listener().getClass().getSimpleName()),
-                            Map.entry("Priority", wrapper.priority().name()),
-                            Map.entry("Ignore if cancelled", wrapper.ignoreCancelled() + ""));
-        }
+                .forEach(wrapper -> wrapper.fireEvent(event));
     }
 
     @Override
     public void registerEvents(@NotNull Listener listener, @NotNull Plugin plugin) {
-        Collection<EventSingleListenerWrapper<?>> events = EventSingleListenerWrapper.findEventHandlers(plugin,
-                listener);
-        for (var wrapper : events) {
-            registerEvent(wrapper);
-        }
+        Stream.of(listener.getClass().getDeclaredFields())
+                .filter(field -> Modifier.isPublic(field.getModifiers()))
+                .filter(field -> EventExecutor.class.isAssignableFrom(field.getType()))
+                .map(field -> {
+                    try {
+                        return (EventExecutor) field.get(listener);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .forEach(executor -> registerEvent(Event.class, listener, EventPriority.NORMAL, executor, plugin));
+
+        var methods = listener.getClass().getDeclaredMethods();
+        Stream.of(methods)
+                .filter(method -> method.isAnnotationPresent(EventHandler.class))
+                .filter(method -> method.getParameterCount() == 1)
+                .forEach(method -> {
+                    var bukkitEvent = (Class<? extends Event>) method.getParameterTypes()[0];
+                    var executor = EventExecutor.create(method, bukkitEvent);
+                    var eventPriority = method.getAnnotation(EventHandler.class).priority();
+                    var ignoreCancelled = method.getAnnotation(EventHandler.class).ignoreCancelled();
+                    registerEvent(bukkitEvent, listener, eventPriority, executor, plugin, ignoreCancelled);
+                });
     }
 
     @Override
@@ -186,49 +196,21 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     @Override
     public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled) {
-        EventSingleListenerWrapper<?> wrapper = new EventSingleListenerWrapper<>(listener,
-                plugin,
-                event,
-                priority,
-                ignoreCancelled);
-        registerEvent(wrapper);
+        registerSpecificEvent(event, listener, priority, executor, plugin, ignoreCancelled);
+    }
+
+    private <E extends Event> void registerSpecificEvent(Class<E> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
+        var spongeEvents = EventClassMapping.soakEventClass(event);
+        if (!spongeEvents.isEmpty()) {
+            this.events.addAll(spongeEvents.stream().map(creator -> creator.create(event, listener, priority, executor, plugin, ignoreCancelled)).toList());
+            return;
+        }
+        SoakManager.getManager().getLogger().error("Could not find sponge mapping for the event " + event.getName());
     }
 
     @Override
     public void enablePlugin(@NotNull Plugin plugin) {
 
-    }
-
-    private void registerEvent(EventSingleListenerWrapper<?> eventWrapper) {
-        this.events.add(eventWrapper);
-        SoakPluginContainer pluginContainer = SoakManager.getManager().getSoakContainer(eventWrapper.plugin());
-        Class<?>[] soakEventClasses;
-        try {
-            soakEventClasses = EventClassMapping.soakEventClass(eventWrapper.event());
-        } catch (RuntimeException e) {
-            String className = eventWrapper.event().getName();
-            if (!(
-                    className.startsWith("org.bukkit") ||
-                            className.startsWith("com.destroystokyo.paper") ||
-                            className.startsWith("io.papermc") ||
-                            className.startsWith("org.spigotmc"))) {
-                return;
-            }
-            SoakManager.getManager().getLogger()
-                    .error("Could not register event for " + eventWrapper.plugin().getName() + ": " + e.getMessage());
-            return;
-        }
-        for (Class<?> soakEventClass : soakEventClasses) {
-            try {
-                var soakEvent = soakEventClass.getDeclaredConstructor(EventSingleListenerWrapper.class)
-                        .newInstance(eventWrapper);
-                var lookup = MethodHandles.lookup();
-                Sponge.eventManager().registerListeners(pluginContainer, soakEvent, lookup);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                     NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     @Override

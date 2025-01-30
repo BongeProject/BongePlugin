@@ -1,10 +1,12 @@
 package org.soak.map.event.entity.player.data;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Key;
@@ -14,12 +16,10 @@ import org.spongepowered.api.entity.living.Humanoid;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
-public class SoakExpChangeEvent extends AbstractDataEvent<Integer> {
+public class SoakExpChangeEvent extends AbstractDataEvent<Integer, PlayerExpChangeEvent> {
 
-    private final EventSingleListenerWrapper<FoodLevelChangeEvent> singleListenerWrapper;
-
-    public SoakExpChangeEvent(EventSingleListenerWrapper<FoodLevelChangeEvent> singleListenerWrapper) {
-        this.singleListenerWrapper = singleListenerWrapper;
+    public SoakExpChangeEvent(Class<PlayerExpChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
     @Override
@@ -33,11 +33,11 @@ public class SoakExpChangeEvent extends AbstractDataEvent<Integer> {
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, EventPriority priority, DataHolder.Mutable player, Integer changedTo, Integer changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player, Integer changedTo, Integer changedFrom) {
         var human = SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerPlayer) player);
         //TODO get entity that caused exp
         var event = new PlayerExpChangeEvent(human, changedTo);
 
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, event, priority);
+        fireEvent(event);
     }
 }

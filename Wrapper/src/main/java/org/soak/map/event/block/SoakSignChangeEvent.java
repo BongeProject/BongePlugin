@@ -1,63 +1,43 @@
 package org.soak.map.event.block;
 
+import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.SoakBlock;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.entity.ChangeSignEvent;
 import org.spongepowered.api.event.filter.cause.First;
 
-public class SoakSignChangeEvent {
+public class SoakSignChangeEvent extends SoakEvent<ChangeSignEvent, SignChangeEvent> {
 
-    private final EventSingleListenerWrapper<SignChangeEvent> singleEventListener;
-
-    public SoakSignChangeEvent(EventSingleListenerWrapper<SignChangeEvent> listener) {
-        this.singleEventListener = listener;
+    public SoakSignChangeEvent(Class<SignChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ChangeSignEvent event, @First ServerPlayer player) {
-        fireEvent(event, player, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ChangeSignEvent event, @First ServerPlayer player) {
-        fireEvent(event, player, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ChangeSignEvent event, @First ServerPlayer player) {
-        fireEvent(event, player, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ChangeSignEvent event, @First ServerPlayer player) {
-        fireEvent(event, player, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ChangeSignEvent event, @First ServerPlayer player) {
-        fireEvent(event, player, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(ChangeSignEvent event, ServerPlayer player, EventPriority priority) {
+    @Override
+    public void handle(ChangeSignEvent event) throws Exception {
+        var opPlayer = event.cause().first(ServerPlayer.class);
+        if (opPlayer.isEmpty()) {
+            return;
+        }
         var bukkitBlock = new SoakBlock(event.sign().serverLocation());
-        var bukkitPlayer = SoakManager.<WrapperManager>getManager().getMemoryStore().get(player);
+        var bukkitPlayer = SoakManager.<WrapperManager>getManager().getMemoryStore().get(opPlayer.get());
+        var bukkitSide = event.isFrontSide() ? Side.FRONT : Side.BACK;
 
-        var bukkitEvent = new SignChangeEvent(bukkitBlock, bukkitPlayer, event.text().all());
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        var bukkitEvent = new SignChangeEvent(bukkitBlock, bukkitPlayer, event.text().all(), bukkitSide);
+        fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             event.setCancelled(true);
             return;
         }
         var newLines = bukkitEvent.lines();
         event.text().set(newLines);
-
     }
 }

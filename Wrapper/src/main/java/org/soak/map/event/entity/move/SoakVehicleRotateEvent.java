@@ -1,52 +1,28 @@
 package org.soak.map.event.entity.move;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.spongepowered.api.entity.vehicle.Vehicle;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.RotateEntityEvent;
 import org.spongepowered.math.vector.Vector3d;
 
-public class SoakVehicleRotateEvent {
+public class SoakVehicleRotateEvent extends SoakEvent<RotateEntityEvent, VehicleMoveEvent> {
 
-    private final EventSingleListenerWrapper<PlayerMoveEvent> singleEventListener;
-
-    public SoakVehicleRotateEvent(EventSingleListenerWrapper<PlayerMoveEvent> listener) {
-        this.singleEventListener = listener;
+    public SoakVehicleRotateEvent(Class<VehicleMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(RotateEntityEvent event) {
-        fireEvent(event, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(RotateEntityEvent event) {
-        fireEvent(event, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(RotateEntityEvent event) {
-        fireEvent(event, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(RotateEntityEvent event) {
-        fireEvent(event, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(RotateEntityEvent event) {
-        fireEvent(event, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(RotateEntityEvent event, EventPriority priority) {
+    @Override
+    public void handle(RotateEntityEvent event) throws Exception {
         var entity = event.entity();
         if (!(entity instanceof Vehicle)) {
             return;
@@ -62,10 +38,8 @@ public class SoakVehicleRotateEvent {
         newPosition.setPitch((float) newRotation.x());
         newPosition.setYaw((float) newRotation.y());
 
-
         var bukkitEvent = new VehicleMoveEvent(bukkitPlayer, originalPosition, newPosition);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         var to = bukkitEvent.getTo();
         var pitch = to.getPitch();
         var yaw = to.getYaw();

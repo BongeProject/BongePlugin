@@ -2,51 +2,26 @@ package org.soak.map.event.entity.player.combat;
 
 import org.bukkit.Location;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.world.SoakWorld;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.math.vector.Vector3d;
 
-public class SoakPlayerRespawnEvent {
+public class SoakPlayerRespawnEvent extends SoakEvent<RespawnPlayerEvent.Recreate, PlayerRespawnEvent> {
 
-    private final EventSingleListenerWrapper<PlayerRespawnEvent> singleListenerWrapper;
-
-    public SoakPlayerRespawnEvent(EventSingleListenerWrapper<PlayerRespawnEvent> wrapper) {
-        this.singleListenerWrapper = wrapper;
+    public SoakPlayerRespawnEvent(Class<PlayerRespawnEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(RespawnPlayerEvent.Recreate spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(RespawnPlayerEvent.Recreate spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(RespawnPlayerEvent.Recreate spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(RespawnPlayerEvent.Recreate spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(RespawnPlayerEvent.Recreate spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(RespawnPlayerEvent.Recreate event, EventPriority priority) {
+    @Override
+    public void handle(RespawnPlayerEvent.Recreate event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.entity());
         var newWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.destinationWorld());
         var newLocation = new Location(newWorld,
@@ -55,8 +30,7 @@ public class SoakPlayerRespawnEvent {
                 event.destinationPosition().z());
 
         var bukkitEvent = new PlayerRespawnEvent(player, newLocation, event.isBedSpawn());
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         var newSetLocation = bukkitEvent.getRespawnLocation();
         if (!newLocation.equals(newSetLocation)) {
             if (newLocation.getWorld().equals(newSetLocation.getWorld())) {

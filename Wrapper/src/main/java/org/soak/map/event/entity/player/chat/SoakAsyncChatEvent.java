@@ -8,15 +8,16 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.SoakMessageMap;
 import org.soak.map.SoakSubjectMap;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.adventure.ChatTypes;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 
@@ -25,41 +26,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SoakAsyncChatEvent {
+public class SoakAsyncChatEvent extends SoakEvent<PlayerChatEvent.Submit, AsyncChatEvent> {
 
-    private final EventSingleListenerWrapper<AsyncPlayerChatEvent> singleEventListener;
-
-    public SoakAsyncChatEvent(EventSingleListenerWrapper<AsyncPlayerChatEvent> singleEventListener) {
-        this.singleEventListener = singleEventListener;
+    public SoakAsyncChatEvent(Class<AsyncChatEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(PlayerChatEvent.Submit spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(PlayerChatEvent.Submit spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(PlayerChatEvent.Submit spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(PlayerChatEvent.Submit spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(PlayerChatEvent.Submit spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(PlayerChatEvent.Submit event, EventPriority priority) {
+    @Override
+    public void handle(PlayerChatEvent.Submit event) throws Exception {
         var opPlayer = event.player();
         if (opPlayer.isEmpty()) {
             return;
@@ -88,8 +62,7 @@ public class SoakAsyncChatEvent {
         var chatRender = ChatRenderer.defaultRenderer(); //TODO find out the alternative
 
         var bukkitEvent = new AsyncChatEvent(Bukkit.getServer().isPrimaryThread(), bukkitPlayer, receivers, chatRender, message, originalMessage, signedMessage);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             event.setCancelled(true);
         }

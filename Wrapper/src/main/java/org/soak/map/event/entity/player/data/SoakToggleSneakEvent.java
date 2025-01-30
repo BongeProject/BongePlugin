@@ -1,10 +1,12 @@
 package org.soak.map.event.entity.player.data;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Key;
@@ -13,12 +15,10 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
-public class SoakToggleSneakEvent extends AbstractDataEvent<Boolean> {
+public class SoakToggleSneakEvent extends AbstractDataEvent<Boolean, PlayerToggleSneakEvent> {
 
-    private final EventSingleListenerWrapper<PlayerDeathEvent> singleListenerWrapper;
-
-    public SoakToggleSneakEvent(EventSingleListenerWrapper<PlayerDeathEvent> singleListenerWrapper) {
-        this.singleListenerWrapper = singleListenerWrapper;
+    public SoakToggleSneakEvent(Class<PlayerToggleSneakEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
     @Override
@@ -32,12 +32,11 @@ public class SoakToggleSneakEvent extends AbstractDataEvent<Boolean> {
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, EventPriority priority, DataHolder.Mutable spongePlayer, Boolean changedTo, Boolean changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongePlayer, Boolean changedTo, Boolean changedFrom) {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerPlayer) spongePlayer);
         var event = new PlayerToggleSneakEvent(player, changedTo);
 
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, event, priority);
-
+        fireEvent(event);
         if (event.isCancelled()) {
             spongeEvent.setCancelled(event.isCancelled());
         }

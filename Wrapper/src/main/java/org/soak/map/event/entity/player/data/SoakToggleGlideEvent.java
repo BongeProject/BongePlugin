@@ -1,10 +1,12 @@
 package org.soak.map.event.entity.player.data;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.spongepowered.api.data.DataHolder;
@@ -14,12 +16,10 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
-public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean> {
+public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean, EntityToggleGlideEvent> {
 
-    private final EventSingleListenerWrapper<PlayerDeathEvent> singleListenerWrapper;
-
-    public SoakToggleGlideEvent(EventSingleListenerWrapper<PlayerDeathEvent> wrapper) {
-        this.singleListenerWrapper = wrapper;
+    public SoakToggleGlideEvent(Class<EntityToggleGlideEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
     @Override
@@ -33,12 +33,11 @@ public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean> {
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, EventPriority priority, DataHolder.Mutable spongeHolder, Boolean changedTo, Boolean changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongeHolder, Boolean changedTo, Boolean changedFrom) {
         var living = AbstractEntity.wrap((Living) spongeHolder);
         var event = new EntityToggleGlideEvent(living, changedTo);
 
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, event, priority);
-
+        fireEvent(event);
         if (event.isCancelled()) {
             spongeEvent.setCancelled(event.isCancelled());
         }

@@ -1,50 +1,26 @@
 package org.soak.map.event.entity.move;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
 import org.soak.map.SoakLocationMap;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.AbstractEntity;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.ChangeEntityWorldEvent;
 
-public class SoakPortalTeleportEntityEvent {
+public class SoakPortalTeleportEntityEvent extends SoakEvent<ChangeEntityWorldEvent.Reposition, EntityPortalEvent> {
 
-    private final EventSingleListenerWrapper<EntityPortalEvent> singleEventListener;
-
-    public SoakPortalTeleportEntityEvent(EventSingleListenerWrapper<EntityPortalEvent> wrapper) {
-        this.singleEventListener = wrapper;
+    public SoakPortalTeleportEntityEvent(Class<EntityPortalEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ChangeEntityWorldEvent.Reposition event) {
-        fireEvent(event, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ChangeEntityWorldEvent.Reposition event) {
-        fireEvent(event, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ChangeEntityWorldEvent.Reposition event) {
-        fireEvent(event, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ChangeEntityWorldEvent.Reposition event) {
-        fireEvent(event, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ChangeEntityWorldEvent.Reposition event) {
-        fireEvent(event, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(ChangeEntityWorldEvent.Reposition event, EventPriority priority) {
+    @Override
+    public void handle(ChangeEntityWorldEvent.Reposition event) throws Exception {
         var spongeToLocation = event.entity().world().location(event.destinationPosition());
         var spongeFromLocation = event.entity().world().location(event.originalPosition());
 
@@ -53,7 +29,7 @@ public class SoakPortalTeleportEntityEvent {
         var bukkitToLocation = SoakLocationMap.toBukkit(spongeToLocation);
 
         var bukkitEvent = new EntityPortalEvent(bukkitEntity, bukkitFromLocation, bukkitToLocation);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
+        fireEvent(bukkitEvent);
 
         if (bukkitEvent.getTo() != null && !bukkitEvent.getTo().equals(bukkitToLocation)) {
             spongeToLocation = SoakLocationMap.toSponge(bukkitEvent.getTo());

@@ -1,52 +1,27 @@
 package org.soak.map.event.inventory.action.furnance;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.SoakBlock;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.entity.CookingEvent;
 
-public class SoakBurnItemEvent {
+public class SoakBurnItemEvent extends SoakEvent<CookingEvent.ConsumeFuel, FurnaceBurnEvent> {
 
-    private final EventSingleListenerWrapper<FurnaceBurnEvent> singleEventListener;
-
-    public SoakBurnItemEvent(EventSingleListenerWrapper<FurnaceBurnEvent> event) {
-        this.singleEventListener = event;
+    public SoakBurnItemEvent(Class<FurnaceBurnEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(CookingEvent.ConsumeFuel spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(CookingEvent.ConsumeFuel spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(CookingEvent.ConsumeFuel spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(CookingEvent.ConsumeFuel spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(CookingEvent.ConsumeFuel spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(CookingEvent.ConsumeFuel event, EventPriority priority) {
+    @Override
+    public void handle(CookingEvent.ConsumeFuel event) throws Exception {
         if (event.fuel().isEmpty()) {
             //How does this happen?
             return;
@@ -59,12 +34,9 @@ public class SoakBurnItemEvent {
         var consumedItem = SoakItemStackMap.toBukkit(event.fuel().get());
         var burnTime = event.fuel().get().get(Keys.BURN_TIME); //probably not right
         var bukkitEvent = new FurnaceBurnEvent(furnace, consumedItem, burnTime.orElse(0));
-
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             event.setCancelled(true);
         }
-
     }
 }
