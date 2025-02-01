@@ -305,7 +305,7 @@ public abstract class SoakServer implements Server {
         if (namespace == null) {
             return null;
         }
-        return Sponge.server().worldManager().worlds().stream().filter(world -> world.key().equals(namespace)).findAny().map(world ->SoakManager.<WrapperManager>getManager().getMemoryStore().get(world)).orElse(null);
+        return Sponge.server().worldManager().worlds().stream().filter(world -> world.key().equals(namespace)).findAny().map(world -> SoakManager.<WrapperManager>getManager().getMemoryStore().get(world)).orElse(null);
     }
 
     @Override
@@ -644,7 +644,11 @@ public abstract class SoakServer implements Server {
 
     @Override
     public @NotNull List<Player> matchPlayer(@NotNull String name) {
-        throw NotImplementedException.createByLazy(SoakServer.class, "matchPlayer", String.class);
+        var exactMatch = getPlayerExact(name);
+        if (exactMatch != null) {
+            return Collections.singletonList(exactMatch);
+        }
+        return this.getOnlinePlayers().stream().filter(player -> player.getName().toLowerCase().startsWith(name.toLowerCase())).map(player -> (Player) player).toList();
     }
 
     @Override

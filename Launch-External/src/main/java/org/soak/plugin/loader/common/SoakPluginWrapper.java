@@ -141,9 +141,9 @@ public class SoakPluginWrapper {
                     return true;
                 }
                 return name.startsWith("org.spigotmc");
-            }).distinct().map(clazz -> "\n\t- " + clazz.getSimpleName()).collect(Collectors.joining(" "));
+            }).distinct().map(clazz -> "\n\t- " + clazz.getSimpleName()).sorted().collect(Collectors.joining(" "));
 
-            if(!failedEvents.isBlank()){
+            if (!failedEvents.isBlank()) {
                 this.pluginContainer.logger().error("Could not find mappings for the following events: " + failedEvents);
             }
 

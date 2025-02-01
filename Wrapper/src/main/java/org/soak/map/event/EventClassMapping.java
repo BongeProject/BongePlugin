@@ -30,6 +30,7 @@ import org.soak.map.event.command.SoakServerCommandEvent;
 import org.soak.map.event.entity.SoakCreatureSpawnEvent;
 import org.soak.map.event.entity.SoakEntityDeathEvent;
 import org.soak.map.event.entity.SoakEntityExplosionEvent;
+import org.soak.map.event.entity.SoakEntityInteractWithBlockEvent;
 import org.soak.map.event.entity.move.*;
 import org.soak.map.event.entity.player.chat.SoakAsyncChatEvent;
 import org.soak.map.event.entity.player.chat.SoakAsyncPlayerChatEvent;
@@ -235,6 +236,12 @@ public class EventClassMapping {
         }
         if (name.equals(BlockBurnEvent.class.getName())) {
             return reflection(SoakBlockBurnEvent.class);
+        }
+        if (name.equals(LeavesDecayEvent.class.getName())) {
+            return reflection(SoakLeavesDecayEvent.class);
+        }
+        if (name.equals(EntityInteractEvent.class.getName())) {
+            return reflection(SoakEntityInteractWithBlockEvent.class);
         }
         throw new RuntimeException("No mapping found for Bukkit Event: " + bukkitClass.getName());
     }
