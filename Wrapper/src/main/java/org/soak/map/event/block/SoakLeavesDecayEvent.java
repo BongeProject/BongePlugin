@@ -18,6 +18,11 @@ public class SoakLeavesDecayEvent extends SoakEvent<ChangeBlockEvent.All, Leaves
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All event) throws Exception {
         var leaveTransactions = event.transactions(Operations.DECAY.get()).filter(transaction -> transaction.original().state().type().is(BlockTypeTags.LEAVES)).toList();
         for (var leaveTransaction : leaveTransactions) {

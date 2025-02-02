@@ -15,6 +15,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
@@ -56,6 +57,7 @@ import org.soak.map.event.inventory.action.furnance.SoakBurnItemEvent;
 import org.soak.map.event.inventory.action.furnance.SoakSmeltItemEvent;
 import org.soak.map.event.inventory.hand.action.SoakItemUseEvent;
 import org.soak.map.event.server.SoakServerListPingEvent;
+import org.soak.map.event.world.SoakChunkGenerateEvent;
 import org.soak.map.event.world.SoakWorldLoadEvent;
 import org.soak.map.event.world.SoakWorldUnloadEvent;
 
@@ -242,6 +244,9 @@ public class EventClassMapping {
         }
         if (name.equals(EntityInteractEvent.class.getName())) {
             return reflection(SoakEntityInteractWithBlockEvent.class);
+        }
+        if(name.equals(ChunkPopulateEvent.class.getName())){
+            return reflection(SoakChunkGenerateEvent.class);
         }
         throw new RuntimeException("No mapping found for Bukkit Event: " + bukkitClass.getName());
     }

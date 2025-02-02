@@ -19,6 +19,11 @@ public class SoakInventoryCloseEvent extends SoakEvent<InteractContainerEvent.Cl
     }
 
     @Override
+    protected Class<InteractContainerEvent.Close> spongeEventClass() {
+        return InteractContainerEvent.Close.class;
+    }
+
+    @Override
     public void handle(InteractContainerEvent.Close event) throws Exception {
         var inventoryView = AbstractInventoryView.wrap(event.container());
         InventoryCloseEvent bukkitEvent = new InventoryCloseEvent(inventoryView);

@@ -21,6 +21,11 @@ public class SoakItemUseEvent extends SoakEvent<UseItemStackEvent.Finish, Player
     }
 
     @Override
+    protected Class<UseItemStackEvent.Finish> spongeEventClass() {
+        return UseItemStackEvent.Finish.class;
+    }
+
+    @Override
     public void handle(UseItemStackEvent.Finish event) throws Exception {
         var opSpongePlayer = event.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

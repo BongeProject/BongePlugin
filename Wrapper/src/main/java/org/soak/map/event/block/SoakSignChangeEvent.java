@@ -22,6 +22,11 @@ public class SoakSignChangeEvent extends SoakEvent<ChangeSignEvent, SignChangeEv
     }
 
     @Override
+    protected Class<ChangeSignEvent> spongeEventClass() {
+        return ChangeSignEvent.class;
+    }
+
+    @Override
     public void handle(ChangeSignEvent event) throws Exception {
         var opPlayer = event.cause().first(ServerPlayer.class);
         if (opPlayer.isEmpty()) {

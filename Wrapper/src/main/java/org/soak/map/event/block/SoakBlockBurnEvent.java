@@ -24,6 +24,11 @@ public class SoakBlockBurnEvent extends SoakEvent<ChangeBlockEvent.All, BlockBur
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         var opCausedBy = spongeEvent.cause().first(LocatableBlock.class);
         if (opCausedBy.isEmpty()) {

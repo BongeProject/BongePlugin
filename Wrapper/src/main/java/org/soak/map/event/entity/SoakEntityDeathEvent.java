@@ -30,6 +30,11 @@ public class SoakEntityDeathEvent extends SoakEvent<DropItemEvent.Destruct, Enti
     }
 
     @Override
+    protected Class<DropItemEvent.Destruct> spongeEventClass() {
+        return DropItemEvent.Destruct.class;
+    }
+
+    @Override
     public void handle(DropItemEvent.Destruct event) throws Exception {
         var opBukkitEntity = event.cause().first(Living.class).filter(living -> !(living instanceof ServerPlayer)).map(AbstractEntity::wrap);
         if (opBukkitEntity.isEmpty()) {

@@ -23,6 +23,11 @@ public class SoakExpChangeEvent extends AbstractDataEvent<Integer, PlayerExpChan
     }
 
     @Override
+    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
+        return ChangeDataHolderEvent.ValueChange.class;
+    }
+
+    @Override
     public Key<? extends Value<Integer>> keyValue() {
         return Keys.EXPERIENCE;
     }

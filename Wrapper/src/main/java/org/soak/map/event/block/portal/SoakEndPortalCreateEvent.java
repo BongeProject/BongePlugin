@@ -27,6 +27,11 @@ public class SoakEndPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All, Po
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         var entity = spongeEvent.cause().first(Entity.class).map(AbstractEntity::wrap).orElse(null);
         List<BlockState> blocks = spongeEvent

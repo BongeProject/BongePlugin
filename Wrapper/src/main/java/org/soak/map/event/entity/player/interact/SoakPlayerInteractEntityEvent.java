@@ -23,6 +23,11 @@ public class SoakPlayerInteractEntityEvent extends SoakEvent<InteractEntityEvent
     }
 
     @Override
+    protected Class<InteractEntityEvent> spongeEventClass() {
+        return InteractEntityEvent.class;
+    }
+
+    @Override
     public void handle(InteractEntityEvent spongeEvent) throws Exception {
         var opSpongePlayer = spongeEvent.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

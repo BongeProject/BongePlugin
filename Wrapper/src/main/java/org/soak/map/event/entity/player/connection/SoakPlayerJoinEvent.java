@@ -18,6 +18,11 @@ public class SoakPlayerJoinEvent extends SoakEvent<ServerSideConnectionEvent.Joi
     }
 
     @Override
+    protected Class<ServerSideConnectionEvent.Join> spongeEventClass() {
+        return ServerSideConnectionEvent.Join.class;
+    }
+
+    @Override
     public void handle(ServerSideConnectionEvent.Join event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.player());
         var message = event.message();

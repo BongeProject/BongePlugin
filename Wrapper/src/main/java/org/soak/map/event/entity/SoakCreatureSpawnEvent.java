@@ -23,6 +23,11 @@ public class SoakCreatureSpawnEvent extends SoakEvent<SpawnEntityEvent, Creature
     }
 
     @Override
+    protected Class<SpawnEntityEvent> spongeEventClass() {
+        return SpawnEntityEvent.class;
+    }
+
+    @Override
     public void handle(SpawnEntityEvent event) throws Exception {
         var opSpawnType = event.cause().first(SpawnType.class);
         if (opSpawnType.isEmpty()) {

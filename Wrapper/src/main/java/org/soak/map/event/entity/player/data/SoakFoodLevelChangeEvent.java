@@ -25,6 +25,11 @@ public class SoakFoodLevelChangeEvent extends AbstractDataEvent<Integer, FoodLev
     }
 
     @Override
+    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
+        return ChangeDataHolderEvent.ValueChange.class;
+    }
+
+    @Override
     public Key<? extends Value<Integer>> keyValue() {
         return Keys.FOOD_LEVEL;
     }

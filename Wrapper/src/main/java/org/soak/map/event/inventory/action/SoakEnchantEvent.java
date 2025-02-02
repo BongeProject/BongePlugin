@@ -27,6 +27,11 @@ public class SoakEnchantEvent extends SoakEvent<EnchantItemEvent.CalculateEnchan
     }
 
     @Override
+    protected Class<EnchantItemEvent.CalculateEnchantment> spongeEventClass() {
+        return EnchantItemEvent.CalculateEnchantment.class;
+    }
+
+    @Override
     public void handle(EnchantItemEvent.CalculateEnchantment event) throws Exception {
         var opSpongePlayer = event.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

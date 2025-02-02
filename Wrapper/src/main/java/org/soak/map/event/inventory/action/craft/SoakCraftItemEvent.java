@@ -27,6 +27,11 @@ public class SoakCraftItemEvent extends SoakEvent<CraftItemEvent.Preview, org.bu
     }
 
     @Override
+    protected Class<CraftItemEvent.Preview> spongeEventClass() {
+        return CraftItemEvent.Preview.class;
+    }
+
+    @Override
     public void handle(CraftItemEvent.Preview event) throws Exception {
         var opPlayer = event.cause().first(ServerPlayer.class);
         if (opPlayer.isEmpty()) {

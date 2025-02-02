@@ -24,6 +24,11 @@ public class SoakSmeltItemEvent extends SoakEvent<CookingEvent.Finish, FurnaceSm
     }
 
     @Override
+    protected Class<CookingEvent.Finish> spongeEventClass() {
+        return CookingEvent.Finish.class;
+    }
+
+    @Override
     public void handle(CookingEvent.Finish event) throws Exception {
         var furnace = new SoakBlock(event.blockEntity()
                 .locatableBlock()

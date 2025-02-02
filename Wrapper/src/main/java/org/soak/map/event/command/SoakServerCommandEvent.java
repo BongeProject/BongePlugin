@@ -22,6 +22,11 @@ public class SoakServerCommandEvent extends SoakEvent<ExecuteCommandEvent.Pre, S
     }
 
     @Override
+    protected Class<ExecuteCommandEvent.Pre> spongeEventClass() {
+        return ExecuteCommandEvent.Pre.class;
+    }
+
+    @Override
     public void handle(ExecuteCommandEvent.Pre event) throws Exception {
         var root = event.commandCause().root();
         if (root instanceof ServerPlayer) {

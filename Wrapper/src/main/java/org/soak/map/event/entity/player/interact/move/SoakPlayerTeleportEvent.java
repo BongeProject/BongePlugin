@@ -28,6 +28,11 @@ public class SoakPlayerTeleportEvent extends SoakEvent<MoveEntityEvent, PlayerTe
     }
 
     @Override
+    protected Class<MoveEntityEvent> spongeEventClass() {
+        return MoveEntityEvent.class;
+    }
+
+    @Override
     public void handle(MoveEntityEvent event) throws Exception {
         if (event instanceof RespawnPlayerEvent.Recreate) {
             return;

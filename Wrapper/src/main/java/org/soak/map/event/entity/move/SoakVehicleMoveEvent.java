@@ -25,6 +25,11 @@ public class SoakVehicleMoveEvent extends SoakEvent<MoveEntityEvent, VehicleMove
     }
 
     @Override
+    protected Class<MoveEntityEvent> spongeEventClass() {
+        return MoveEntityEvent.class;
+    }
+
+    @Override
     public void handle(MoveEntityEvent event) throws Exception {
         var entity = event.entity();
         if (!(entity instanceof Vehicle)) {

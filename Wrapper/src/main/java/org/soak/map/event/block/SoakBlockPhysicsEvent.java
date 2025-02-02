@@ -20,6 +20,11 @@ public class SoakBlockPhysicsEvent extends SoakEvent<ChangeBlockEvent.All, Block
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         spongeEvent.transactions(Operations.MODIFY.get()).forEach(transaction -> { //used modify .... may not be correct
             var original = new SoakBlockSnapshot(transaction.original());

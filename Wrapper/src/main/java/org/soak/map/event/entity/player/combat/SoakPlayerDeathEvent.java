@@ -29,6 +29,11 @@ public class SoakPlayerDeathEvent extends SoakEvent<DropItemEvent.Destruct, Play
     }
 
     @Override
+    protected Class<DropItemEvent.Destruct> spongeEventClass() {
+        return DropItemEvent.Destruct.class;
+    }
+
+    @Override
     public void handle(DropItemEvent.Destruct event) throws Exception {
         var root = event.cause().root();
         if (!(root instanceof ServerPlayer spongePlayer)) {

@@ -179,10 +179,19 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     private <E extends Event> void registerSpecificEvent(Class<E> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
         try {
             var spongeEvents = EventClassMapping.soakEventClass(event);
-            this.events.addAll(spongeEvents.stream().map(creator -> creator.create(event, listener, priority, executor, plugin, ignoreCancelled)).toList());
+            var initSpongeEvents = spongeEvents.stream().map(creator -> creator.create(event, listener, priority, executor, plugin, ignoreCancelled)).toList();
+            initSpongeEvents.forEach(e -> {
+                var spongeEvent = e.spongeEvent();
+                Sponge.eventManager().registerListener(spongeEvent);
+            });
+            this.events.addAll(initSpongeEvents);
         } catch (RuntimeException ex) {
-            var mappingEvent = new GeneralSoakEvent<>(event, priority, plugin, listener, executor, ignoreCancelled);
-            this.events.add(mappingEvent);
+            if(ex.getClass() == RuntimeException.class) {
+                var mappingEvent = new GeneralSoakEvent<>(event, priority, plugin, listener, executor, ignoreCancelled);
+                this.events.add(mappingEvent);
+                return;
+            }
+            ex.printStackTrace();
         }
     }
 

@@ -28,6 +28,11 @@ public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerI
     }
 
     @Override
+    protected Class<InteractEvent> spongeEventClass() {
+        return InteractEvent.class;
+    }
+
+    @Override
     public void handle(InteractEvent spongeEvent) throws Exception {
         var opSpongePlayer = spongeEvent.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

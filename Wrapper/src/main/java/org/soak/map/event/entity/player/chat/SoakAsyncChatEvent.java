@@ -33,6 +33,11 @@ public class SoakAsyncChatEvent extends SoakEvent<PlayerChatEvent.Submit, AsyncC
     }
 
     @Override
+    protected Class<PlayerChatEvent.Submit> spongeEventClass() {
+        return PlayerChatEvent.Submit.class;
+    }
+
+    @Override
     public void handle(PlayerChatEvent.Submit event) throws Exception {
         var opPlayer = event.player();
         if (opPlayer.isEmpty()) {

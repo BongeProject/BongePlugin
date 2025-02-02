@@ -18,6 +18,11 @@ public class SoakPlayerKickEvent extends SoakEvent<KickPlayerEvent, PlayerKickEv
     }
 
     @Override
+    protected Class<KickPlayerEvent> spongeEventClass() {
+        return KickPlayerEvent.class;
+    }
+
+    @Override
     public void handle(KickPlayerEvent event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.player());
         var message = event.message();

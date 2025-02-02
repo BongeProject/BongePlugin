@@ -20,6 +20,11 @@ public class SoakPlayerRotateEvent extends SoakEvent<RotateEntityEvent, PlayerMo
     }
 
     @Override
+    protected Class<RotateEntityEvent> spongeEventClass() {
+        return RotateEntityEvent.class;
+    }
+
+    @Override
     public void handle(RotateEntityEvent event) throws Exception {
         var entity = event.entity();
         if (!(entity instanceof ServerPlayer spongePlayer)) {

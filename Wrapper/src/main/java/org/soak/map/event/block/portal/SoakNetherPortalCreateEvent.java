@@ -26,6 +26,11 @@ public class SoakNetherPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All,
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         var entity = spongeEvent.cause().first(Entity.class).map(AbstractEntity::wrap).orElse(null);
         var blocks = spongeEvent

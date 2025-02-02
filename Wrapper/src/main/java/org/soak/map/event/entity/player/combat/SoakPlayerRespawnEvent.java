@@ -21,6 +21,11 @@ public class SoakPlayerRespawnEvent extends SoakEvent<RespawnPlayerEvent.Recreat
     }
 
     @Override
+    protected Class<RespawnPlayerEvent.Recreate> spongeEventClass() {
+        return RespawnPlayerEvent.Recreate.class;
+    }
+
+    @Override
     public void handle(RespawnPlayerEvent.Recreate event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.entity());
         var newWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.destinationWorld());

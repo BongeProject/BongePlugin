@@ -24,6 +24,11 @@ public class SoakEntityEnterPortalEvent extends SoakEvent<MoveEntityEvent, Entit
     }
 
     @Override
+    protected Class<MoveEntityEvent> spongeEventClass() {
+        return MoveEntityEvent.class;
+    }
+
+    @Override
     public void handle(MoveEntityEvent event) throws Exception {
         var spongeLocation = event.entity().world().location(event.destinationPosition());
         var type = spongeLocation.blockType();

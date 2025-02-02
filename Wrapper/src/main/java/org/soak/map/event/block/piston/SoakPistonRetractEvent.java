@@ -27,6 +27,11 @@ public class SoakPistonRetractEvent extends SoakEvent<NotifyNeighborBlockEvent, 
     }
 
     @Override
+    protected Class<NotifyNeighborBlockEvent> spongeEventClass() {
+        return NotifyNeighborBlockEvent.class;
+    }
+
+    @Override
     public void handle(NotifyNeighborBlockEvent event) {
         var opPiston = event.cause().first(Piston.class);
         if (opPiston.isEmpty()) {

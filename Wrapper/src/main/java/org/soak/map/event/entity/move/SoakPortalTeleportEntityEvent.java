@@ -20,6 +20,11 @@ public class SoakPortalTeleportEntityEvent extends SoakEvent<ChangeEntityWorldEv
     }
 
     @Override
+    protected Class<ChangeEntityWorldEvent.Reposition> spongeEventClass() {
+        return ChangeEntityWorldEvent.Reposition.class;
+    }
+
+    @Override
     public void handle(ChangeEntityWorldEvent.Reposition event) throws Exception {
         var spongeToLocation = event.entity().world().location(event.destinationPosition());
         var spongeFromLocation = event.entity().world().location(event.originalPosition());

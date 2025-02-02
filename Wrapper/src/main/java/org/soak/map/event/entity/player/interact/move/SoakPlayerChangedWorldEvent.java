@@ -19,6 +19,11 @@ public class SoakPlayerChangedWorldEvent extends SoakEvent<RespawnPlayerEvent.Se
     }
 
     @Override
+    protected Class<RespawnPlayerEvent.SelectWorld> spongeEventClass() {
+        return RespawnPlayerEvent.SelectWorld.class;
+    }
+
+    @Override
     public void handle(RespawnPlayerEvent.SelectWorld event) throws Exception {
         var spongePlayer = event.entity();
         var spongeFromWorld = spongePlayer.world();

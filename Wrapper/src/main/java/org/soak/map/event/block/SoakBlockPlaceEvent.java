@@ -30,6 +30,11 @@ public class SoakBlockPlaceEvent extends SoakEvent<ChangeBlockEvent.All, BlockPl
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All event) throws Exception {
         var opSpongePlayer = event.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

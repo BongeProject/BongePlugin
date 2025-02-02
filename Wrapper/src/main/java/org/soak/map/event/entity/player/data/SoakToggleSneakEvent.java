@@ -22,6 +22,11 @@ public class SoakToggleSneakEvent extends AbstractDataEvent<Boolean, PlayerToggl
     }
 
     @Override
+    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
+        return ChangeDataHolderEvent.ValueChange.class;
+    }
+
+    @Override
     public Key<? extends Value<Boolean>> keyValue() {
         return Keys.IS_SNEAKING;
     }

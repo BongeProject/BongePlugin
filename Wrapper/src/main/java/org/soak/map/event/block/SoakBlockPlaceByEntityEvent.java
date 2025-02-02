@@ -25,6 +25,11 @@ public class SoakBlockPlaceByEntityEvent extends SoakEvent<ChangeBlockEvent.All,
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All spongeEvent) throws Exception {
         var opSpongeEntity = spongeEvent.cause().first(Entity.class);
         if (opSpongeEntity.isEmpty()) {

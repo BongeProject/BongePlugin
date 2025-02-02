@@ -22,6 +22,11 @@ public class SoakInventoryClickEvent extends SoakEvent<ClickContainerEvent, Inve
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
+    @Override
+    protected Class<ClickContainerEvent> spongeEventClass() {
+        return ClickContainerEvent.class;
+    }
+
     private InventoryAction mapAction(ClickContainerEvent event) {
         //TODO
         //this is horrible -> i understand why .... but still

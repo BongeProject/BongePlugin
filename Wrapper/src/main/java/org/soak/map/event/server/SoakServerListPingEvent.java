@@ -19,6 +19,11 @@ public class SoakServerListPingEvent extends SoakEvent<ClientPingServerEvent, Se
     }
 
     @Override
+    protected Class<ClientPingServerEvent> spongeEventClass() {
+        return ClientPingServerEvent.class;
+    }
+
+    @Override
     public void handle(ClientPingServerEvent spongeEvent) throws Exception {
         var address = spongeEvent.client().address();
 

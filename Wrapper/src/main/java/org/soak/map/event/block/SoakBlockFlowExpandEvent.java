@@ -26,6 +26,11 @@ public class SoakBlockFlowExpandEvent extends SoakEvent<ChangeBlockEvent.All, Bl
     }
 
     @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
+    }
+
+    @Override
     public void handle(ChangeBlockEvent.All event) throws Exception {
         event.transactions(Operations.LIQUID_SPREAD.get()).forEach(transaction -> { //used modify .... may not be correct
             var updatingBlock = transaction.custom().orElseGet(transaction::finalReplacement);

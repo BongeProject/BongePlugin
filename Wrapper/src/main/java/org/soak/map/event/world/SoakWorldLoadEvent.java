@@ -18,6 +18,11 @@ public class SoakWorldLoadEvent extends SoakEvent<LoadWorldEvent, WorldLoadEvent
     }
 
     @Override
+    protected Class<LoadWorldEvent> spongeEventClass() {
+        return LoadWorldEvent.class;
+    }
+
+    @Override
     public void handle(LoadWorldEvent spongeEvent) throws Exception {
         var bukkitWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongeEvent.world());
         var bukkitEvent = new WorldLoadEvent(bukkitWorld);

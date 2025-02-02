@@ -18,6 +18,11 @@ public class SoakPlayerQuitEvent extends SoakEvent<ServerSideConnectionEvent.Lea
     }
 
     @Override
+    protected Class<ServerSideConnectionEvent.Leave> spongeEventClass() {
+        return ServerSideConnectionEvent.Leave.class;
+    }
+
+    @Override
     public void handle(ServerSideConnectionEvent.Leave event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.player());
         var message = event.message();

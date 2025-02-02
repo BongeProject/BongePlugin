@@ -24,6 +24,11 @@ public class SoakEntityExplosionEvent extends SoakEvent<ExplosionEvent.Detonate,
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
+    @Override
+    protected Class<ExplosionEvent.Detonate> spongeEventClass() {
+        return ExplosionEvent.Detonate.class;
+    }
+
     private ExplosionResult result(ExplosionEvent.Detonate event) {
         if (!event.explosion().shouldBreakBlocks()) {
             return ExplosionResult.KEEP;

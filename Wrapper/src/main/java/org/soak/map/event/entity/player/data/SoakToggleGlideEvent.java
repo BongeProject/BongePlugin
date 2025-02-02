@@ -23,6 +23,11 @@ public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean, EntityToggl
     }
 
     @Override
+    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
+        return ChangeDataHolderEvent.ValueChange.class;
+    }
+
+    @Override
     public Key<? extends Value<Boolean>> keyValue() {
         return Keys.IS_ELYTRA_FLYING;
     }

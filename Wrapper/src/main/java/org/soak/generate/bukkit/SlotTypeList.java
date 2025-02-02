@@ -4,6 +4,7 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.slot.EquipmentSlot;
+import org.spongepowered.api.item.inventory.slot.OutputSlot;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -20,6 +21,7 @@ public class SlotTypeList {
         System.out.println("Check chest");
         return false;
     });
+    public static final SlotTypeEntry RESULT = register("RESULT", slot -> slot instanceof OutputSlot);
 
     public static final SlotTypeEntry CONTAINER = register("CONTAINER", Slot.class);
 

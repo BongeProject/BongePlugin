@@ -28,6 +28,11 @@ public class SoakPlayerInteractBlockEvent extends SoakEvent<InteractBlockEvent, 
     }
 
     @Override
+    protected Class<InteractBlockEvent> spongeEventClass() {
+        return InteractBlockEvent.class;
+    }
+
+    @Override
     public void handle(InteractBlockEvent event) throws Exception {
         var opSpongePlayer = event.cause().first(ServerPlayer.class);
         if (opSpongePlayer.isEmpty()) {

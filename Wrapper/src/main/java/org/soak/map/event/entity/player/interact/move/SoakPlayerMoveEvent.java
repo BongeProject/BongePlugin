@@ -26,6 +26,11 @@ public class SoakPlayerMoveEvent extends SoakEvent<MoveEntityEvent, PlayerMoveEv
     }
 
     @Override
+    protected Class<MoveEntityEvent> spongeEventClass() {
+        return MoveEntityEvent.class;
+    }
+
+    @Override
     public void handle(MoveEntityEvent event) throws Exception {
         var opPlayer = event.cause().first(ServerPlayer.class);
         if (opPlayer.isEmpty()) {

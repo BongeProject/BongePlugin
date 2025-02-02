@@ -26,6 +26,11 @@ public class SoakEntityInteractWithBlockEvent extends SoakEvent<InteractBlockEve
     }
 
     @Override
+    protected Class<InteractBlockEvent> spongeEventClass() {
+        return InteractBlockEvent.class;
+    }
+
+    @Override
     public void handle(InteractBlockEvent spongeEvent) throws Exception {
         var opSpongeEntity = spongeEvent.cause().first(Entity.class);
         if (opSpongeEntity.isEmpty() || opSpongeEntity.get() instanceof ServerPlayer) {

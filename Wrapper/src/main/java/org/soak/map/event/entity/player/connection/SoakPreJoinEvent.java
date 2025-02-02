@@ -21,6 +21,11 @@ public class SoakPreJoinEvent extends SoakEvent<ServerSideConnectionEvent.Login,
     }
 
     @Override
+    protected Class<ServerSideConnectionEvent.Login> spongeEventClass() {
+        return ServerSideConnectionEvent.Login.class;
+    }
+
+    @Override
     public void handle(ServerSideConnectionEvent.Login event) throws Exception {
         String profileName = event.profile().name().orElse("");
         UUID uuid = event.profile().uniqueId();

@@ -21,6 +21,11 @@ public class SoakBurnItemEvent extends SoakEvent<CookingEvent.ConsumeFuel, Furna
     }
 
     @Override
+    protected Class<CookingEvent.ConsumeFuel> spongeEventClass() {
+        return CookingEvent.ConsumeFuel.class;
+    }
+
+    @Override
     public void handle(CookingEvent.ConsumeFuel event) throws Exception {
         if (event.fuel().isEmpty()) {
             //How does this happen?
