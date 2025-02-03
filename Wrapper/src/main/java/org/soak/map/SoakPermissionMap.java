@@ -12,6 +12,6 @@ public class SoakPermissionMap {
             case FALSE -> PermissionDefault.FALSE;
             case UNDEFINED -> PermissionDefault.NOT_OP;
         };
-        return new Permission(description.id(), description.description().map(com -> SoakMessageMap.mapToBukkit(com)).orElse(""), defaultPermission);
+        return new Permission(description.id(), description.description().map(SoakMessageMap::mapToBukkit).orElse(""), defaultPermission);
     }
 }

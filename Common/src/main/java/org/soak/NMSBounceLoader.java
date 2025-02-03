@@ -19,7 +19,7 @@ public class NMSBounceLoader {
     private static final String INTERNAL_PATH = "NMSBounce.jar";
     private static @Nullable NMSBounceLoader loader;
     private @Nullable URLClassLoader classLoader;
-    private Set<Class<?>> classes = new HashSet<>();
+    private final Collection<Class<?>> classes = new HashSet<>();
 
     public static NMSBounceLoader getLoader() {
         if (loader == null) {

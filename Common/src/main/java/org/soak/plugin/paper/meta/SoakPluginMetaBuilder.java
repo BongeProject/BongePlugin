@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.plugin.PluginContainer;
 
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class SoakPluginMetaBuilder {
         this.description = container.metadata().description().orElse("");
         this.version = container.metadata().version().toString();
         this.prefix = container.metadata().id();
-        this.website = container.metadata().links().homepage().map(url -> url.toString()).orElse(null);
+        this.website = container.metadata().links().homepage().map(URL::toString).orElse(null);
         this.apiVersion = Sponge.platform().minecraftVersion().name();
         return this;
     }

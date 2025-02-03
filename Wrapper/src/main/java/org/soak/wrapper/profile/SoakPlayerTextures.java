@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 public class SoakPlayerTextures implements PlayerTextures {
 
-    Consumer<GameProfile> updateProfile;
+    final Consumer<GameProfile> updateProfile;
     private GameProfile profile;
 
     public SoakPlayerTextures(GameProfile profile, Consumer<GameProfile> update) {
@@ -21,9 +21,9 @@ public class SoakPlayerTextures implements PlayerTextures {
         this.updateProfile = update;
     }
 
-    public void set(SoakPlayerTextures texture){
+    public void set(SoakPlayerTextures texture) {
         var opTexture = texture.texture();
-        if(opTexture.isEmpty()){
+        if (opTexture.isEmpty()) {
             clear();
             return;
         }
@@ -54,15 +54,15 @@ public class SoakPlayerTextures implements PlayerTextures {
 
     @Override
     public void setSkin(@Nullable URL url) {
-        if(url == null){
+        if (url == null) {
             clear();
             return;
         }
-        if(!url.getHost().equals("textures.minecraft.net")){
+        if (!url.getHost().equals("textures.minecraft.net")) {
             throw new IllegalStateException("Unsupported URL of " + url);
         }
         String value = url.getPath();
-        if(value.startsWith("/texture/")) {
+        if (value.startsWith("/texture/")) {
             value = value.substring("/texture/".length());
         }
         var prop = ProfileProperty.of(ProfileProperty.TEXTURES, value);

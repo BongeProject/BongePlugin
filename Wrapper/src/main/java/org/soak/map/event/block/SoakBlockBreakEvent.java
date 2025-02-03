@@ -11,9 +11,7 @@ import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.SoakBlockSnapshot;
 import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakBlockBreakEvent extends SoakEvent<ChangeBlockEvent.All, BlockBreakEvent> {
 

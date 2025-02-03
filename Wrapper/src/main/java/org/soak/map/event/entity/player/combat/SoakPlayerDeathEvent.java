@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class SoakPlayerDeathEvent extends SoakEvent<DropItemEvent.Destruct, PlayerDeathEvent> {
 
-    private Component deathMessage = Component.empty();
+    private final Component deathMessage = Component.empty();
 
     public SoakPlayerDeathEvent(Class<PlayerDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin,
                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {

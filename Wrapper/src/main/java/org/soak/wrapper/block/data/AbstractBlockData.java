@@ -64,6 +64,7 @@ public abstract class AbstractBlockData implements BlockData, CommonBlockData {
     }
 
     @Override
+    @NotNull
     public org.bukkit.block.BlockState createBlockState() {
         return AbstractBlockState.wrap(null, this.spongeState, true);
     }
@@ -110,7 +111,10 @@ public abstract class AbstractBlockData implements BlockData, CommonBlockData {
 
     @Override
     public boolean isFaceSturdy(@NotNull BlockFace blockFace, @NotNull BlockSupport blockSupport) {
-        throw NotImplementedException.createByLazy(BlockData.class, "isFaceSturdy", BlockFace.class, BlockSupport.class);
+        throw NotImplementedException.createByLazy(BlockData.class,
+                                                   "isFaceSturdy",
+                                                   BlockFace.class,
+                                                   BlockSupport.class);
     }
 
     @Override

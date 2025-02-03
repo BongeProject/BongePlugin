@@ -27,9 +27,10 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
+@SuppressWarnings("NonExtendableApiUsage")
 public class SoakPluginProviderContext implements PluginProviderContext {
 
-    private File pluginFile;
+    private final File pluginFile;
     private PluginMeta descriptionFile;
     private ComponentLogger logger;
     private SoakPluginClassLoader loader;
@@ -71,20 +72,14 @@ public class SoakPluginProviderContext implements PluginProviderContext {
         var pluginVersion = PluginYamlValues.VERSION.value(yaml);
         var pluginEntrypoint = PluginYamlValues.MAIN.value(yaml);
 
-        var permissionsNode = yaml
-                .node("permissions")
-                .childrenList();
-        var permissions = MoseStream
-                .stream(permissionsNode)
-                .map(node -> new AbstractPluginYamlValue
-                        .PermissionPluginYamlValue()
-                        .value(node))
+        var permissionsNode = yaml.node("permissions").childrenList();
+        var permissions = MoseStream.stream(permissionsNode)
+                .map(node -> new AbstractPluginYamlValue.PermissionPluginYamlValue().value(node))
                 .toList();
         var libraries = PluginYamlValues.LIBRARIES.value(yaml);
 
 
-        this.descriptionFile = new SoakPluginMetaBuilder()
-                .setName(pluginName)
+        this.descriptionFile = new SoakPluginMetaBuilder().setName(pluginName)
                 .setVersion(pluginVersion)
                 .setMain(pluginEntrypoint)
                 .setPermissions(permissions)

@@ -99,11 +99,10 @@ public class SoakItemFactory implements ItemFactory {
                 SoakItemStackMap.toBukkitMeta(org.spongepowered.api.item.inventory.ItemStack.of(SoakItemStackMap.toSponge(
                                                                                                         arg1.getType()).orElseThrow(() -> new RuntimeException("Material is not item in itemstack")),
                                                                                                 arg1.getAmount()));
-        if (!(stacksMeta instanceof AbstractItemMeta)) {
+        if (!(stacksMeta instanceof AbstractItemMeta stacksSoakMeta)) {
             throw new RuntimeException("An item meta was not of abstract type: From: " + stacksMeta.getClass()
                     .getSimpleName());
         }
-        var stacksSoakMeta = (AbstractItemMeta) stacksMeta;
         stacksSoakMeta.copyInto(arg0);
         return stacksSoakMeta;
     }

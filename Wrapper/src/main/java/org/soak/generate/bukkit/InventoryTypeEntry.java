@@ -1,7 +1,6 @@
 package org.soak.generate.bukkit;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.inventory.InventoryType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.item.inventory.Carrier;

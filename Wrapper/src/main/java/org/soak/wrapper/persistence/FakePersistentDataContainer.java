@@ -20,8 +20,11 @@ public class FakePersistentDataContainer implements PersistentDataContainer, Soa
     private final BukkitPersistentData data = new BukkitPersistentData();
 
     @Override
-    public <P, C> void set(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<P, C> persistentDataType, @NotNull C c) {
-        data.addValue(SoakResourceKeyMap.mapToSponge(namespacedKey), SoakPersistentDataMap.toSoak(persistentDataType), c);
+    public <P, C> void set(@NotNull NamespacedKey namespacedKey, @NotNull PersistentDataType<P, C> persistentDataType
+            , @NotNull C c) {
+        data.addValue(SoakResourceKeyMap.mapToSponge(namespacedKey),
+                      SoakPersistentDataMap.toSoak(persistentDataType),
+                      c);
     }
 
     @Override
@@ -31,34 +34,40 @@ public class FakePersistentDataContainer implements PersistentDataContainer, Soa
 
     @Override
     public void readFromBytes(byte @NotNull [] bytes, boolean b) throws IOException {
-        throw NotImplementedException.createByLazy(PersistentDataContainer.class, "readFromBytes", byte.class, boolean.class);
+        throw NotImplementedException.createByLazy(PersistentDataContainer.class,
+                                                   "readFromBytes",
+                                                   byte.class,
+                                                   boolean.class);
     }
 
     @Override
-    public <P, C> boolean has(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType) {
+    public <P, C> boolean has(@NotNull NamespacedKey namespacedKey,
+                              @NotNull PersistentDataType<P, C> persistentDataType) {
         return this.getOptional(namespacedKey, persistentDataType).isPresent();
 
     }
 
     @Override
-    public boolean has(NamespacedKey namespacedKey) {
+    public boolean has(@NotNull NamespacedKey namespacedKey) {
         return data.getValue(SoakResourceKeyMap.mapToSponge(namespacedKey)).isPresent();
 
     }
 
     @Override
-    public <P, C> @Nullable C get(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType) {
+    public <P, C> @Nullable C get(@NotNull NamespacedKey namespacedKey,
+                                  @NotNull PersistentDataType<P, C> persistentDataType) {
         return getOptional(namespacedKey, persistentDataType).orElse(null);
     }
 
     @Override
-    public <P, C> C getOrDefault(NamespacedKey namespacedKey, PersistentDataType<P, C> persistentDataType, C c) {
+    public <P, C> @NotNull C getOrDefault(@NotNull NamespacedKey namespacedKey,
+                                          @NotNull PersistentDataType<P, C> persistentDataType, @NotNull C c) {
         return getOptional(namespacedKey, persistentDataType).orElse(c);
 
     }
 
     @Override
-    public Set<NamespacedKey> getKeys() {
+    public @NotNull Set<NamespacedKey> getKeys() {
         throw NotImplementedException.createByLazy(PersistentDataContainer.class, "getKeys");
     }
 
@@ -68,16 +77,20 @@ public class FakePersistentDataContainer implements PersistentDataContainer, Soa
     }
 
     @Override
-    public void copyTo(PersistentDataContainer persistentDataContainer, boolean b) {
-        throw NotImplementedException.createByLazy(PersistentDataContainer.class, "copyTo", PersistentDataContainer.class, boolean.class);
+    public void copyTo(@NotNull PersistentDataContainer persistentDataContainer, boolean b) {
+        throw NotImplementedException.createByLazy(PersistentDataContainer.class,
+                                                   "copyTo",
+                                                   PersistentDataContainer.class,
+                                                   boolean.class);
     }
 
     @Override
-    public PersistentDataAdapterContext getAdapterContext() {
+    public @NotNull PersistentDataAdapterContext getAdapterContext() {
         return new SoakPersistentDataContext();
     }
 
     @Override
+    @NotNull
     public byte[] serializeToBytes() throws IOException {
         throw NotImplementedException.createByLazy(PersistentDataContainer.class, "serializeToBytes");
     }

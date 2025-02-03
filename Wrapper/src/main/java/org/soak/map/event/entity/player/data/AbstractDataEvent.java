@@ -8,8 +8,6 @@ import org.soak.map.event.SoakEvent;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.value.Value;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public abstract class AbstractDataEvent<T, BE extends Event> extends SoakEvent<ChangeDataHolderEvent.ValueChange, BE> {

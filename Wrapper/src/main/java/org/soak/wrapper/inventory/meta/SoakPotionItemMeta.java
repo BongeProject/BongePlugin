@@ -29,11 +29,8 @@ public class SoakPotionItemMeta extends AbstractItemMeta implements PotionMeta {
     @Override
     public PotionData getBasePotionData() {
         var opPotionType = this.container.get(Keys.POTION_TYPE);
-        if (opPotionType.isEmpty()) {
-            return null;
-        }
+        return opPotionType.map(potionType -> new PotionData(SoakPotionEffectMap.toBukkit(potionType))).orElse(null);
         //TODO something better
-        return new PotionData(SoakPotionEffectMap.toBukkit(opPotionType.get()));
     }
 
     @Override

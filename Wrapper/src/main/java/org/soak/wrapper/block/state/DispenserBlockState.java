@@ -3,7 +3,6 @@ package org.soak.wrapper.block.state;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.block.Dispenser;
-import org.bukkit.loot.LootTable;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +18,11 @@ import java.util.Objects;
 
 public class DispenserBlockState extends CarrierInventoryState implements Dispenser {
 
-    private DataOverride<Component> customName = new DataOverride<>(() -> spongeEntity().flatMap(entity -> entity.get(Keys.CUSTOM_NAME)).orElse(null));
-    private DataOverride<String> lockedToken = new DataOverride<>(() -> spongeEntity().flatMap(entity -> entity.get(Keys.LOCK_TOKEN)).orElse(null));
+    private DataOverride<Component> customName = new DataOverride<>(() -> spongeEntity().flatMap(entity -> entity.get(
+            Keys.CUSTOM_NAME)).orElse(null));
+    private DataOverride<String> lockedToken =
+            new DataOverride<>(() -> spongeEntity().flatMap(entity -> entity.get(Keys.LOCK_TOKEN))
+            .orElse(null));
 
     public DispenserBlockState(@NotNull ServerLocation location, boolean isSnapshot) {
         super(location, isSnapshot);
@@ -30,7 +32,8 @@ public class DispenserBlockState extends CarrierInventoryState implements Dispen
         super(location, state, isSnapshot);
     }
 
-    private DispenserBlockState(@Nullable ServerLocation location, @NotNull BlockState state, boolean isSnapshot, DataOverride<Component> customName, DataOverride<String> lockedToken) {
+    private DispenserBlockState(@Nullable ServerLocation location, @NotNull BlockState state, boolean isSnapshot,
+                                DataOverride<Component> customName, DataOverride<String> lockedToken) {
         this(location, state, isSnapshot);
         this.lockedToken = lockedToken;
         this.customName = customName;
@@ -48,7 +51,9 @@ public class DispenserBlockState extends CarrierInventoryState implements Dispen
 
     @Override
     public boolean dispense() {
-        var opBlockEntity = this.spongeEntity().filter(entity -> entity instanceof org.spongepowered.api.block.entity.carrier.Dispenser).map(entity -> (Dispenser) entity);
+        var opBlockEntity = this.spongeEntity()
+                .filter(entity -> entity instanceof org.spongepowered.api.block.entity.carrier.Dispenser)
+                .map(entity -> (Dispenser) entity);
         if (opBlockEntity.isEmpty()) {
             return false;
         }

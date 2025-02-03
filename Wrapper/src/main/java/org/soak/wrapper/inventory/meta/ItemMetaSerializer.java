@@ -26,11 +26,11 @@ public class ItemMetaSerializer {
         Map<String, Object> values = new HashMap<>();
         values.put("meta-type", meta.getClass().getName());
         values.put("ContentVersion", 3);
-        values.put("lore", Objects
-                .requireNonNullElse(meta.lore(), Collections.<Component>emptyList())
-                .stream()
-                .map(c -> LegacyComponentSerializer.legacySection().serialize(c))
-                .toList());
+        values.put("lore",
+                   Objects.requireNonNullElse(meta.lore(), Collections.<Component>emptyList())
+                           .stream()
+                           .map(c -> LegacyComponentSerializer.legacySection().serialize(c))
+                           .toList());
         var displayName = meta.displayName();
         if (displayName != null) {
             values.put("display-name", GsonComponentSerializer.gson().serialize(displayName));
@@ -64,7 +64,9 @@ public class ItemMetaSerializer {
                             try {
                                 component = GsonComponentSerializer.gson().deserialize(jsonStringComponent);
                             } catch (Throwable e) {
-                                SoakManager.getManager().getLogger().error("Could not read json of " + jsonStringComponent, e);
+                                SoakManager.getManager()
+                                        .getLogger()
+                                        .error("Could not read json of " + jsonStringComponent, e);
                                 return;
                             }
                         } else {
@@ -73,7 +75,9 @@ public class ItemMetaSerializer {
                         itemStackBuilder.add(Keys.ITEM_NAME, component);
                     }
                     case "id" -> {
-                        ItemType type = ItemTypes.registry().findValue(ResourceKey.resolve((String) value)).orElseThrow(() -> new IllegalArgumentException("Unknown ItemType of " + value));
+                        ItemType type = ItemTypes.registry()
+                                .findValue(ResourceKey.resolve((String) value))
+                                .orElseThrow(() -> new IllegalArgumentException("Unknown ItemType of " + value));
                         itemStackBuilder.itemType(type);
                     }
                     case "type" -> {
@@ -89,11 +93,15 @@ public class ItemMetaSerializer {
                         if (((Integer) value) == 3) {
                             return;
                         }
-                        SoakManager.getManager().getLogger().error("Unable to read ContentVersion of " + value + " -> Attempting anyway");
+                        SoakManager.getManager()
+                                .getLogger()
+                                .error("Unable to read ContentVersion of " + value + " -> Attempting anyway");
                     }
                     case "lore" -> {
                         List<String> lore = (List<String>) value;
-                        List<Component> componentLore = lore.stream().map(l -> (Component) LegacyComponentSerializer.legacySection().deserialize(l)).toList();
+                        List<Component> componentLore = lore.stream()
+                                .map(l -> (Component) LegacyComponentSerializer.legacySection().deserialize(l))
+                                .toList();
                         itemStackBuilder.add(Keys.LORE, componentLore);
                     }
                     case "display-name" -> {
@@ -103,7 +111,9 @@ public class ItemMetaSerializer {
                             try {
                                 component = GsonComponentSerializer.gson().deserialize(jsonStringComponent);
                             } catch (Throwable e) {
-                                SoakManager.getManager().getLogger().error("Could not read json of " + jsonStringComponent, e);
+                                SoakManager.getManager()
+                                        .getLogger()
+                                        .error("Could not read json of " + jsonStringComponent, e);
                                 return;
                             }
                         } else {
@@ -111,15 +121,27 @@ public class ItemMetaSerializer {
                         }
                         itemStackBuilder.add(Keys.DISPLAY_NAME, component);
                     }
-                    default ->
-                            SoakManager.getManager().getLogger().error("Unknown Item Deserialize key of -> " + key + ": (" + value.getClass().getSimpleName() + ") " + value);
+                    default -> SoakManager.getManager()
+                            .getLogger()
+                            .error("Unknown Item Deserialize key of -> " + key + ": (" + value.getClass()
+                                    .getSimpleName() + ") " + value);
                 }
 
 
             });
             return SoakItemStackMap.toBukkitMeta(itemStackBuilder.build());
         } catch (Throwable e) {
-            SoakManager.getManager().displayError(e, SoakManager.getManager().getSoakContainer(GeneralHelper.fromStackTrace()).map(SoakPluginContainer::getBukkitInstance).orElseThrow(), Map.entry("Data", values.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue().toString()).collect(Collectors.joining("\n\t- "))));
+            SoakManager.getManager()
+                    .displayError(e,
+                                  SoakManager.getManager()
+                                          .getSoakContainer(GeneralHelper.fromStackTrace())
+                                          .map(SoakPluginContainer::getBukkitInstance)
+                                          .orElseThrow(),
+                                  Map.of("Data",
+                                         values.entrySet()
+                                                 .stream()
+                                                 .map(entry -> entry.getKey() + ": " + entry.getValue().toString())
+                                                 .collect(Collectors.joining("\n\t- "))));
             throw new RuntimeException(e);
         }
     }

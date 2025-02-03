@@ -4,9 +4,10 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Sheep;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.map.SoakColourMap;
-import org.soak.wrapper.entity.living.AbstractAnimal;
+import org.soak.wrapper.entity.living.animal.AbstractAnimal;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.service.permission.Subject;
@@ -22,7 +23,7 @@ public class SoakSheep extends AbstractAnimal<org.spongepowered.api.entity.livin
     }
 
     @Override
-    public void shear(Sound.Source source) {
+    public void shear(@NotNull Sound.Source source) {
         //TODO find out what source does
         spongeEntity().offer(Keys.IS_SHEARED, true);
     }
@@ -54,6 +55,9 @@ public class SoakSheep extends AbstractAnimal<org.spongepowered.api.entity.livin
 
     @Override
     public void setColor(DyeColor dyeColor) {
-        this.spongeEntity().offer(Keys.DYE_COLOR, SoakColourMap.toSpongeDye(SoakColourMap.toSponge(dyeColor.getColor())).orElseThrow(() -> new RuntimeException("No mapping for DyeColor: " + dyeColor.name())));
+        this.spongeEntity()
+                .offer(Keys.DYE_COLOR,
+                       SoakColourMap.toSpongeDye(SoakColourMap.toSponge(dyeColor.getColor()))
+                               .orElseThrow(() -> new RuntimeException("No mapping for DyeColor: " + dyeColor.name())));
     }
 }

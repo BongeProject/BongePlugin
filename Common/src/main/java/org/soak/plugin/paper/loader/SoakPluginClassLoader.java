@@ -66,7 +66,7 @@ public class SoakPluginClassLoader extends URLClassLoader implements ConfiguredP
         if(!missing.isBlank()){
             context.getLogger().error("Not all libraries have loaded, they could be downloading: Missing " + missing);
         }
-        var stream = paths.stream().filter(file -> file.exists()).map(file -> {
+        var stream = paths.stream().filter(File::exists).map(file -> {
             try {
                 return file.toURI().toURL();
             } catch (MalformedURLException e) {
@@ -144,12 +144,12 @@ public class SoakPluginClassLoader extends URLClassLoader implements ConfiguredP
     }
 
     @Override
-    public PluginMeta getConfiguration() {
+    public @NotNull PluginMeta getConfiguration() {
         return this.context.getConfiguration();
     }
 
     @Override
-    public Class<?> loadClass(@NotNull String name, boolean resolve, boolean checkGlobal, boolean checkLibs) throws ClassNotFoundException {
+    public @NotNull Class<?> loadClass(@NotNull String name, boolean resolve, boolean checkGlobal, boolean checkLibs) throws ClassNotFoundException {
 
         //TODO GLOBAL AND LIBS
         return loadClass(name, resolve);
@@ -204,7 +204,7 @@ public class SoakPluginClassLoader extends URLClassLoader implements ConfiguredP
     }
 
     @Override
-    public void init(JavaPlugin javaPlugin) {
+    public void init(@NotNull JavaPlugin javaPlugin) {
         setupPlugin(javaPlugin, this.getConfiguration().getName(), this.context.getPluginSource().toFile(), new File(this.context.getDataDirectory().toFile(), "config.yml"), this.context.getDataDirectory().toFile(), this::getConfiguration, this::buildMeta, () -> this);
     }
 

@@ -3,6 +3,7 @@ package org.soak;
 import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.soak.exception.NotImplementedException;
 
 import java.time.Instant;
@@ -11,53 +12,54 @@ import java.util.OptionalInt;
 
 @SuppressWarnings("NonExtendableApiUsage")
 public class SoakServerBuildInfo implements ServerBuildInfo {
+
     @Override
-    public Key brandId() {
+    public @NotNull Key brandId() {
         return Key.key("soak", "sponge");
     }
 
     @Override
-    public boolean isBrandCompatible(Key key) {
+    public boolean isBrandCompatible(@NotNull Key key) {
         throw NotImplementedException.createByLazy(ServerBuildInfo.class, "isBrandCompatible", Key.class);
     }
 
     @Override
-    public String brandName() {
+    public @NotNull String brandName() {
         return "soak";
     }
 
     @Override
-    public String minecraftVersionId() {
+    public @NotNull String minecraftVersionId() {
         return Bukkit.getMinecraftVersion();
     }
 
     @Override
-    public String minecraftVersionName() {
+    public @NotNull String minecraftVersionName() {
         return Bukkit.getMinecraftVersion();
     }
 
     @Override
-    public OptionalInt buildNumber() {
+    public @NotNull OptionalInt buildNumber() {
         return OptionalInt.empty();
     }
 
     @Override
-    public Instant buildTime() {
+    public @NotNull Instant buildTime() {
         throw NotImplementedException.createByLazy(ServerBuildInfo.class, "buildTime");
     }
 
     @Override
-    public Optional<String> gitBranch() {
+    public @NotNull Optional<String> gitBranch() {
         return Optional.empty();
     }
 
     @Override
-    public Optional<String> gitCommit() {
+    public @NotNull Optional<String> gitCommit() {
         return Optional.empty();
     }
 
     @Override
-    public String asString(StringRepresentation stringRepresentation) {
+    public @NotNull String asString(StringRepresentation stringRepresentation) {
         return switch (stringRepresentation) {
             case VERSION_SIMPLE -> minecraftVersionId();
             case VERSION_FULL -> "soak:" + minecraftVersionId();

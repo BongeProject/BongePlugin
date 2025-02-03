@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
@@ -57,6 +56,7 @@ public class AbstractSpongePluginMain implements SoakInternalManager, WrapperMan
     private final ConsoleHandler consoleHandler = new ConsoleHandler();
     private final SoakMemoryStore memoryStore = new SoakMemoryStore();
     private final Collection<Class<?>> generatedClasses = new LinkedBlockingQueue<>();
+
     @Nullable
     private FoundClassLoader loader;
 
@@ -64,11 +64,15 @@ public class AbstractSpongePluginMain implements SoakInternalManager, WrapperMan
     private JavaPlugin plugin;
 
     @Deprecated
-    public AbstractSpongePluginMain(Function<Class<? extends JavaPlugin>, FoundClassLoader> mainToLoader, Function<FoundClassLoader, Class<? extends JavaPlugin>> loaderToMain, Logger logger, PluginContainer container) {
+    public AbstractSpongePluginMain(Function<Class<? extends JavaPlugin>, FoundClassLoader> mainToLoader,
+                                    Function<FoundClassLoader, Class<? extends JavaPlugin>> loaderToMain,
+                                    Logger logger, PluginContainer container) {
         this(mainToLoader, loaderToMain, logger, container, new String[0]);
     }
 
-    public AbstractSpongePluginMain(Function<Class<? extends JavaPlugin>, FoundClassLoader> mainToLoader, Function<FoundClassLoader, Class<? extends JavaPlugin>> loaderToMain, Logger logger, PluginContainer container, String... pathsToPlugins) {
+    public AbstractSpongePluginMain(Function<Class<? extends JavaPlugin>, FoundClassLoader> mainToLoader,
+                                    Function<FoundClassLoader, Class<? extends JavaPlugin>> loaderToMain,
+                                    Logger logger, PluginContainer container, String... pathsToPlugins) {
         if (pathsToPlugins.length == 0) {
             throw new IllegalStateException("'PathsToPlugins' needs to be filled");
         }
@@ -86,6 +90,7 @@ public class AbstractSpongePluginMain implements SoakInternalManager, WrapperMan
     public static Function<ClassLoader, Class<? extends JavaPlugin>> fromName(@NotNull String name) {
         return (classLoader) -> {
             try {
+                //noinspection unchecked
                 return (Class<? extends JavaPlugin>) Class.forName(name, true, classLoader);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -93,11 +98,13 @@ public class AbstractSpongePluginMain implements SoakInternalManager, WrapperMan
         };
     }
 
-    void loadPlugin() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    void loadPlugin()
+            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<File> copiedFiles = new LinkedList<>();
         for (var path : this.pathToPlugins) {
             try {
-                var inputStream = this.container.openResource(path).orElseThrow(() -> new RuntimeException("Could not find '" + path + "'"));
+                var inputStream = this.container.openResource(path)
+                        .orElseThrow(() -> new RuntimeException("Could not find '" + path + "'"));
                 var location = new File("temp/soak/" + path);
                 location.deleteOnExit();
                 location.getParentFile().mkdirs();
@@ -145,7 +152,14 @@ public class AbstractSpongePluginMain implements SoakInternalManager, WrapperMan
 
         Class<? extends JavaPlugin> javaPluginClass = this.loaderToMain.apply(loader);
         plugin = javaPluginClass.getConstructor().newInstance();
-        SoakPluginClassLoader.setupPlugin(plugin, this.container.metadata().id(), getPluginFile(), new File(getPluginFolder(), "config.yml"), getPluginFolder(), this::getPluginMeta, () -> new SoakPluginMetaBuilder().from(this.getPluginMeta()).build(), () -> (ClassLoader) loader);
+        SoakPluginClassLoader.setupPlugin(plugin,
+                                          this.container.metadata().id(),
+                                          getPluginFile(),
+                                          new File(getPluginFolder(), "config.yml"),
+                                          getPluginFolder(),
+                                          this::getPluginMeta,
+                                          () -> new SoakPluginMetaBuilder().from(this.getPluginMeta()).build(),
+                                          () -> (ClassLoader) loader);
         this.commands.addAll(PluginCommandYamlParser.parse(plugin));
     }
 

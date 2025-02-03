@@ -8,15 +8,12 @@ import org.spongepowered.api.world.WorldTypes;
 public class SoakWorldTypeMap {
 
     public static DefaultedRegistryReference<WorldType> toSponge(World.Environment environment) {
-        switch (environment) {
-            case NORMAL:
-                return WorldTypes.OVERWORLD;
-            case NETHER:
-                return WorldTypes.THE_NETHER;
-            case THE_END:
-                return WorldTypes.THE_END;
-            default: throw new RuntimeException("Unknown world type of " + environment.name());
-        }
+        return switch (environment) {
+            case NORMAL -> WorldTypes.OVERWORLD;
+            case NETHER -> WorldTypes.THE_NETHER;
+            case THE_END -> WorldTypes.THE_END;
+            default -> throw new RuntimeException("Unknown world type of " + environment.name());
+        };
     }
 
     public static World.Environment toBukkit(WorldType type) {

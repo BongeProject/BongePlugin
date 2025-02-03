@@ -404,9 +404,10 @@ public abstract class SoakServer implements Server {
                     .filter(spongeTag -> spongeTag.key().equals(key))
                     .findAny();
             if (opTag.isPresent()) {
+                //noinspection unchecked
                 return (Tag<T>) (Object) new MaterialSetTag(tag,
                                                             TagHelper.getBlockTypes(opTag.get())
-                                                                    .map(block -> SoakBlockMap.toBukkit(block))
+                                                                    .map(SoakBlockMap::toBukkit)
                                                                     .collect(Collectors.toList()));
             }
         }
@@ -417,9 +418,10 @@ public abstract class SoakServer implements Server {
                     .filter(spongeTag -> spongeTag.key().equals(key))
                     .findAny();
             if (opTag.isPresent()) {
+                //noinspection unchecked
                 return (Tag<T>) (Object) new MaterialSetTag(tag,
                                                             TagHelper.getItemTypes(opTag.get())
-                                                                    .map(item -> SoakItemStackMap.toBukkit(item))
+                                                                    .map(SoakItemStackMap::toBukkit)
                                                                     .collect(Collectors.toList()));
             }
         }
@@ -432,9 +434,10 @@ public abstract class SoakServer implements Server {
                     .filter(spongeTag -> spongeTag.key().equals(key))
                     .findAny();
             if (opTag.isPresent()) {
+                //noinspection unchecked
                 return (Tag<T>) (Object) new EntitySetTag(tag,
                                                           TagHelper.getEntityTypes(opTag.get())
-                                                                  .map(entity -> SoakEntityMap.toBukkit(entity))
+                                                                  .map(SoakEntityMap::toBukkit)
                                                                   .collect(Collectors.toList()));
             }
         }
@@ -442,36 +445,41 @@ public abstract class SoakServer implements Server {
 
         //overrides
         if (registry.equals(Tag.REGISTRY_ITEMS) && tag.asString().equals("minecraft:coral_blocks")) {
+            //noinspection unchecked
             return (Tag<T>) (Object) new MaterialSetTag(tag,
                                                         ItemTypes.registry()
                                                                 .stream()
                                                                 .filter(item -> item.key(RegistryTypes.ITEM_TYPE)
                                                                         .value()
                                                                         .contains("coral_blocks"))
-                                                                .map(item -> SoakItemStackMap.toBukkit(item))
+                                                                .map(SoakItemStackMap::toBukkit)
                                                                 .collect(Collectors.toList()));
         }
 
         if (registry.equals(Tag.REGISTRY_BLOCKS) && tag.asString().equals("minecraft:wool_carpets")) {
             Set<Material> itemTypes = TagHelper.getBlockTypes(BlockTypeTags.WOOL_CARPETS)
-                    .map(block -> SoakBlockMap.toBukkit(block))
+                    .map(SoakBlockMap::toBukkit)
                     .collect(Collectors.toSet());
+            //noinspection unchecked
             return (Tag<T>) (Object) new MaterialSetTag(tag, itemTypes);
         }
 
         if (registry.equals(Tag.REGISTRY_ITEMS) && tag.asString().equals("minecraft:wool_carpets")) {
             Set<Material> itemTypes = TagHelper.getItemTypes(ItemTypeTags.WOOL_CARPETS)
-                    .map(item -> SoakItemStackMap.toBukkit(item))
+                    .map(SoakItemStackMap::toBukkit)
                     .collect(Collectors.toSet());
+            //noinspection unchecked
             return (Tag<T>) (Object) new MaterialSetTag(tag, itemTypes);
 
         }
 
         if (registry.equals(Tag.REGISTRY_FLUIDS) && tag.asString().equals("minecraft:water")) {
+            //noinspection unchecked
             return (Tag<T>) (Object) new SoakFluidTag(FluidTypeTags.WATER);
         }
 
         if (registry.equals(Tag.REGISTRY_FLUIDS) && tag.asString().equals("minecraft:lava")) {
+            //noinspection unchecked
             return (Tag<T>) (Object) new SoakFluidTag(FluidTypeTags.LAVA);
         }
 
@@ -481,8 +489,9 @@ public abstract class SoakServer implements Server {
                     .filter(item -> org.spongepowered.api.item.inventory.ItemStack.of(item)
                             .get(Keys.REPLENISHED_FOOD)
                             .isPresent())
-                    .map(item -> SoakItemStackMap.toBukkit(item))
+                    .map(SoakItemStackMap::toBukkit)
                     .collect(Collectors.toSet());
+            //noinspection unchecked
             return (Tag<T>) (Object) new MaterialSetTag(tag, items);
         }
         if (registry.equals(Tag.REGISTRY_ITEMS) && tag.asString().equals("minecraft:furnace_materials")) {
@@ -491,8 +500,9 @@ public abstract class SoakServer implements Server {
                     .filter(item -> org.spongepowered.api.item.inventory.ItemStack.of(item)
                             .get(Keys.MAX_COOK_TIME)
                             .isPresent())
-                    .map(item -> SoakItemStackMap.toBukkit(item))
+                    .map(SoakItemStackMap::toBukkit)
                     .collect(Collectors.toSet());
+            //noinspection unchecked
             return (Tag<T>) (Object) new MaterialSetTag(tag, items);
         }
         SoakManager.getManager()
@@ -918,8 +928,8 @@ public abstract class SoakServer implements Server {
     public void reload() {
         SoakManager.getManager()
                 .getLogger()
-                .warn("A Bukkit plugin attempted to reload the plugin list. This is not possible in Sponge, reloading" +
-                              " the data instead");
+                .warn("A Bukkit plugin attempted to reload the plugin list. This is not possible in Sponge, " +
+                              "reloading" + " the data instead");
         reloadData();
     }
 

@@ -120,9 +120,10 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
             return openInventory(soakInv.sponge(),
                                  soakInv.requestedTitle().orElse(null)).map(AbstractInventoryView::wrap).orElse(null);
         } catch (UnsupportedOperationException ex) {
-            Sponge.server().scheduler().executor(SoakManager.getManager().getOwnContainer()).execute(() -> {
-                openInventory(soakInv.sponge(), soakInv.requestedTitle().orElse(null));
-            });
+            Sponge.server()
+                    .scheduler()
+                    .executor(SoakManager.getManager().getOwnContainer())
+                    .execute(() -> openInventory(soakInv.sponge(), soakInv.requestedTitle().orElse(null)));
             return new SoakOpeningInventoryView(inventory, this, "");
         }
     }
@@ -139,9 +140,10 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void closeInventory() {
-        Sponge.server().scheduler().executor(SoakManager.getManager().getOwnContainer()).execute(() -> {
-            this.spongeEntity().closeInventory();
-        });
+        Sponge.server()
+                .scheduler()
+                .executor(SoakManager.getManager().getOwnContainer())
+                .execute(() -> this.spongeEntity().closeInventory());
     }
 
     @Override
@@ -369,7 +371,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
                 .filter(entry -> {
                     var typedStatistic =
@@ -393,7 +395,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
                 .findAny();
     }
 
@@ -410,7 +412,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
                 .filter(entry -> ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type()
                         .equals(spongeEntityType))
@@ -517,7 +519,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, @Nullable String s1) {
+    public void setResourcePack(@NotNull String s, byte[] bytes, @Nullable String s1) {
         throw NotImplementedException.createByLazy(Player.class,
                                                    "setResourcePack",
                                                    String.class,
@@ -526,12 +528,12 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, boolean b) {
+    public void setResourcePack(@NotNull String s, byte[] bytes, boolean b) {
         setResourcePack(s, bytes, (Component) null, b);
     }
 
     @Override
-    public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, @Nullable String s1, boolean b) {
+    public void setResourcePack(@NotNull String s, byte[] bytes, @Nullable String s1, boolean b) {
         setResourcePack(s, bytes, s1 == null ? null : LegacyComponentSerializer.legacySection().deserialize(s1), b);
     }
 
@@ -546,8 +548,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1,
-                                boolean b) {
+    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, byte[] bytes, @Nullable String s1, boolean b) {
         throw NotImplementedException.createByLazy(Player.class,
                                                    "setResourcePack",
                                                    UUID.class,

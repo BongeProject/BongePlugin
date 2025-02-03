@@ -28,17 +28,14 @@ import org.spongepowered.api.entity.projectile.explosive.FireworkRocket;
 import org.spongepowered.api.entity.weather.LightningBolt;
 import org.spongepowered.api.registry.RegistryTypes;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.Function;
 
 public class EntityTypeList {
 
     public static Class<? extends Enum<?>> LOADED_CLASS;
-    public static Collection<EntityTypeMappingEntry<?, ?>> ENTITIES_MAPPINGS = new LinkedTransferQueue<>();
+    public static final Collection<EntityTypeMappingEntry<?, ?>> ENTITIES_MAPPINGS = new LinkedTransferQueue<>();
     public static EntityTypeMappingEntry<Player, SoakPlayer> PLAYER = register(EntityTypes.PLAYER.get(),
                                                                                SoakPlayer.class,
                                                                                Player.class,
@@ -69,7 +66,7 @@ public class EntityTypeList {
 
     public static DynamicType.Unloaded<? extends Enum<?>> createEntityTypeList() throws Exception {
         var entityTypeIterator = EntityTypes.registry().stream().iterator();
-        var entityTypes = new HashSet<String>();
+        Collection<String> entityTypes = new HashSet<>();
         entityTypes.add("UNKNOWN");
         while (entityTypeIterator.hasNext()) {
             var entityType = entityTypeIterator.next();
@@ -100,6 +97,7 @@ public class EntityTypeList {
         classCreator = createIsSpawnableMethod(classCreator);
         classCreator = createGetEntityClassMethod(classCreator);
 
+        //noinspection removal
         return classCreator.implement(FeatureDependant.class,
                                       Keyed.class,
                                       Translatable.class,
@@ -135,6 +133,7 @@ public class EntityTypeList {
         if (LOADED_CLASS == null) {
             throw new RuntimeException("EntityTypeList.LOADED_CLASS must be set");
         }
+        //noinspection unchecked
         return EnumSet.allOf((Class<T>) LOADED_CLASS);
     }
 
@@ -148,11 +147,12 @@ public class EntityTypeList {
         return values.stream()
                 .filter(enumValue -> enumValue.name().equals(enumName))
                 .findAny()
-                .orElseThrow(() -> new RuntimeException("Found EntityType name of '" + enumName + "' but couldnt find" +
-                                                                " the enum"));
+                .orElseThrow(() -> new RuntimeException("Found EntityType name of '" + enumName + "' but couldnt " +
+                                                                "find" + " the enum"));
     }
 
     public static <SE extends org.spongepowered.api.entity.Entity> EntityTypeMappingEntry<SE, ?> getEntityTypeMapping(org.spongepowered.api.entity.EntityType<SE> type) {
+        //noinspection unchecked
         return ENTITIES_MAPPINGS.stream()
                 .filter(map -> map.spongeEntityType().equals(type))
                 .findAny()
@@ -182,12 +182,11 @@ public class EntityTypeList {
     }
 
     public static boolean isSummable(Enum<?> enumEntry) {
-        return getEntityType(enumEntry).map(type -> type.isSummonable()).orElse(false);
+        return getEntityType(enumEntry).map(EntityType::isSummonable).orElse(false);
     }
 
     public static boolean isSpawnable(Enum<?> enumEntry) {
-        return getEntityType(enumEntry).map(type -> type.canSpawnAwayFromPlayer())
-                .orElse(false); //TODO find true method
+        return getEntityType(enumEntry).map(EntityType::canSpawnAwayFromPlayer).orElse(false); //TODO find true method
     }
 
     public static Class<? extends Entity> getEntityClass(Enum<?> enumEntry) {

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class SoakFluidTag implements Tag<Fluid> {
 
-    private org.spongepowered.api.tag.Tag<FluidType> tag;
+    private final org.spongepowered.api.tag.Tag<FluidType> tag;
 
     public SoakFluidTag(org.spongepowered.api.tag.Tag<FluidType> tag) {
         this.tag = tag;

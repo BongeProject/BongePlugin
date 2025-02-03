@@ -47,7 +47,7 @@ public class SoakInventoryClickEvent extends SoakEvent<ClickContainerEvent, Inve
                 return InventoryAction.NOTHING;
             }
             if (!event.transactions().isEmpty()) {
-                var slotAfter = event.transactions().get(0).finalReplacement();
+                var slotAfter = event.transactions().getFirst().finalReplacement();
                 if (cursorBefore.isEmpty()) {
                     if (slotAfter.equals(cursorBefore)) {
                         return InventoryAction.PICKUP_ALL;

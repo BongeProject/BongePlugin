@@ -1,11 +1,8 @@
 package org.soak.generate.bukkit;
 
-import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.plugin.SoakManager;
-import org.soak.wrapper.entity.AbstractEntity;
-import org.soak.wrapper.entity.SoakEntity;
 import org.soak.wrapper.entity.generic.SoakLivingEntity;
 import org.soak.wrapper.entity.living.AbstractLivingEntity;
 import org.spongepowered.api.ResourceKey;
@@ -51,14 +48,19 @@ public class EntityTypeMappingEntry<SE extends Entity, SoakE extends org.bukkit.
         };
     }
 
-    public <SoakEntity extends org.bukkit.entity.Entity> EntityTypeMappingEntry<SE, SoakEntity> updateWithSoakClass(@NotNull Class<SE> clazz) {
+    public <BukkitEntity extends org.bukkit.entity.Entity> EntityTypeMappingEntry<SE, BukkitEntity> updateWithSoakClass(@NotNull Class<SE> clazz) {
         if (Living.class.isAssignableFrom(clazz)) {
-            EntityTypeMappingEntry<SE, AbstractLivingEntity> t = updateWithSoakClass(AbstractLivingEntity.class,
-                                                                                     e -> new SoakLivingEntity<>((Living) e),
-                                                                                     clazz);
-            return (EntityTypeMappingEntry<SE, SoakEntity>) t;
+            @SuppressWarnings("rawtypes") EntityTypeMappingEntry<SE, AbstractLivingEntity> t = updateWithSoakClass(
+                    AbstractLivingEntity.class,
+                    e -> new SoakLivingEntity<>((Living) e),
+                    clazz);
+            //noinspection unchecked
+            return (EntityTypeMappingEntry<SE, BukkitEntity>) t;
         }
-        return (EntityTypeMappingEntry<SE, SoakEntity>) updateWithSoakClass(this.soakEntityClass, this.creation, clazz);
+        //noinspection unchecked
+        return (EntityTypeMappingEntry<SE, BukkitEntity>) updateWithSoakClass(this.soakEntityClass,
+                                                                              this.creation,
+                                                                              clazz);
     }
 
     public <SoakEntity extends org.bukkit.entity.Entity> EntityTypeMappingEntry<SE, SoakEntity> updateWithSoakClass(@NotNull Class<SoakEntity> soakClass, @NotNull Function<SE, SoakEntity> function, @Nullable Class<SE> spongeEntity) {

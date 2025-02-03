@@ -28,8 +28,10 @@ import java.util.function.Supplier;
 
 public class SignBlockState extends AbstractTileState implements Sign {
 
-    private final SoakSignSide front = new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_FRONT_TEXT)));
-    private final SoakSignSide back = new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_BACK_TEXT)));
+    private final SoakSignSide front =
+            new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_FRONT_TEXT)));
+    private final SoakSignSide back =
+            new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_BACK_TEXT)));
 
     public SignBlockState(@Nullable ServerLocation location, @NotNull BlockState state, boolean isSnapshot) {
         super(location, state, isSnapshot);
@@ -105,7 +107,7 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     @Override
     public @NotNull DyeColor getColor() {
-        return this.front.getColor();
+        return Objects.requireNonNullElse(this.front.getColor(), DyeColor.BLACK);
     }
 
     @Override
@@ -160,7 +162,10 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     @Override
     public @NotNull Side getInteractableSideFor(double v, double v1) {
-        throw NotImplementedException.createByLazy(BlockState.class, "getInteractableSideFor", double.class, double.class);
+        throw NotImplementedException.createByLazy(BlockState.class,
+                                                   "getInteractableSideFor",
+                                                   double.class,
+                                                   double.class);
 
     }
 
@@ -176,7 +181,8 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     @Override
     protected void onPostApply(@NotNull ServerLocation location) {
-        var sign = (org.spongepowered.api.block.entity.Sign) location.blockEntity().orElseThrow(() -> new RuntimeException("Sign BlockEntity was not set"));
+        var sign = (org.spongepowered.api.block.entity.Sign) location.blockEntity()
+                .orElseThrow(() -> new RuntimeException("Sign BlockEntity was not set"));
         apply(sign.backText(), this.back);
         apply(sign.frontText(), this.front);
     }
@@ -189,13 +195,23 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     public static class SoakSignSide implements SignSide {
 
-        private Supplier<Optional<org.spongepowered.api.block.entity.Sign.SignText>> signText;
+        private final Supplier<Optional<org.spongepowered.api.block.entity.Sign.SignText>> signText;
         private final List<Component> lines = new ArrayList<>();
-        private final DataOverride<Boolean> glowingText = new DataOverride<>(() -> signText.get().flatMap(side -> side.get(Keys.GLOWING_TEXT)).orElse(false));
-        private DataOverride<DyeColor> colour = new DataOverride<>(() -> signText.get().flatMap(side -> side.get(Keys.COLOR)).flatMap(SoakColourMap::toSpongeDye).map(SoakColourMap::toBukkitDye).orElse(DyeColor.BLACK));
+        private final DataOverride<Boolean> glowingText;
+        private DataOverride<DyeColor> colour;
 
         public SoakSignSide(Supplier<Optional<org.spongepowered.api.block.entity.Sign.SignText>> side) {
             this.signText = side;
+
+            glowingText = new DataOverride<>(() -> signText.get()
+                    .flatMap(side1 -> side1.get(Keys.GLOWING_TEXT))
+                    .orElse(false));
+
+            colour = new DataOverride<>(() -> signText.get()
+                    .flatMap(side1 -> side1.get(Keys.COLOR))
+                    .flatMap(SoakColourMap::toSpongeDye)
+                    .map(SoakColourMap::toBukkitDye)
+                    .orElse(DyeColor.BLACK));
         }
 
         @Override

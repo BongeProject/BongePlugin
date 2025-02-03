@@ -12,21 +12,23 @@ import org.soak.map.item.inventory.SoakEquipmentMap;
 import org.soak.wrapper.inventory.SoakInventory;
 import org.spongepowered.api.item.inventory.Inventory;
 
-public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.item.inventory.entity.PlayerInventory> implements PlayerInventory {
+public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.item.inventory.entity.PlayerInventory>
+        implements PlayerInventory {
 
     public SoakPlayerInventory(org.spongepowered.api.item.inventory.entity.PlayerInventory spongeInventory) {
         super(spongeInventory);
     }
 
     @Override
-    public ItemStack getItem(EquipmentSlot arg0) {
+    public @NotNull ItemStack getItem(@NotNull EquipmentSlot arg0) {
         var equipmentType = SoakEquipmentMap.toSponge(arg0);
         return this.sponge()
                 .equipment()
                 .slot(equipmentType)
                 .map(Inventory::peek)
                 .map(SoakItemStackMap::toBukkit)
-                .orElseThrow(() -> new RuntimeException("Slot " + arg0.name() + " cannot be applied to Player Inventory"));
+                .orElseThrow(() -> new RuntimeException("Slot " + arg0.name() + " cannot be applied to Player " +
+                                                                "Inventory"));
     }
 
     @Override
@@ -35,6 +37,7 @@ public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.ite
     }
 
     @Override
+    @NotNull
     public ItemStack[] getArmorContents() {
         ItemStack helmet = this.getHelmet();
         ItemStack chest = this.getChestplate();
@@ -50,6 +53,7 @@ public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.ite
     }
 
     @Override
+    @NotNull
     public ItemStack[] getExtraContents() {
         throw NotImplementedException.createByLazy(PlayerInventory.class, "getExtraContents");
     }
@@ -109,13 +113,14 @@ public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.ite
     }
 
     @Override
-    public void setItem(EquipmentSlot arg0, ItemStack arg1) {
+    public void setItem(@NotNull EquipmentSlot arg0, ItemStack arg1) {
         var equipmentType = SoakEquipmentMap.toSponge(arg0);
         var stack = SoakItemStackMap.toSponge(arg1);
         var slot = this.sponge()
                 .equipment()
                 .slot(equipmentType)
-                .orElseThrow(() -> new RuntimeException("Slot " + arg0.name() + " is not applicable to Player inventory"));
+                .orElseThrow(() -> new RuntimeException("Slot " + arg0.name() + " is not applicable to Player " +
+                                                                "inventory"));
         slot.set(stack);
     }
 

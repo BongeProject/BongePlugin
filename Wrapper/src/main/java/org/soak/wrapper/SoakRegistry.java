@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.map.SoakResourceKeyMap;
 import org.spongepowered.api.registry.DefaultedRegistryType;
+import org.spongepowered.api.registry.RegistryEntry;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -30,7 +31,7 @@ public class SoakRegistry<SR, BR extends Keyed> implements Registry<BR> {
 
     @Override
     public @Nullable BR get(@NotNull NamespacedKey namespacedKey) {
-        return registryType.get().findEntry(SoakResourceKeyMap.mapToSponge(namespacedKey)).map(entry -> entry.value()).map(map).orElse(null);
+        return registryType.get().findEntry(SoakResourceKeyMap.mapToSponge(namespacedKey)).map(RegistryEntry::value).map(map).orElse(null);
     }
 
     @Override

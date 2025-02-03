@@ -17,7 +17,7 @@ public class SoakToolComponent implements ToolComponent {
 
     private final @NotNull AbstractItemMeta item;
 
-    public SoakToolComponent(AbstractItemMeta meta) {
+    public SoakToolComponent(@NotNull AbstractItemMeta meta) {
         item = meta;
     }
 
@@ -47,14 +47,10 @@ public class SoakToolComponent implements ToolComponent {
 
     @Override
     public @NotNull List<ToolRule> getRules() {
-        return ListMappingUtils.direct(this
-                        .item
-                        .sponge()
-                        .get(Keys.TOOL_RULES)
-                        .orElse(Collections.emptyList()),
-                rule -> new SoakToolRule(item, rule),
-                rule -> ((SoakToolRule) rule).sponge(),
-                false);
+        return ListMappingUtils.direct(this.item.sponge().get(Keys.TOOL_RULES).orElse(Collections.emptyList()),
+                                       rule -> new SoakToolRule(item, rule),
+                                       rule -> ((SoakToolRule) rule).sponge(),
+                                       false);
     }
 
     @Override
@@ -69,9 +65,14 @@ public class SoakToolComponent implements ToolComponent {
     }
 
     @Override
-    public @NotNull ToolRule addRule(@NotNull Collection<Material> collection, @Nullable Float aFloat, @Nullable Boolean aBoolean) {
+    public @NotNull ToolRule addRule(@NotNull Collection<Material> collection, @Nullable Float aFloat,
+                                     @Nullable Boolean aBoolean) {
         var spongeBlocks = collection.stream().map(material -> SoakBlockMap.toSponge(material).orElseThrow()).toList();
-        var spongeToolRule = org.spongepowered.api.data.type.ToolRule.forBlocks(spongeBlocks, aFloat == null ? null : aFloat.doubleValue(), aBoolean);
+        var spongeToolRule = org.spongepowered.api.data.type.ToolRule.forBlocks(spongeBlocks,
+                                                                                aFloat == null ?
+                                                                                        null :
+                                                                                        aFloat.doubleValue(),
+                                                                                aBoolean);
         var toolRules = new ArrayList<>(this.item.sponge().get(Keys.TOOL_RULES).orElse(Collections.emptyList()));
         toolRules.add(spongeToolRule);
         return new SoakToolRule(item, spongeToolRule);

@@ -4,22 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.soak.plugin.SoakPlugin;
 import org.soak.plugin.SoakPluginContainer;
-import org.soak.plugin.paper.meta.SoakPluginMeta;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 public class AbstractSoakPluginContainer implements SoakPluginContainer {
@@ -66,7 +58,7 @@ public class AbstractSoakPluginContainer implements SoakPluginContainer {
     }
 
     @Override
-    public SoakPluginWrapper instance() {
+    public @NotNull SoakPluginWrapper instance() {
         return this.mainInstance;
     }
 
@@ -78,7 +70,7 @@ public class AbstractSoakPluginContainer implements SoakPluginContainer {
         }
 
         URI localPath = this.bukkitPluginFile.toURI();
-        URI ret = null;
+        URI ret;
         try {
             ret = localPath.relativize(new URI(path));
         } catch (URISyntaxException e) {

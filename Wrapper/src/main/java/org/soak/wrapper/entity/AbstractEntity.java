@@ -54,7 +54,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Entity> extends SoakCommandSender implements Entity {
+public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Entity> extends SoakCommandSender
+        implements Entity {
 
     private static final Map<UUID, Map<String, MetadataValue>> METADATA = new ConcurrentHashMap<>();
     protected E entity;
@@ -64,14 +65,18 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
         this.entity = entity;
     }
 
+    @SuppressWarnings("unchecked")
     private static <SE extends org.spongepowered.api.entity.Entity, SoakEntity extends Entity> SoakEntity wrapEntity(SE entity) {
-        EntityTypeMappingEntry<SE, SoakEntity> entityTypeMapping = (EntityTypeMappingEntry<SE, SoakEntity>) EntityTypeList.getEntityTypeMapping(entity.type());
-        if(!entityTypeMapping.isFinal()){
-            entityTypeMapping.updateWithSoakClass((Class<SE>)entity.getClass());
+        EntityTypeMappingEntry<SE, SoakEntity> entityTypeMapping =
+                (EntityTypeMappingEntry<SE, SoakEntity>) EntityTypeList.getEntityTypeMapping(
+                entity.type());
+        if (!entityTypeMapping.isFinal()) {
+            entityTypeMapping.updateWithSoakClass((Class<SE>) entity.getClass());
         }
         return entityTypeMapping.createMapping(entity);
     }
 
+    @SuppressWarnings("unchecked")
     public static <E extends Living> AbstractLivingEntity<E> wrap(E living) {
         return (AbstractLivingEntity<E>) (Object) wrapEntity(living);
     }
@@ -148,9 +153,9 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
     @Override
     public @NotNull Location getLocation() {
         var loc = new Location(this.getWorld(),
-                this.entity.position().x(),
-                this.entity.position().y(),
-                this.entity.position().z());
+                               this.entity.position().x(),
+                               this.entity.position().y(),
+                               this.entity.position().z());
         var spongeRotation = this.entity.rotation();
         loc.setPitch((float) spongeRotation.x());
         loc.setYaw((float) spongeRotation.y());
@@ -203,7 +208,8 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
     }
 
     @Override
-    public boolean teleport(@NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause teleportCause, @NotNull TeleportFlag... teleportFlags) {
+    public boolean teleport(@NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause teleportCause,
+                            @NotNull TeleportFlag... teleportFlags) {
         var bukkitWorld = (SoakWorld) location.getWorld();
         var spongeLocation = bukkitWorld.sponge().location(location.getX(), location.getY(), location.getZ());
         var rotation = new Vector3d(location.getPitch(), location.getYaw(), this.entity.rotation().z());
@@ -310,7 +316,10 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
 
     @Override
     public boolean spawnAt(@NotNull Location location, @NotNull CreatureSpawnEvent.SpawnReason spawnReason) {
-        throw NotImplementedException.createByLazy(Entity.class, "spawnAt", Location.class, CreatureSpawnEvent.SpawnReason.class);
+        throw NotImplementedException.createByLazy(Entity.class,
+                                                   "spawnAt",
+                                                   Location.class,
+                                                   CreatureSpawnEvent.SpawnReason.class);
 
     }
 
@@ -388,7 +397,11 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
     public @NotNull List<Entity> getNearbyEntities(double x, double y, double z) {
         var thisLocation = getLocation();
         var near = this.getWorld().getNearbyEntities(thisLocation, x, y, z);
-        return ListMappingUtils.fromStream(CollectionStreamBuilder.builder().collection(near).basicMap(t -> t), near::stream, Object::equals, Comparator.comparingDouble(entity -> entity.getLocation().distanceSquared(thisLocation))).buildList();
+        return ListMappingUtils.fromStream(CollectionStreamBuilder.builder().collection(near).basicMap(t -> t),
+                                           near::stream,
+                                           Object::equals,
+                                           Comparator.comparingDouble(entity -> entity.getLocation()
+                                                   .distanceSquared(thisLocation))).buildList();
     }
 
     @Override
@@ -433,7 +446,7 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
         if (passengers.isEmpty()) {
             return null;
         }
-        return passengers.get(0);
+        return passengers.getFirst();
     }
 
     @Deprecated
@@ -445,8 +458,7 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
     @Override
     public @NotNull List<Entity> getPassengers() {
         List<org.spongepowered.api.entity.Entity> spongeEntities = this.entity.get(Keys.PASSENGERS).orElse(List.of());
-        return CollectionStreamBuilder
-                .builder()
+        return CollectionStreamBuilder.builder()
                 .collection(spongeEntities)
                 .basicMap(spongeEntity -> (Entity) AbstractEntity.wrap(spongeEntity))
                 .withFirstIndexOf(soakEntity -> spongeEntities.indexOf(((AbstractEntity<?>) soakEntity).entity))
@@ -688,7 +700,9 @@ public abstract class AbstractEntity<E extends org.spongepowered.api.entity.Enti
     }
 
     @Override
-    public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause teleportCause, @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location location,
+                                                             @NotNull PlayerTeleportEvent.TeleportCause teleportCause
+            , @NotNull TeleportFlag @NotNull ... teleportFlags) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         var plugin = GeneralHelper.fromStackTrace();
 

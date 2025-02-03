@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class SoakPotionEffectType extends PotionEffectType {
 
-    org.spongepowered.api.effect.potion.PotionEffectType type;
+    final org.spongepowered.api.effect.potion.PotionEffectType type;
 
     public SoakPotionEffectType(org.spongepowered.api.effect.potion.PotionEffectType type) {
         this.type = type;
@@ -30,8 +30,9 @@ public class SoakPotionEffectType extends PotionEffectType {
         throw NotImplementedException.createByLazy(PotionEffectType.class, "getDurationModifier");
     }
 
+    @SuppressWarnings("removal")
     @Override
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public int getId() {
         //not implemented really
         var effects = PotionEffectTypes.registry().stream().toList();
@@ -70,7 +71,10 @@ public class SoakPotionEffectType extends PotionEffectType {
 
     @Override
     public double getAttributeModifierAmount(@NotNull Attribute attribute, int i) {
-        throw NotImplementedException.createByLazy(PotionEffectType.class, "getAttributeModifierAmount", Attribute.class, int.class);
+        throw NotImplementedException.createByLazy(PotionEffectType.class,
+                                                   "getAttributeModifierAmount",
+                                                   Attribute.class,
+                                                   int.class);
     }
 
     @NotNull
@@ -94,7 +98,9 @@ public class SoakPotionEffectType extends PotionEffectType {
         return SoakResourceKeyMap.mapToBukkit(this.type.key(RegistryTypes.POTION_EFFECT_TYPE));
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull String getTranslationKey() {
         return translationKey();
     }

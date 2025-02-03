@@ -15,7 +15,8 @@ import org.spongepowered.api.data.DataHolder;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class AbstractPersistentData<DH extends DataHolder> implements PersistentDataContainer, SoakPersistentData {
+public abstract class AbstractPersistentData<DH extends DataHolder>
+        implements PersistentDataContainer, SoakPersistentData {
 
     protected DH holder;
 
@@ -33,8 +34,11 @@ public abstract class AbstractPersistentData<DH extends DataHolder> implements P
     }
 
     @Override
-    public void copyTo(PersistentDataContainer persistentDataContainer, boolean replace) {
-        throw NotImplementedException.createByLazy(PersistentDataContainer.class, "copyTo", PersistentDataContainer.class, boolean.class);
+    public void copyTo(@NotNull PersistentDataContainer persistentDataContainer, boolean replace) {
+        throw NotImplementedException.createByLazy(PersistentDataContainer.class,
+                                                   "copyTo",
+                                                   PersistentDataContainer.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -70,7 +74,8 @@ public abstract class AbstractPersistentData<DH extends DataHolder> implements P
     }
 
     @Override
-    public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey arg0, @NotNull PersistentDataType<T, Z> arg1, @NotNull Z arg2) {
+    public <T, Z> @NotNull Z getOrDefault(@NotNull NamespacedKey arg0, @NotNull PersistentDataType<T, Z> arg1,
+                                          @NotNull Z arg2) {
         return getOptional(arg0, arg1).orElse(arg2);
     }
 }

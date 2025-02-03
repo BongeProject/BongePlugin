@@ -63,13 +63,12 @@ public class SoakPlayerProfile implements PlayerProfile {
     public @Nullable UUID setId(@Nullable UUID uuid) {
         UUID old = this.profile.uniqueId();
         if (uuid != null) {
-            Sponge.server().gameProfileManager().profile(uuid).thenAccept(profile -> {
-                this.profile = profile;
-            });
+            Sponge.server().gameProfileManager().profile(uuid).thenAccept(profile -> this.profile = profile);
         } else if (this.profile.name().isPresent()) {
-            Sponge.server().gameProfileManager().profile(this.profile.name().orElseThrow()).thenAccept(profile -> {
-                this.profile = profile;
-            });
+            Sponge.server()
+                    .gameProfileManager()
+                    .profile(this.profile.name().orElseThrow())
+                    .thenAccept(profile -> this.profile = profile);
         } else {
             throw new RuntimeException("GameProfile cannot have no name and ID");
         }

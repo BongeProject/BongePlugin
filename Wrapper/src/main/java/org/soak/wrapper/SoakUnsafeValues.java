@@ -35,6 +35,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
+import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.exception.NotImplementedException;
@@ -89,8 +90,14 @@ public class SoakUnsafeValues implements UnsafeValues {
     }
 
     @Override
-    public Component resolveWithContext(Component component, CommandSender commandSender, Entity entity, boolean b) throws IOException {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "resolveWithContext", Component.class, CommandSender.class, Entity.class, boolean.class);
+    public Component resolveWithContext(Component component, CommandSender commandSender, Entity entity, boolean b)
+            throws IOException {
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "resolveWithContext",
+                                                   Component.class,
+                                                   CommandSender.class,
+                                                   Entity.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -140,45 +147,49 @@ public class SoakUnsafeValues implements UnsafeValues {
             var jsonRoot = GsonConfigurationLoader.builder().buildAndLoadString(jsonString);
             var spongeItemStack = SoakItemStackMap.toSponge(itemStack);
             jsonRoot.childrenMap().entrySet().stream().map(entry -> {
-                        var keyName = entry.getKey().toString();
-                        var valueNode = entry.getValue();
+                var keyName = entry.getKey().toString();
+                var valueNode = entry.getValue();
 
-                        return switch (keyName) {
-                            case "Potion" -> {
-                                var potionTypeId = Objects.requireNonNull(valueNode.getString());
-                                var potionType = PotionTypes.registry().findEntry(ResourceKey.resolve(potionTypeId));
-                                if (potionType.isEmpty()) {
-                                    SoakManager.getManager().getLogger().warn("Could not get value of '{}' for key 'PotionType'", potionTypeId);
-                                    yield null;
-                                }
-                                yield Map.entry(Keys.POTION_TYPE, potionType.get());
-                            }
-                            case "Fireworks" -> {
-                                //this is probably wrong
-                                var flightSeconds = valueNode.node("Flight").getDouble();
-                                var flightTicks = (long) (flightSeconds * 20);
-                                yield Map.entry(Keys.FIREWORK_FLIGHT_MODIFIER, Ticks.of(flightTicks));
-                            }
-                            case "instrument" -> {
-                                var instrumentId = Objects.requireNonNull(valueNode.getString());
-                                var instrumentType = InstrumentTypes.registry().findEntry(ResourceKey.resolve(instrumentId));
-                                if (instrumentType.isEmpty()) {
-                                    SoakManager.getManager().getLogger().warn("Could not get value of '{}' for key 'InstrumentType'", instrumentId);
-                                    yield null;
-                                }
-                                yield Map.entry(Keys.INSTRUMENT_TYPE, instrumentType.get());
-                            }
-                            case "Levels" -> {
-                                //beacon levels
-                                var beaconLevel = valueNode.getDouble();
-                                SoakManager.getManager().getLogger().warn("Could not get value of '{}' for key 'Beacon level'", beaconLevel);
-                                yield null;
-                            }
-                            default -> throw new IllegalStateException("Unknown Item Key of: " + keyName);
-                        };
-                    })
-                    .filter(Objects::nonNull)
-                    .forEach(entry -> offer(spongeItemStack, entry.getKey(), entry.getValue()));
+                return switch (keyName) {
+                    case "Potion" -> {
+                        var potionTypeId = Objects.requireNonNull(valueNode.getString());
+                        var potionType = PotionTypes.registry().findEntry(ResourceKey.resolve(potionTypeId));
+                        if (potionType.isEmpty()) {
+                            SoakManager.getManager()
+                                    .getLogger()
+                                    .warn("Could not get value of '{}' for key 'PotionType'", potionTypeId);
+                            yield null;
+                        }
+                        yield Map.entry(Keys.POTION_TYPE, potionType.get());
+                    }
+                    case "Fireworks" -> {
+                        //this is probably wrong
+                        var flightSeconds = valueNode.node("Flight").getDouble();
+                        var flightTicks = (long) (flightSeconds * 20);
+                        yield Map.entry(Keys.FIREWORK_FLIGHT_MODIFIER, Ticks.of(flightTicks));
+                    }
+                    case "instrument" -> {
+                        var instrumentId = Objects.requireNonNull(valueNode.getString());
+                        var instrumentType = InstrumentTypes.registry().findEntry(ResourceKey.resolve(instrumentId));
+                        if (instrumentType.isEmpty()) {
+                            SoakManager.getManager()
+                                    .getLogger()
+                                    .warn("Could not get value of '{}' for key 'InstrumentType'", instrumentId);
+                            yield null;
+                        }
+                        yield Map.entry(Keys.INSTRUMENT_TYPE, instrumentType.get());
+                    }
+                    case "Levels" -> {
+                        //beacon levels
+                        var beaconLevel = valueNode.getDouble();
+                        SoakManager.getManager()
+                                .getLogger()
+                                .warn("Could not get value of '{}' for key 'Beacon level'", beaconLevel);
+                        yield null;
+                    }
+                    default -> throw new IllegalStateException("Unknown Item Key of: " + keyName);
+                };
+            }).filter(Objects::nonNull).forEach(entry -> offer(spongeItemStack, entry.getKey(), entry.getValue()));
 
             return SoakItemStackMap.toBukkit(spongeItemStack);
         } catch (Throwable e) {
@@ -208,7 +219,10 @@ public class SoakUnsafeValues implements UnsafeValues {
 
     @Override
     public Advancement loadAdvancement(NamespacedKey arg0, String arg1) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "loadAdvancement", NamespacedKey.class, String.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "loadAdvancement",
+                                                   NamespacedKey.class,
+                                                   String.class);
     }
 
     @Override
@@ -217,8 +231,12 @@ public class SoakUnsafeValues implements UnsafeValues {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(Material material, EquipmentSlot equipmentSlot) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "getDefaultAttributeModifiers", Material.class, EquipmentSlot.class);
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(Material material,
+                                                                               EquipmentSlot equipmentSlot) {
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "getDefaultAttributeModifiers",
+                                                   Material.class,
+                                                   EquipmentSlot.class);
     }
 
     @Override
@@ -268,7 +286,11 @@ public class SoakUnsafeValues implements UnsafeValues {
 
     @Override
     public Entity deserializeEntity(byte[] bytes, World world, boolean b) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "deserializeEntity", byte.class, World.class, boolean.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "deserializeEntity",
+                                                   byte.class,
+                                                   World.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -292,6 +314,7 @@ public class SoakUnsafeValues implements UnsafeValues {
     }
 
     @Override
+    @NotNull
     public DamageSource.Builder createDamageSourceBuilder(@NotNull DamageType damageType) {
         throw NotImplementedException.createByLazy(UnsafeValues.class, "createDamageSourceBuilder", DamageType.class);
     }
@@ -323,7 +346,10 @@ public class SoakUnsafeValues implements UnsafeValues {
 
     @Override
     public boolean isValidRepairItemStack(@NotNull ItemStack arg0, @NotNull ItemStack arg1) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "isValidRepairItemStack", ItemStack.class, ItemStack.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "isValidRepairItemStack",
+                                                   ItemStack.class,
+                                                   ItemStack.class);
     }
 
     @Override
@@ -333,22 +359,37 @@ public class SoakUnsafeValues implements UnsafeValues {
 
     @Override
     public boolean hasDefaultEntityAttributes(@NotNull NamespacedKey namespacedKey) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "hasDefaultEntityAttributes", NamespacedKey.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "hasDefaultEntityAttributes",
+                                                   NamespacedKey.class);
     }
 
     @Override
     public @NotNull Attributable getDefaultEntityAttributes(@NotNull NamespacedKey namespacedKey) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "getDefaultEntityAttributes", NamespacedKey.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "getDefaultEntityAttributes",
+                                                   NamespacedKey.class);
     }
 
     @Override
     public @NotNull NamespacedKey getBiomeKey(RegionAccessor regionAccessor, int i, int i1, int i2) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "setBiomeKey", RegionAccessor.class, int.class, int.class, int.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "setBiomeKey",
+                                                   RegionAccessor.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Override
     public void setBiomeKey(RegionAccessor regionAccessor, int i, int i1, int i2, NamespacedKey namespacedKey) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "setBiomeKey", RegionAccessor.class, int.class, int.class, int.class, NamespacedKey.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "setBiomeKey",
+                                                   RegionAccessor.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   NamespacedKey.class);
     }
 
     @Override
@@ -358,23 +399,33 @@ public class SoakUnsafeValues implements UnsafeValues {
 
     @Override
     public @Nullable Color getSpawnEggLayerColor(EntityType entityType, int i) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "getSpawnEggLayerColor", EntityType.class, int.class);
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "getSpawnEggLayerColor",
+                                                   EntityType.class,
+                                                   int.class);
     }
 
     @Override
-    public LifecycleEventManager<Plugin> createPluginLifecycleEventManager(JavaPlugin javaPlugin, BooleanSupplier booleanSupplier) {
+    public LifecycleEventManager<@NotNull Plugin> createPluginLifecycleEventManager(JavaPlugin javaPlugin,
+                                                                                    BooleanSupplier booleanSupplier) {
         boolean test = booleanSupplier.getAsBoolean();
         //TODO work this one out, not on javadocs
         return new SoakLifecycleEventManager<>();
     }
 
     @Override
-    public @NotNull List<Component> computeTooltipLines(@NotNull ItemStack itemStack, @NotNull TooltipContext tooltipContext, @Nullable Player player) {
-        throw NotImplementedException.createByLazy(UnsafeValues.class, "computeTooltipLines", ItemStack.class, TooltipContext.class, Player.class);
+    public @NotNull List<Component> computeTooltipLines(@NotNull ItemStack itemStack,
+                                                        @NotNull TooltipContext tooltipContext,
+                                                        @Nullable Player player) {
+        throw NotImplementedException.createByLazy(UnsafeValues.class,
+                                                   "computeTooltipLines",
+                                                   ItemStack.class,
+                                                   TooltipContext.class,
+                                                   Player.class);
     }
 
     @Override
-    public @Nullable <A extends Keyed, M> Tag<A> getTag(@NotNull TagKey<A> tagKey) {
+    public @Nullable <A extends Keyed, M> Tag<@NotNull A> getTag(@NotNull TagKey<A> tagKey) {
         throw NotImplementedException.createByLazy(UnsafeValues.class, "getTag", TagKey.class);
     }
 

@@ -9,13 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-public class SoakInvalidRegistry<B extends Keyed> implements ISoakRegistry<B> {
-
-    private RegistryKey<B> key;
-
-    public SoakInvalidRegistry(RegistryKey<B> key) {
-        this.key = key;
-    }
+public record SoakInvalidRegistry<B extends Keyed>(RegistryKey<B> key) implements ISoakRegistry<B> {
 
     @Override
     public @Nullable B get(@NotNull NamespacedKey namespacedKey) {
@@ -35,10 +29,5 @@ public class SoakInvalidRegistry<B extends Keyed> implements ISoakRegistry<B> {
     @Override
     public @NotNull Iterator<B> iterator() {
         return stream().iterator();
-    }
-
-    @Override
-    public RegistryKey<B> key() {
-        return this.key;
     }
 }

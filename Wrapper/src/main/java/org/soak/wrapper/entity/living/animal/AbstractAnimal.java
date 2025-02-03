@@ -1,4 +1,4 @@
-package org.soak.wrapper.entity.living;
+package org.soak.wrapper.entity.living.animal;
 
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Material;
@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.exception.NotImplementedException;
+import org.soak.wrapper.entity.living.AbstractMob;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.animal.Animal;
 import org.spongepowered.api.service.permission.Subject;

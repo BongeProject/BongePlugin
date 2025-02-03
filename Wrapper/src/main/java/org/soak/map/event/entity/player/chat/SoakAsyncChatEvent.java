@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
@@ -18,7 +17,6 @@ import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.adventure.ChatTypes;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 
 import java.util.Collections;

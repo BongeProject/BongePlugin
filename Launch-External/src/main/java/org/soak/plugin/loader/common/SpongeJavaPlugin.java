@@ -41,24 +41,21 @@ public class SpongeJavaPlugin implements Plugin {
         List<String> providers = new LinkedList<>();
         String main = container.metadata().entrypoint();
         String classLoaderOf = "";
-        List<String> depends = container
-                .metadata()
+        List<String> depends = container.metadata()
                 .dependencies()
                 .stream()
                 .filter(pluginDependency -> !pluginDependency.optional())
                 .filter(pluginDependency -> pluginDependency.loadOrder() == PluginDependency.LoadOrder.AFTER)
                 .map(PluginDependency::id)
                 .toList();
-        List<String> softDepends = container
-                .metadata()
+        List<String> softDepends = container.metadata()
                 .dependencies()
                 .stream()
                 .filter(PluginDependency::optional)
                 .filter(pluginDependency -> pluginDependency.loadOrder() == PluginDependency.LoadOrder.AFTER)
                 .map(PluginDependency::id)
                 .toList();
-        List<String> loadBefore = container
-                .metadata()
+        List<String> loadBefore = container.metadata()
                 .dependencies()
                 .stream()
                 .filter(pluginDependency -> pluginDependency.loadOrder() == PluginDependency.LoadOrder.BEFORE)
@@ -67,8 +64,18 @@ public class SpongeJavaPlugin implements Plugin {
         String version = container.metadata().version().toString();
         Map<String, Map<String, Object>> commands = new HashMap<>();
         String description = container.metadata().description().orElse(null);
-        List<String> authors = container.metadata().contributors().stream().filter(pc -> pc.description().isPresent()).map(PluginContributor::name).toList();
-        List<String> contributors = container.metadata().contributors().stream().filter(pc -> pc.description().isEmpty()).map(PluginContributor::name).toList();
+        List<String> authors = container.metadata()
+                .contributors()
+                .stream()
+                .filter(pc -> pc.description().isPresent())
+                .map(PluginContributor::name)
+                .toList();
+        List<String> contributors = container.metadata()
+                .contributors()
+                .stream()
+                .filter(pc -> pc.description().isEmpty())
+                .map(PluginContributor::name)
+                .toList();
         String website = container.metadata().links().homepage().map(URL::toString).orElse(null);
         String prefix = id;
         PluginLoadOrder order = PluginLoadOrder.STARTUP;
@@ -78,7 +85,27 @@ public class SpongeJavaPlugin implements Plugin {
         String apiVersion = SoakPlugin.server().getMinecraftVersion();
         List<String> libraries = new LinkedList<>();
 
-        return new PluginDescriptionFile(id, name, providers, main, classLoaderOf, depends, softDepends, loadBefore, version, commands, description, authors, contributors, website, prefix, order, permissions, permissionDefault, awareness, apiVersion, libraries);
+        return new PluginDescriptionFile(id,
+                                         name,
+                                         providers,
+                                         main,
+                                         classLoaderOf,
+                                         depends,
+                                         softDepends,
+                                         loadBefore,
+                                         version,
+                                         commands,
+                                         description,
+                                         authors,
+                                         contributors,
+                                         website,
+                                         prefix,
+                                         order,
+                                         permissions,
+                                         permissionDefault,
+                                         awareness,
+                                         apiVersion,
+                                         libraries);
     }
 
     @Override
@@ -98,7 +125,9 @@ public class SpongeJavaPlugin implements Plugin {
 
     @Override
     public @NotNull FileConfiguration getConfig() {
-        throw new RuntimeException("A plugin attempted to read a sponge plugins config .... why is it accessing another plugins config????");
+        throw new RuntimeException(
+                "A plugin attempted to read a sponge plugins config .... why is it accessing another plugins " +
+                        "config????");
     }
 
     @Override
@@ -187,17 +216,19 @@ public class SpongeJavaPlugin implements Plugin {
     }
 
     @Override
-    public @NotNull LifecycleEventManager<Plugin> getLifecycleManager() {
+    public @NotNull LifecycleEventManager<@NotNull Plugin> getLifecycleManager() {
         throw NotImplementedException.createByLazy(JavaPlugin.class, "getLifecycleManager");
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] strings) {
         return false;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
+                                                @NotNull String s, @NotNull String[] strings) {
         return Collections.emptyList();
     }
 }

@@ -4,9 +4,11 @@ import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.soak.plugin.SoakManager;
-import org.soak.utils.BasicEntry;
+
+import java.util.Map;
 
 public class AbstractSoakEvent<BE extends Event> {
+
     private final EventPriority priority;
     private final Plugin plugin;
     private final Listener listener;
@@ -14,7 +16,8 @@ public class AbstractSoakEvent<BE extends Event> {
     private final Class<BE> bukkitEvent;
     private final boolean ignoreCancelled;
 
-    public AbstractSoakEvent(Class<BE> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public AbstractSoakEvent(Class<BE> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener,
+                             EventExecutor executor, boolean ignoreCancelled) {
         this.plugin = plugin;
         this.priority = priority;
         this.listener = listener;
@@ -46,7 +49,7 @@ public class AbstractSoakEvent<BE extends Event> {
         try {
             executor.execute(this.listener, event);
         } catch (EventException e) {
-            SoakManager.getManager().displayError(e, this.plugin, new BasicEntry<>("event", event.getEventName()));
+            SoakManager.getManager().displayError(e, this.plugin, Map.of("event", event.getEventName()));
         }
     }
 }

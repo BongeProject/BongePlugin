@@ -34,6 +34,7 @@ public class ReflectionHelper {
         throw ex;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getField(Class<?> fromClass, Object obj, String fieldName) throws IllegalAccessException, NoSuchFieldException {
         var field = fromClass.getDeclaredField(fieldName);
         field.setAccessible(true);

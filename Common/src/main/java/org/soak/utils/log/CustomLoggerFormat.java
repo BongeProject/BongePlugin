@@ -12,7 +12,7 @@ import java.util.logging.LogRecord;
 
 public class CustomLoggerFormat extends Formatter {
 
-    public static Map<String, String> LEVEL_COLOURS;
+    public static final Map<String, String> LEVEL_COLOURS;
 
     static {
         LEVEL_COLOURS = Map.of(System.Logger.Level.ERROR.getName(),
@@ -21,8 +21,7 @@ public class CustomLoggerFormat extends Formatter {
                                AnsiEscapeCodes.YELLOW,
                                System.Logger.Level.DEBUG.getName(),
                                AnsiEscapeCodes.CYAN,
-                               System.Logger.Level.INFO.getName(),
-                               AnsiEscapeCodes.GREEN);
+                               System.Logger.Level.INFO.getName(), AnsiEscapeCodes.GREEN);
     }
 
     private String formatInt(int value) {

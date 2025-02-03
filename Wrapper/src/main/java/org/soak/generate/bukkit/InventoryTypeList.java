@@ -3,11 +3,7 @@ package org.soak.generate.bukkit;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.kyori.adventure.text.Component;
-import org.bukkit.NamespacedKey;
 import org.soak.utils.InventoryHelper;
-import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.entity.living.player.gamemode.GameModes;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -32,11 +28,11 @@ out the Sponge ContainerTypes where bukkit doesn't have it. Despite that, modded
 public class InventoryTypeList {
 
     public static Class<? extends Enum<?>> LOADED_CLASS;
-    public static Collection<InventoryTypeEntry> INVENTORY_TYPE_MAPPINGS = new LinkedTransferQueue<>();
+    public static final Collection<InventoryTypeEntry> INVENTORY_TYPE_MAPPINGS = new LinkedTransferQueue<>();
 
     public static final InventoryTypeEntry CREATIVE = register(new InventoryTypeEntry("CREATIVE",
                                                                                       InventoryHelper.VanillaInventoryIds.PLAYER_INVENTORY::isContainer).setDefaultName(
-            () -> Component.empty()));
+            Component::empty));
 
     private static InventoryTypeEntry register(InventoryTypeEntry entry) {
         INVENTORY_TYPE_MAPPINGS.add(entry);
@@ -91,14 +87,16 @@ public class InventoryTypeList {
         if (LOADED_CLASS == null) {
             throw new RuntimeException("EntityTypeList.LOADED_CLASS must be set");
         }
+        //noinspection unchecked
         return EnumSet.allOf((Class<T>) LOADED_CLASS);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Enum<T>> T value(Container container) {
         return (T) INVENTORY_TYPE_MAPPINGS.stream()
                 .filter(entry -> entry.fromContainer().test(container))
                 .findFirst()
-                .map(entry -> entry.toType())
+                .map(InventoryTypeEntry::toType)
                 .orElseThrow();
     }
 

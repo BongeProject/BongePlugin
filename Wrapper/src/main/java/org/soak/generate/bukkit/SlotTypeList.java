@@ -17,9 +17,11 @@ public class SlotTypeList {
     public static Class<? extends Enum<?>> LOADED_CLASS;
 
     public static final SlotTypeEntry ARMOR = register("ARMOR", EquipmentSlot.class);
-    public static final SlotTypeEntry CRAFTING = register("CRAFTING", slot -> {
-        return slot.parent().getClass().getSimpleName().contains("Chest");
-    });
+    public static final SlotTypeEntry CRAFTING = register("CRAFTING",
+                                                          slot -> slot.parent()
+                                                                  .getClass()
+                                                                  .getSimpleName()
+                                                                  .contains("Chest"));
     public static final SlotTypeEntry RESULT = register("RESULT", slot -> slot instanceof OutputSlot);
 
     public static final SlotTypeEntry CONTAINER = register("CONTAINER", Slot.class);
@@ -34,6 +36,7 @@ public class SlotTypeList {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> DynamicType.Builder<T> createSlotTypeList() throws Exception {
         var slotTypes = SLOT_TYPE_MAPPINGS.stream().map(SlotTypeEntry::id).toList();
 
@@ -41,6 +44,7 @@ public class SlotTypeList {
                 .name("org.bukkit.event.inventory.InventoryType$SlotType");
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Enum<T>> EnumSet<T> values() {
         if (LOADED_CLASS == null) {
             throw new RuntimeException("EntityTypeList.LOADED_CLASS must be set");
@@ -48,11 +52,12 @@ public class SlotTypeList {
         return EnumSet.allOf((Class<T>) LOADED_CLASS);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Enum<T>> T value(Slot container) {
         return (T) SLOT_TYPE_MAPPINGS.stream()
                 .filter(entry -> entry.is(container))
                 .findFirst()
-                .map(entry -> entry.toType())
+                .map(SlotTypeEntry::toType)
                 .orElseThrow();
     }
 }

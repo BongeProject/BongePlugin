@@ -12,8 +12,8 @@ import org.soak.wrapper.entity.living.human.SoakPlayer;
 //used if a inventory has been requested to open, but another action is being done
 public class SoakOpeningInventoryView implements InventoryView {
 
-    private Inventory top;
-    private SoakPlayer player;
+    private final Inventory top;
+    private final SoakPlayer player;
     private String title;
 
     public SoakOpeningInventoryView(Inventory top, SoakPlayer player, String title) {
@@ -93,9 +93,14 @@ public class SoakOpeningInventoryView implements InventoryView {
         throw NotImplementedException.createByLazy(InventoryView.class, "countSlots");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public boolean setProperty(@NotNull InventoryView.Property property, int i) {
-        throw NotImplementedException.createByLazy(InventoryView.class, "setProperty", InventoryView.Property.class, int.class);
+        throw NotImplementedException.createByLazy(InventoryView.class,
+                                                   "setProperty",
+                                                   InventoryView.Property.class,
+                                                   int.class);
 
     }
 

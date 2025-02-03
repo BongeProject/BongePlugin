@@ -6,7 +6,6 @@ import org.soak.map.SoakMessageMap;
 import org.soak.map.SoakSubjectMap;
 import org.soak.plugin.SoakManager;
 import org.soak.plugin.SoakPluginContainer;
-import org.soak.utils.BasicEntry;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
@@ -17,6 +16,7 @@ import org.spongepowered.api.event.EventContextKeys;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,17 +47,13 @@ public class BukkitRawCommand implements Command.Raw {
             SoakManager.getManager()
                     .displayError(e.getCause(),
                                   this.owningPlugin.getBukkitInstance(),
-                                  new BasicEntry<>("type", "Execute"),
-                                  new BasicEntry<>("command", command),
-                                  new BasicEntry<>("arguments", String.join(" ", args)));
+                                  Map.of("type", "Execute", "command", command, "arguments", String.join(" ", args)));
             return CommandResult.error(Component.text(e.getMessage()));
         } catch (Throwable e) {
             SoakManager.getManager()
                     .displayError(e,
                                   this.owningPlugin.getBukkitInstance(),
-                                  new BasicEntry<>("type", "Execute"),
-                                  new BasicEntry<>("command", command),
-                                  new BasicEntry<>("arguments", String.join(" ", args)));
+                                  Map.of("type", "Execute", "command", command, "arguments", String.join(" ", args)));
             return CommandResult.error(Component.text(e.getMessage()));
         }
     }
@@ -65,10 +61,9 @@ public class BukkitRawCommand implements Command.Raw {
     @Override
     public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments)
             throws CommandException {
-        if (!(this.command instanceof PluginCommand)) {
+        if (!(this.command instanceof PluginCommand plCmd)) {
             return Collections.emptyList();
         }
-        var plCmd = (PluginCommand) this.command;
         if (plCmd.getTabCompleter() == null) {
             return Collections.emptyList();
         }
@@ -92,9 +87,7 @@ public class BukkitRawCommand implements Command.Raw {
             SoakManager.getManager()
                     .displayError(e,
                                   this.owningPlugin.getBukkitInstance(),
-                                  new BasicEntry<>("type", "Suggest"),
-                                  new BasicEntry<>("command", command),
-                                  new BasicEntry<>("arguments", String.join(" ", args)));
+                                  Map.of("type", "Suggest", "command", command, "arguments", String.join(" ", args)));
             return Collections.emptyList();
         }
     }

@@ -36,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class JavaPlugin extends PluginBase {
+
     private boolean isEnabled = false;
     private PluginLoader loader = null;
     private Server server = null;
@@ -47,6 +48,7 @@ public abstract class JavaPlugin extends PluginBase {
     private boolean naggable = true;
     private FileConfiguration newConfig = null;
     private File configFile = null;
+
     @SuppressWarnings("SpongeLogging")
     private Logger logger = null;
 
@@ -60,10 +62,9 @@ public abstract class JavaPlugin extends PluginBase {
     /**
      * @deprecated
      */
-    @Deprecated(
-            forRemoval = true
-    )
-    protected JavaPlugin(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
+    @Deprecated(forRemoval = true)
+    protected JavaPlugin(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
+                         @NotNull File dataFolder, @NotNull File file) {
         ClassLoader classLoader = this.getClass().getClassLoader();
         if (classLoader instanceof PluginClassLoader) {
             throw new IllegalStateException("Cannot use initialization constructor at runtime");
@@ -73,13 +74,11 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     public static <T extends JavaPlugin> @NotNull T getPlugin(@NotNull Class<T> clazz) {
-        Preconditions.checkArgument(clazz != null, "Null class cannot have a plugin");
         if (!JavaPlugin.class.isAssignableFrom(clazz)) {
-            throw new IllegalArgumentException("" + clazz + " does not extend " + JavaPlugin.class);
+            throw new IllegalArgumentException(clazz + " does not extend " + JavaPlugin.class);
         } else {
             ClassLoader cl = clazz.getClassLoader();
-            if (cl instanceof ConfiguredPluginClassLoader) {
-                ConfiguredPluginClassLoader configuredPluginClassLoader = (ConfiguredPluginClassLoader) cl;
+            if (cl instanceof ConfiguredPluginClassLoader configuredPluginClassLoader) {
                 JavaPlugin plugin = configuredPluginClassLoader.getPlugin();
                 if (plugin == null) {
                     throw new IllegalStateException("Cannot get plugin for " + clazz + " from a static initializer");
@@ -87,19 +86,25 @@ public abstract class JavaPlugin extends PluginBase {
                     return clazz.cast(plugin);
                 }
             } else {
-                return (T) SoakManager.getManager().getBukkitSoakContainers().findAny().orElseThrow(() -> new RuntimeException("Cannot get main SoakPluginContainer")).getBukkitInstance();
+                return (T) SoakManager.getManager()
+                        .getBukkitSoakContainers()
+                        .findAny()
+                        .orElseThrow(() -> new RuntimeException("Cannot get main SoakPluginContainer"))
+                        .getBukkitInstance();
             }
         }
     }
 
     public static @NotNull JavaPlugin getProvidingPlugin(@NotNull Class<?> clazz) {
-        Preconditions.checkArgument(clazz != null, "Null class cannot have a plugin");
         ClassLoader cl = clazz.getClassLoader();
         if (cl instanceof ConfiguredPluginClassLoader configuredPluginClassLoader) {
-            JavaPlugin plugin = configuredPluginClassLoader.getPlugin();
-            return plugin;
+            return configuredPluginClassLoader.getPlugin();
         } else {
-            return SoakManager.getManager().getBukkitSoakContainers().findAny().orElseThrow(() -> new RuntimeException("Cannot get main SoakPluginContainer")).getBukkitInstance();
+            return SoakManager.getManager()
+                    .getBukkitSoakContainers()
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("Cannot get main SoakPluginContainer"))
+                    .getBukkitInstance();
         }
     }
 
@@ -110,9 +115,7 @@ public abstract class JavaPlugin extends PluginBase {
     /**
      * @deprecated
      */
-    @Deprecated(
-            forRemoval = true
-    )
+    @Deprecated(forRemoval = true)
     public final @NotNull PluginLoader getPluginLoader() {
         return this.loader;
     }
@@ -171,7 +174,8 @@ public abstract class JavaPlugin extends PluginBase {
         this.newConfig = YamlConfiguration.loadConfiguration(this.configFile);
         InputStream defConfigStream = this.getResource("config.yml");
         if (defConfigStream != null) {
-            this.newConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8)));
+            this.newConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream,
+                                                                                                 Charsets.UTF_8)));
         }
     }
 
@@ -193,7 +197,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     public void saveResource(@NotNull String resourcePath, boolean replace) {
-        if (resourcePath != null && !resourcePath.equals("")) {
+        if (resourcePath != null && !resourcePath.isEmpty()) {
             resourcePath = resourcePath.replace('\\', '/');
             InputStream in = this.getResource(resourcePath);
             if (in == null) {
@@ -201,7 +205,7 @@ public abstract class JavaPlugin extends PluginBase {
             } else {
                 File outFile = new File(this.dataFolder, resourcePath);
                 int lastIndex = resourcePath.lastIndexOf(47);
-                File outDir = new File(this.dataFolder, resourcePath.substring(0, lastIndex >= 0 ? lastIndex : 0));
+                File outDir = new File(this.dataFolder, resourcePath.substring(0, Math.max(lastIndex, 0)));
                 if (!outDir.exists()) {
                     outDir.mkdirs();
                 }
@@ -211,7 +215,8 @@ public abstract class JavaPlugin extends PluginBase {
                         Logger var10000 = this.logger;
                         Level var10001 = Level.WARNING;
                         String var10002 = outFile.getName();
-                        var10000.log(var10001, "Could not save " + var10002 + " to " + outFile + " because " + outFile.getName() + " already exists.");
+                        var10000.log(var10001,
+                                     "Could not save " + var10002 + " to " + outFile + " because " + outFile.getName() + " already exists.");
                     } else {
                         OutputStream out = new FileOutputStream(outFile);
                         byte[] buf = new byte[1024];
@@ -254,12 +259,22 @@ public abstract class JavaPlugin extends PluginBase {
         return this.classLoader;
     }
 
-    public final void init(@NotNull PluginLoader loader, @NotNull Server server, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader) {
-        this.init(server, description, dataFolder, file, classLoader, description, PaperPluginLogger.getLogger(description));
+    public final void init(@NotNull PluginLoader loader, @NotNull Server server,
+                           @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file,
+                           @NotNull ClassLoader classLoader) {
+        this.init(server,
+                  description,
+                  dataFolder,
+                  file,
+                  classLoader,
+                  description,
+                  PaperPluginLogger.getLogger(description));
         this.pluginMeta = description;
     }
 
-    public final void init(@NotNull Server server, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader, @Nullable PluginMeta configuration, @NotNull Logger logger) {
+    public final void init(@NotNull Server server, @NotNull PluginDescriptionFile description,
+                           @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader,
+                           @Nullable PluginMeta configuration, @NotNull Logger logger) {
         this.loader = JavaPlugin.DummyPluginLoaderImplHolder.INSTANCE;
         this.server = server;
         this.file = file;
@@ -271,11 +286,13 @@ public abstract class JavaPlugin extends PluginBase {
         this.logger = logger;
     }
 
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
         return false;
     }
 
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+                                                @NotNull String alias, @NotNull String[] args) {
         return null;
     }
 
@@ -325,6 +342,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     private static class DummyPluginLoaderImplHolder {
+
         private static final PluginLoader INSTANCE = (PluginLoader) Services.service(PluginLoader.class).orElseThrow();
 
         private DummyPluginLoaderImplHolder() {

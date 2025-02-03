@@ -136,12 +136,12 @@ public class SoakEnchantment extends Enchantment {
     }
 
     @Override
-    public @NotNull RegistryKeySet<ItemType> getSupportedItems() {
+    public @NotNull RegistryKeySet<@NotNull ItemType> getSupportedItems() {
         throw NotImplementedException.createByLazy(Enchantment.class, "getSupportedItems");
     }
 
     @Override
-    public @Nullable RegistryKeySet<ItemType> getPrimaryItems() {
+    public @Nullable RegistryKeySet<@NotNull ItemType> getPrimaryItems() {
         throw NotImplementedException.createByLazy(Enchantment.class, "getPrimaryItems");
     }
 
@@ -151,7 +151,7 @@ public class SoakEnchantment extends Enchantment {
     }
 
     @Override
-    public @NotNull RegistryKeySet<Enchantment> getExclusiveWith() {
+    public @NotNull RegistryKeySet<@NotNull Enchantment> getExclusiveWith() {
         throw NotImplementedException.createByLazy(Enchantment.class, "getExclusiveWith");
     }
 

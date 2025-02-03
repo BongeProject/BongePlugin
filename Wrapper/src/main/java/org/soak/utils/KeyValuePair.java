@@ -10,6 +10,7 @@ import org.spongepowered.api.data.value.Value;
 import java.util.Map;
 
 public class KeyValuePair<Val> implements Map.Entry<Key<? extends Value<Val>>, Val>, Cloneable {
+
     private final @NotNull Key<? extends Value<Val>> key;
     private @Nullable Val value;
 
@@ -19,12 +20,12 @@ public class KeyValuePair<Val> implements Map.Entry<Key<? extends Value<Val>>, V
     }
 
     @Override
-    public Key<? extends Value<Val>> getKey() {
+    public @NotNull Key<? extends Value<Val>> getKey() {
         return this.key;
     }
 
     @Override
-    public Val getValue() {
+    public @Nullable Val getValue() {
         return this.value;
     }
 

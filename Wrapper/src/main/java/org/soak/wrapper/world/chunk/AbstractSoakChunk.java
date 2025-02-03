@@ -17,7 +17,6 @@ import org.mose.collection.stream.builder.CollectionStreamBuilder;
 import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
 import org.soak.plugin.SoakManager;
-import org.soak.utils.ListMappingUtils;
 import org.soak.wrapper.block.data.SoakBlockData;
 import org.soak.wrapper.block.state.AbstractBlockState;
 import org.soak.wrapper.entity.SoakEntity;
@@ -31,7 +30,6 @@ import org.spongepowered.api.world.volume.stream.StreamOptions;
 import org.spongepowered.math.vector.Vector2i;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,7 +68,8 @@ public class AbstractSoakChunk implements SoakChunk {
     }
 
     @Override
-    public @NotNull ChunkSnapshot getChunkSnapshot(boolean includeMaxBlocky, boolean includeBiome, boolean includeBiomeTempRain) {
+    public @NotNull ChunkSnapshot getChunkSnapshot(boolean includeMaxBlocky, boolean includeBiome,
+                                                   boolean includeBiomeTempRain) {
         //TODO parameters
         return getChunkSnapshot();
     }
@@ -97,19 +96,21 @@ public class AbstractSoakChunk implements SoakChunk {
     }
 
     @Override
-    public @NotNull Collection<BlockState> getTileEntities(@NotNull Predicate<? super Block> predicate, boolean useSnapshots) {
+    public @NotNull Collection<BlockState> getTileEntities(@NotNull Predicate<? super Block> predicate,
+                                                           boolean useSnapshots) {
         return getBlockEntities(state -> {
             var t = state.getBlock();
             return predicate.test(t);
         }, useSnapshots).collect(Collectors.toList());
     }
 
-    private @NotNull Stream<BlockState> getBlockEntities(@NotNull Predicate<AbstractBlockState> predicate, boolean useSnapshots) {
-        return this
-                .chunk
-                .blockEntities()
+    private @NotNull Stream<BlockState> getBlockEntities(@NotNull Predicate<AbstractBlockState> predicate,
+                                                         boolean useSnapshots) {
+        return this.chunk.blockEntities()
                 .stream()
-                .map(blockEntity -> (AbstractBlockState) AbstractBlockState.wrap(blockEntity.serverLocation(), blockEntity.block(), useSnapshots))
+                .map(blockEntity -> (AbstractBlockState) AbstractBlockState.wrap(blockEntity.serverLocation(),
+                                                                                 blockEntity.block(),
+                                                                                 useSnapshots))
                 .filter(predicate)
                 .map(state -> state);
     }
@@ -198,18 +199,14 @@ public class AbstractSoakChunk implements SoakChunk {
         var max = this.chunk.max();
         var min = this.chunk.min();
         var blockState = ((SoakBlockData) blockData).sponge();
-        return this
-                .chunk
-                .blockStateStream(
-                        min,
-                        max,
-                        StreamOptions
-                                .builder()
-                                .setLoadingStyle(StreamOptions.LoadingStyle.FORCED_GENERATED)
-                                .setCarbonCopy(true)
-                                .build())
-                .anyMatch(worldChunkVolumeElement -> chunk
-                        .block(worldChunkVolumeElement.position().toInt()).equals(blockState));
+        return this.chunk.blockStateStream(min,
+                                           max,
+                                           StreamOptions.builder()
+                                                   .setLoadingStyle(StreamOptions.LoadingStyle.FORCED_GENERATED)
+                                                   .setCarbonCopy(true)
+                                                   .build())
+                .anyMatch(worldChunkVolumeElement -> chunk.block(worldChunkVolumeElement.position().toInt())
+                        .equals(blockState));
     }
 
     @Override
@@ -240,9 +237,12 @@ public class AbstractSoakChunk implements SoakChunk {
             var viewDistance = player.get(Keys.VIEW_DISTANCE).orElse(2);
             var playerChunkPosition = player.serverLocation().chunkPosition();
             return playerChunkPosition.distanceSquared(chunkPosition) <= viewDistance;
-        }).map(player -> (ServerPlayer)player);
+        }).map(player -> (ServerPlayer) player);
 
-        return CollectionStreamBuilder.builder().stream(chunks).basicMap(player -> (Player)SoakManager.<WrapperManager>getManager().getMemoryStore().get(player)).buildSet();
+        return CollectionStreamBuilder.builder()
+                .stream(chunks)
+                .basicMap(player -> (Player) SoakManager.<WrapperManager>getManager().getMemoryStore().get(player))
+                .buildSet();
     }
 
     @Override

@@ -103,10 +103,9 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
     }
 
     public void copyInto(ItemMeta meta) {
-        if (!(meta instanceof AbstractItemMeta)) {
+        if (!(meta instanceof AbstractItemMeta into)) {
             throw new RuntimeException("ItemMeta must implement AbstractItemMeta");
         }
-        var into = (AbstractItemMeta) meta;
         into.container = this.container.copy();
     }
 
@@ -570,7 +569,6 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         throw NotImplementedException.createByLazy(ItemMeta.class, "getPlaceableKeys");
     }
 
-    @NotNull
     @Override
     public void setPlaceableKeys(@NotNull Collection<Namespaced> canPlaceOn) {
         throw NotImplementedException.createByLazy(ItemMeta.class, "setPlaceableKeys");

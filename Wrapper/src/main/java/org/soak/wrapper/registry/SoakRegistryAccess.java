@@ -4,6 +4,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
 import org.soak.wrapper.entity.living.animal.cat.SoakCatType;
 import org.soak.wrapper.entity.living.villager.SoakVillagerProfession;
 import org.soak.wrapper.entity.living.villager.SoakVillagerType;
@@ -33,24 +34,53 @@ import java.util.stream.Stream;
 @SuppressWarnings("NonExtendableApiUsage")
 public class SoakRegistryAccess implements RegistryAccess {
 
-    private final Map<RegistryKey<?>, ISoakRegistry<?>> registryMap = toMap(
-            SoakRegistry.simple(RegistryKey.BANNER_PATTERN, BannerPatternShapes::registry, SoakBannerMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.POTION, PotionTypes::registry, SoakPotionEffectMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.ENCHANTMENT, EnchantmentTypes::registry, SoakEnchantment::new),
-            SoakRegistry.simple(RegistryKey.STRUCTURE, Structures::registry, SoakStructureMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.STRUCTURE_TYPE, StructureTypes::registry, SoakStructureMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.TRIM_MATERIAL, ArmorMaterials::registry, SoakEquipmentMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.TRIM_PATTERN, TrimPatterns::registry, SoakEquipmentMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.DAMAGE_TYPE, DamageTypes::registry, SoakDamageMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.JUKEBOX_SONG, MusicDiscs::registry, SoakSoundMap::toBukkit),
-            SoakRegistry.simple(RegistryKey.BLOCK, BlockTypes::registry, SoakBlockMap::toBukkitType),
-            SoakRegistry.simple(RegistryKey.MENU, ContainerTypes::registry, SoakMenuType::new),
-            SoakRegistry.simple(RegistryKey.MOB_EFFECT, PotionEffectTypes::registry, SoakPotionEffectType::new),
-            SoakRegistry.simple(RegistryKey.CAT_VARIANT, CatTypes::registry, SoakCatType::new),
-            SoakRegistry.simple(RegistryKey.VILLAGER_TYPE, VillagerTypes::registry, SoakVillagerType::new),
-            SoakRegistry.simple(RegistryKey.VILLAGER_PROFESSION, ProfessionTypes::registry, SoakVillagerProfession::new),
-            new SoakInvalidRegistry<>(RegistryKey.WOLF_VARIANT)
-    );
+    private final Map<RegistryKey<?>, ISoakRegistry<?>> registryMap =
+            toMap(SoakRegistry.simple(RegistryKey.BANNER_PATTERN,
+                                                                                                BannerPatternShapes::registry,
+                                                                                                SoakBannerMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.POTION,
+                                                                                                PotionTypes::registry,
+                                                                                                SoakPotionEffectMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.ENCHANTMENT,
+                                                                                                EnchantmentTypes::registry,
+                                                                                                SoakEnchantment::new),
+                                                                            SoakRegistry.simple(RegistryKey.STRUCTURE,
+                                                                                                Structures::registry,
+                                                                                                SoakStructureMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.STRUCTURE_TYPE,
+                                                                                                StructureTypes::registry,
+                                                                                                SoakStructureMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.TRIM_MATERIAL,
+                                                                                                ArmorMaterials::registry,
+                                                                                                SoakEquipmentMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.TRIM_PATTERN,
+                                                                                                TrimPatterns::registry,
+                                                                                                SoakEquipmentMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.DAMAGE_TYPE,
+                                                                                                DamageTypes::registry,
+                                                                                                SoakDamageMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.JUKEBOX_SONG,
+                                                                                                MusicDiscs::registry,
+                                                                                                SoakSoundMap::toBukkit),
+                                                                            SoakRegistry.simple(RegistryKey.BLOCK,
+                                                                                                BlockTypes::registry,
+                                                                                                SoakBlockMap::toBukkitType),
+                                                                            SoakRegistry.simple(RegistryKey.MENU,
+                                                                                                ContainerTypes::registry,
+                                                                                                SoakMenuType::new),
+                                                                            SoakRegistry.simple(RegistryKey.MOB_EFFECT,
+                                                                                                PotionEffectTypes::registry,
+                                                                                                SoakPotionEffectType::new),
+                                                                            SoakRegistry.simple(RegistryKey.CAT_VARIANT,
+                                                                                                CatTypes::registry,
+                                                                                                SoakCatType::new),
+                                                                            SoakRegistry.simple(RegistryKey.VILLAGER_TYPE,
+                                                                                                VillagerTypes::registry,
+                                                                                                SoakVillagerType::new),
+                                                                            SoakRegistry.simple(RegistryKey.VILLAGER_PROFESSION,
+                                                                                                ProfessionTypes::registry,
+                                                                                                SoakVillagerProfession::new),
+                                                                            new SoakInvalidRegistry<>(RegistryKey.WOLF_VARIANT));
 
     private Map<RegistryKey<?>, ISoakRegistry<?>> toMap(ISoakRegistry<?>... registries) {
         return Stream.of(registries).collect(Collectors.toMap(ISoakRegistry::key, reg -> reg));
@@ -86,8 +116,9 @@ public class SoakRegistryAccess implements RegistryAccess {
         };
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Keyed> Registry<T> getRegistry(RegistryKey<T> registryKey) {
+    public <T extends Keyed> @NotNull Registry<T> getRegistry(@NotNull RegistryKey<T> registryKey) {
         return (Registry<T>) registryMap.get(registryKey);
     }
 }

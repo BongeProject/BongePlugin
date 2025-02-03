@@ -12,7 +12,6 @@ import org.soak.map.SoakMessageMap;
 import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 
 import java.util.Collections;

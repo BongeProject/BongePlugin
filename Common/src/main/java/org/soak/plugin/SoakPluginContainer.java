@@ -19,6 +19,7 @@ public interface SoakPluginContainer extends PluginContainer {
 
     @NotNull JavaPlugin getBukkitInstance();
 
+    @Override
     @NotNull Object instance();
 
     default void downloadLibraries() {
@@ -32,7 +33,7 @@ public interface SoakPluginContainer extends PluginContainer {
                 String version = split[2];
 
                 String path = group + "/" + id + "/" + version + "/" + id + "-" + version + ".jar";
-                File destination = new File("soakLibraries/" +path);
+                File destination = new File("soakLibraries/" + path);
                 if (destination.exists()) {
                     return;
                 }

@@ -208,10 +208,10 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public int getHighestBlockYAt(int arg0, int arg1, @NotNull HeightMap arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "getHighestBlockYAt",
-                int.class,
-                int.class,
-                HeightMap.class);
+                                                   "getHighestBlockYAt",
+                                                   int.class,
+                                                   int.class,
+                                                   HeightMap.class);
     }
 
     @Override
@@ -227,10 +227,10 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public @NotNull Block getHighestBlockAt(int arg0, int arg1, @NotNull HeightMap arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "getHighestBlockAt",
-                int.class,
-                int.class,
-                HeightMap.class);
+                                                   "getHighestBlockAt",
+                                                   int.class,
+                                                   int.class,
+                                                   HeightMap.class);
     }
 
     @Override
@@ -248,8 +248,7 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
         if (this.world.hasChunk(x, 0, z)) {
             return new AbstractSoakChunk(this.world.chunk(x, 0, z));
         }
-        return this.world
-                .loadChunk(x, 0, z, generate)
+        return this.world.loadChunk(x, 0, z, generate)
                 .map(AbstractSoakChunk::new)
                 .orElseThrow(() -> new IllegalArgumentException("Chunk not loaded and not generating"));
     }
@@ -274,11 +273,11 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public @NotNull CompletableFuture<Chunk> getChunkAtAsync(int x, int z, boolean gen, boolean urgent) {
         throw NotImplementedException.createByLazy(World.class,
-                "getChunkAtAsync",
-                int.class,
-                int.class,
-                boolean.class,
-                boolean.class);
+                                                   "getChunkAtAsync",
+                                                   int.class,
+                                                   int.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -292,97 +291,112 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     @Override
-    public @NotNull Collection<Entity> getNearbyEntities(@NotNull BoundingBox boundingBox, @Nullable Predicate<? super Entity> predicate) {
+    public @NotNull Collection<Entity> getNearbyEntities(@NotNull BoundingBox boundingBox, @Nullable Predicate<?
+            super Entity> predicate) {
         var spongeBoundingBox = SoakBoundingBoxMap.toSponge(boundingBox);
-        Predicate<org.spongepowered.api.entity.Entity> spongePredicate = (entity) -> predicate == null || predicate.test(AbstractEntity.wrap(entity));
+        Predicate<org.spongepowered.api.entity.Entity> spongePredicate =
+                (entity) -> predicate == null || predicate.test(
+                AbstractEntity.wrap(entity));
         var spongeCollection = this.sponge().entities(spongeBoundingBox, spongePredicate);
-        return CollectionStreamBuilder.builder().collection(spongeCollection).basicMap(entity -> (Entity)AbstractEntity.wrap(entity)).buildSet();
+        return CollectionStreamBuilder.builder()
+                .collection(spongeCollection)
+                .basicMap(entity -> (Entity) AbstractEntity.wrap(entity))
+                .buildSet();
     }
 
     @Override
     public @NotNull List<Player> getPlayers() {
-        var builder = CollectionStreamBuilder
-                .builder()
+        var builder = CollectionStreamBuilder.builder()
                 .collection(this.world.players())
                 .basicMap(player -> (Player) SoakManager.<WrapperManager>getManager().getMemoryStore().get(player));
-        return ListMappingUtils
-                .fromStream(
-                        builder,
-                        () -> this.world.players().stream(),
-                        (spongePlayer, soakPlayer) -> ((SoakPlayer) soakPlayer).spongeEntity().equals(spongePlayer),
-                        Comparator.comparing(spongePlayer -> spongePlayer.get(Keys.LAST_DATE_JOINED).orElseThrow(() -> new RuntimeException("No value found for last joined on a online player"))))
+        return ListMappingUtils.fromStream(builder,
+                                           () -> this.world.players().stream(),
+                                           (spongePlayer, soakPlayer) -> ((SoakPlayer) soakPlayer).spongeEntity()
+                                                   .equals(spongePlayer),
+                                           Comparator.comparing(spongePlayer -> spongePlayer.get(Keys.LAST_DATE_JOINED)
+                                                   .orElseThrow(() -> new RuntimeException(
+                                                           "No value found for last joined on a online player"))))
                 .buildList();
     }
 
     @Override
     public boolean createExplosion(Entity arg0, @NotNull Location arg1, float arg2, boolean arg3, boolean arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                Entity.class,
-                Location.class,
-                float.class,
-                boolean.class,
-                boolean.class);
+                                                   "createExplosion",
+                                                   Entity.class,
+                                                   Location.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
     public boolean createExplosion(double arg0, double arg1, double arg2, float arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                double.class,
-                double.class,
-                double.class,
-                float.class);
+                                                   "createExplosion",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   float.class);
     }
 
     @Override
     public boolean createExplosion(@NotNull Location arg0, float arg1, boolean arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                Location.class,
-                float.class,
-                boolean.class);
+                                                   "createExplosion",
+                                                   Location.class,
+                                                   float.class,
+                                                   boolean.class);
     }
 
     @Override
-    public boolean createExplosion(@Nullable Entity entity, @NotNull Location location, float v, boolean b, boolean b1, boolean b2) {
-        throw NotImplementedException.createByLazy(World.class, "setVoidDamageAmount", Entity.class, Location.class, float.class, boolean.class, boolean.class, boolean.class);
+    public boolean createExplosion(@Nullable Entity entity, @NotNull Location location, float v, boolean b,
+                                   boolean b1, boolean b2) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "setVoidDamageAmount",
+                                                   Entity.class,
+                                                   Location.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
     public boolean createExplosion(double arg0, double arg1, double arg2, float arg3, boolean arg4, boolean arg5) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                double.class,
-                double.class,
-                double.class,
-                float.class,
-                boolean.class,
-                boolean.class);
+                                                   "createExplosion",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
     public boolean createExplosion(double arg0, double arg1, double arg2, float arg3, boolean arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                double.class,
-                double.class,
-                double.class,
-                float.class,
-                boolean.class);
+                                                   "createExplosion",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   float.class,
+                                                   boolean.class);
     }
 
     @Override
-    public boolean createExplosion(double arg0, double arg1, double arg2, float arg3, boolean arg4, boolean arg5, Entity arg6) {
+    public boolean createExplosion(double arg0, double arg1, double arg2, float arg3, boolean arg4, boolean arg5,
+                                   Entity arg6) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                double.class,
-                double.class,
-                double.class,
-                float.class,
-                boolean.class,
-                boolean.class,
-                Entity.class);
+                                                   "createExplosion",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class,
+                                                   Entity.class);
     }
 
     @Override
@@ -393,237 +407,262 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public boolean createExplosion(@NotNull Location arg0, float arg1, boolean arg2, boolean arg3, Entity arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                Location.class,
-                float.class,
-                boolean.class,
-                boolean.class,
-                Entity.class);
+                                                   "createExplosion",
+                                                   Location.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class,
+                                                   Entity.class);
     }
 
     @Override
     public boolean createExplosion(@NotNull Location arg0, float arg1, boolean arg2, boolean arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "createExplosion",
-                Location.class,
-                float.class,
-                boolean.class,
-                boolean.class);
+                                                   "createExplosion",
+                                                   Location.class,
+                                                   float.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
-    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> clazz) throws IllegalArgumentException {
+    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> clazz)
+            throws IllegalArgumentException {
         return spawn(location, clazz, (e) -> {
         }, CreatureSpawnEvent.SpawnReason.CUSTOM);
     }
 
     @Override
-    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass, java.util.function.@Nullable Consumer<? super T> consumer, CreatureSpawnEvent.SpawnReason spawnReason) throws IllegalArgumentException {
+    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass,
+                                               @Nullable java.util.function.Consumer<? super T> consumer,
+                                               @NotNull CreatureSpawnEvent.SpawnReason spawnReason)
+            throws IllegalArgumentException {
         var bukkitType = Arrays.stream(EntityType.values())
                 .filter(type -> type.getEntityClass().getName().equals(aClass.getName()))
                 .findAny()
                 .orElseThrow(() -> new RuntimeException("EntityType could not be found for class " + aClass.getName()));
         var spongeEntity = this.sponge()
-                .createEntity(SoakEntityMap.toSponge(bukkitType), new Vector3d(location.getX(), location.getY(), location.getZ()));
-        var bukkitEntity = (T) AbstractEntity.wrap(spongeEntity);
-        consumer.accept(bukkitEntity);
+                .createEntity(SoakEntityMap.toSponge(bukkitType),
+                              new Vector3d(location.getX(), location.getY(), location.getZ()));
+        @SuppressWarnings("unchecked") var bukkitEntity = (T) AbstractEntity.wrap(spongeEntity);
+        if (consumer != null) {
+            consumer.accept(bukkitEntity);
+        }
         this.sponge().spawnEntity(spongeEntity);
         return bukkitEntity;
     }
 
     @Override
-    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass, boolean b, java.util.function.@Nullable Consumer<? super T> consumer) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(World.class, "spawn", Location.class, Class.class, boolean.class, java.util.function.Consumer.class);
+    public <T extends Entity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass, boolean b,
+                                               java.util.function.@Nullable Consumer<? super T> consumer)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "spawn",
+                                                   Location.class,
+                                                   Class.class,
+                                                   boolean.class,
+                                                   java.util.function.Consumer.class);
 
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, List arg1, Player arg2, double arg3, double arg4, double arg5, int arg6, double arg7, double arg8, double arg9, double arg10, Object arg11, boolean arg12) {
+    public void spawnParticle(@NotNull Particle arg0, List arg1, Player arg2, double arg3, double arg4, double arg5,
+                              int arg6, double arg7, double arg8, double arg9, double arg10, Object arg11,
+                              boolean arg12) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                List.class,
-                Player.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class,
-                boolean.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   List.class,
+                                                   Player.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class,
+                                                   boolean.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, double arg6, Object arg7, boolean arg8) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, double arg6, Object arg7, boolean arg8) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class,
-                boolean.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class,
+                                                   boolean.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, Object arg6) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, Object arg6) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, Object arg5) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, Object arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, double arg8) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, double arg8) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, double arg6, Object arg7) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, double arg6, Object arg7) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, Object arg8) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, Object arg8) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, double arg6) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, double arg6) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, double arg8, Object arg9, boolean arg10) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, double arg8, Object arg9, boolean arg10) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class,
-                boolean.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -729,10 +768,10 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public void setChunkForceLoaded(int arg0, int arg1, boolean arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "setChunkForceLoaded",
-                int.class,
-                int.class,
-                boolean.class);
+                                                   "setChunkForceLoaded",
+                                                   int.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -743,19 +782,19 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public boolean addPluginChunkTicket(int arg0, int arg1, @NotNull Plugin arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "addPluginChunkTicket",
-                int.class,
-                int.class,
-                Plugin.class);
+                                                   "addPluginChunkTicket",
+                                                   int.class,
+                                                   int.class,
+                                                   Plugin.class);
     }
 
     @Override
     public boolean removePluginChunkTicket(int arg0, int arg1, @NotNull Plugin arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "removePluginChunkTicket",
-                int.class,
-                int.class,
-                Plugin.class);
+                                                   "removePluginChunkTicket",
+                                                   int.class,
+                                                   int.class,
+                                                   Plugin.class);
     }
 
     @Override
@@ -784,8 +823,13 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     @Override
-    public @NotNull Item dropItem(@NotNull Location location, @NotNull ItemStack itemStack, java.util.function.@Nullable Consumer<? super Item> consumer) {
-        throw NotImplementedException.createByLazy(World.class, "dropItem", Location.class, ItemStack.class, java.util.function.Consumer.class);
+    public @NotNull Item dropItem(@NotNull Location location, @NotNull ItemStack itemStack,
+                                  java.util.function.@Nullable Consumer<? super Item> consumer) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "dropItem",
+                                                   Location.class,
+                                                   ItemStack.class,
+                                                   java.util.function.Consumer.class);
     }
 
     @Override
@@ -794,39 +838,45 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     @Override
-    public @NotNull Item dropItemNaturally(@NotNull Location location, @NotNull ItemStack itemStack, java.util.function.@Nullable Consumer<? super Item> consumer) {
-        throw NotImplementedException.createByLazy(World.class, "dropItemNaturally", Location.class, ItemStack.class, Consumer.class);
+    public @NotNull Item dropItemNaturally(@NotNull Location location, @NotNull ItemStack itemStack,
+                                           java.util.function.@Nullable Consumer<? super Item> consumer) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "dropItemNaturally",
+                                                   Location.class,
+                                                   ItemStack.class,
+                                                   Consumer.class);
 
     }
 
     @Override
-    public <T extends AbstractArrow> @NotNull T spawnArrow(@NotNull Location location, @NotNull Vector direction, float speed, float spread, @NotNull Class<T> clazz) {
+    public <T extends AbstractArrow> @NotNull T spawnArrow(@NotNull Location location, @NotNull Vector direction,
+                                                           float speed, float spread, @NotNull Class<T> clazz) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnArrow",
-                Location.class,
-                Vector.class,
-                float.class,
-                float.class,
-                Class.class);
+                                                   "spawnArrow",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   float.class,
+                                                   float.class,
+                                                   Class.class);
     }
 
     @Override
     public @NotNull Arrow spawnArrow(@NotNull Location arg0, @NotNull Vector arg1, float arg2, float arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnArrow",
-                Location.class,
-                Vector.class,
-                float.class,
-                float.class);
+                                                   "spawnArrow",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
     public boolean generateTree(@NotNull Location arg0, @NotNull TreeType arg1, @NotNull BlockChangeDelegate arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "generateTree",
-                Location.class,
-                TreeType.class,
-                BlockChangeDelegate.class);
+                                                   "generateTree",
+                                                   Location.class,
+                                                   TreeType.class,
+                                                   BlockChangeDelegate.class);
     }
 
     @Override
@@ -844,7 +894,11 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public @NotNull Entity spawnEntity(@NotNull Location location, @NotNull EntityType entityType, boolean b) {
-        throw NotImplementedException.createByLazy(World.class, "spawnEntity", Location.class, EntityType.class, boolean.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "spawnEntity",
+                                                   Location.class,
+                                                   EntityType.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -859,7 +913,8 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     private LightningStrike strikeLightning(Location location, Consumer<LightningBolt> beforeSpawn) {
-        var spongeEntity = this.sponge().createEntity(EntityTypes.LIGHTNING_BOLT, new Vector3d(location.x(), location.getY(), location.z()));
+        var spongeEntity = this.sponge()
+                .createEntity(EntityTypes.LIGHTNING_BOLT, new Vector3d(location.x(), location.getY(), location.z()));
         beforeSpawn.accept(spongeEntity);
         this.sponge().spawnEntity(spongeEntity);
         return new SoakLightningStrike(spongeEntity);
@@ -875,16 +930,34 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
         throw NotImplementedException.createByLazy(World.class, "findLightningTarget", Location.class);
     }
 
-    private <T extends Entity> List<T> generateEntityList(Function<Stream<? extends org.spongepowered.api.entity.Entity>, Stream<org.spongepowered.api.entity.Entity>> filter) {
-        Supplier<Stream<org.spongepowered.api.entity.Entity>> spongeEntities = () -> filter.apply(this.world.entities().stream());
-        var collectionBuilder = CollectionStreamBuilder.builder().stream(spongeEntities).basicMap(spongeEntity -> (T) AbstractEntity.wrap(spongeEntity));
-        return ListMappingUtils.fromStream(collectionBuilder, () -> this.world.entities().stream().map(e -> (org.spongepowered.api.entity.Entity) e), (spongeEntity, soakEntity) -> ((AbstractEntity<?>) soakEntity).spongeEntity().equals(spongeEntity), Comparator.comparing(entity -> entity.uniqueId().toString())).buildList();
+    private <T extends Entity> List<T> generateEntityList(Function<Stream<?
+            extends org.spongepowered.api.entity.Entity>, Stream<org.spongepowered.api.entity.Entity>> filter) {
+        Supplier<Stream<org.spongepowered.api.entity.Entity>> spongeEntities = () -> filter.apply(this.world.entities()
+                                                                                                          .stream());
+        var collectionBuilder = CollectionStreamBuilder.builder()
+                .stream(spongeEntities)
+                .basicMap(spongeEntity -> (T) AbstractEntity.wrap(spongeEntity));
+        return ListMappingUtils.fromStream(collectionBuilder,
+                                           () -> this.world.entities()
+                                                   .stream()
+                                                   .map(e -> (org.spongepowered.api.entity.Entity) e),
+                                           (spongeEntity, soakEntity) -> ((AbstractEntity<?>) soakEntity).spongeEntity()
+                                                   .equals(spongeEntity),
+                                           Comparator.comparing(entity -> entity.uniqueId().toString())).buildList();
     }
 
     private <T extends Entity> List<T> generateEntityListAdvanced(Function<Stream<org.spongepowered.api.entity.Entity>, Stream<T>> advancedMap) {
-        Supplier<Stream<org.spongepowered.api.entity.Entity>> spongeEntities = () -> this.world.entities().stream().map(t -> t);
+        Supplier<Stream<org.spongepowered.api.entity.Entity>> spongeEntities = () -> this.world.entities()
+                .stream()
+                .map(t -> t);
         var collectionBuilder = CollectionStreamBuilder.builder().stream(spongeEntities).map(advancedMap);
-        return ListMappingUtils.fromStream(collectionBuilder, () -> this.world.entities().stream().map(e -> (org.spongepowered.api.entity.Entity) e), (spongeEntity, soakEntity) -> ((AbstractEntity<?>) soakEntity).spongeEntity().equals(spongeEntity), Comparator.comparing(entity -> entity.uniqueId().toString())).buildList();
+        return ListMappingUtils.fromStream(collectionBuilder,
+                                           () -> this.world.entities()
+                                                   .stream()
+                                                   .map(e -> (org.spongepowered.api.entity.Entity) e),
+                                           (spongeEntity, soakEntity) -> ((AbstractEntity<?>) soakEntity).spongeEntity()
+                                                   .equals(spongeEntity),
+                                           Comparator.comparing(entity -> entity.uniqueId().toString())).buildList();
     }
 
     @Override
@@ -899,19 +972,25 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public @NotNull <T extends Entity> Collection<T> getEntitiesByClass(@NotNull Class<T> cls) {
-        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap).filter(cls::isInstance).map(entity -> (T) entity));
+        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap)
+                .filter(cls::isInstance)
+                .map(entity -> (T) entity));
     }
 
     @SafeVarargs
     @Override
     public final @NotNull <T extends Entity> Collection<T> getEntitiesByClass(@NotNull Class<T>... classes) {
-        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap).filter(entity -> Stream.of(classes).allMatch(cls -> cls.isInstance(entity))).map(entity -> (T) entity));
+        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap)
+                .filter(entity -> Stream.of(classes).allMatch(cls -> cls.isInstance(entity)))
+                .map(entity -> (T) entity));
 
     }
 
     @Override
     public @NotNull Collection<Entity> getEntitiesByClasses(@NotNull Class<?>... classes) {
-        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap).filter(entity -> Stream.of(classes).anyMatch(cls -> cls.isInstance(entity))).map(entity -> entity));
+        return generateEntityListAdvanced(stream -> stream.map(AbstractEntity::wrap)
+                .filter(entity -> Stream.of(classes).anyMatch(cls -> cls.isInstance(entity)))
+                .map(entity -> entity));
     }
 
     @Override
@@ -921,132 +1000,149 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public Entity getEntity(@NotNull UUID arg0) {
-        return this.world.entity(arg0).map(entity -> AbstractEntity.wrap(entity)).orElse(null);
+        return this.world.entity(arg0).map(AbstractEntity::wrap).orElse(null);
     }
 
     @Override
-    public @NotNull Collection<Entity> getNearbyEntities(@NotNull Location location, double v, double v1, double v2, @Nullable Predicate<? super Entity> predicate) {
-        throw NotImplementedException.createByLazy(World.class, "getNearbyEntities", Location.class, double.class, double.class, double.class, Predicate.class);
+    public @NotNull Collection<Entity> getNearbyEntities(@NotNull Location location, double v, double v1, double v2,
+                                                         @Nullable Predicate<? super Entity> predicate) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "getNearbyEntities",
+                                                   Location.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Predicate.class);
     }
 
     @Override
     public RayTraceResult rayTraceEntities(@NotNull Location arg0, @NotNull Vector arg1, double arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceEntities",
-                Location.class,
-                Vector.class,
-                double.class);
+                                                   "rayTraceEntities",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class);
     }
 
     @Override
-    public RayTraceResult rayTraceEntities(@NotNull Location arg0, @NotNull Vector arg1, double arg2, double arg3, Predicate arg4) {
+    public RayTraceResult rayTraceEntities(@NotNull Location arg0, @NotNull Vector arg1, double arg2, double arg3,
+                                           Predicate arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceEntities",
-                Location.class,
-                Vector.class,
-                double.class,
-                double.class,
-                Predicate.class);
+                                                   "rayTraceEntities",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Predicate.class);
     }
 
     @Override
     public RayTraceResult rayTraceEntities(@NotNull Location arg0, @NotNull Vector arg1, double arg2, Predicate arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceEntities",
-                Location.class,
-                Vector.class,
-                double.class,
-                Predicate.class);
+                                                   "rayTraceEntities",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   Predicate.class);
     }
 
     @Override
     public RayTraceResult rayTraceEntities(@NotNull Location arg0, @NotNull Vector arg1, double arg2, double arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceEntities",
-                Location.class,
-                Vector.class,
-                double.class,
-                double.class);
+                                                   "rayTraceEntities",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public @Nullable RayTraceResult rayTraceEntities(@NotNull Position position, @NotNull Vector vector, double v, double v1, @Nullable Predicate<? super Entity> predicate) {
+    public @Nullable RayTraceResult rayTraceEntities(@NotNull Position position, @NotNull Vector vector, double v,
+                                                     double v1, @Nullable Predicate<? super Entity> predicate) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceEntities",
-                Position.class,
-                Vector.class,
-                double.class,
-                double.class,
-                Predicate.class);
+                                                   "rayTraceEntities",
+                                                   Position.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Predicate.class);
     }
 
     @Override
     public RayTraceResult rayTraceBlocks(@NotNull Location arg0, @NotNull Vector arg1, double arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceBlocks",
-                Location.class,
-                Vector.class,
-                double.class);
+                                                   "rayTraceBlocks",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class);
     }
 
     @Override
-    public RayTraceResult rayTraceBlocks(@NotNull Location arg0, @NotNull Vector arg1, double arg2, @NotNull FluidCollisionMode arg3, boolean arg4) {
+    public RayTraceResult rayTraceBlocks(@NotNull Location arg0, @NotNull Vector arg1, double arg2,
+                                         @NotNull FluidCollisionMode arg3, boolean arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceBlocks",
-                Location.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class,
-                boolean.class);
+                                                   "rayTraceBlocks",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class,
+                                                   boolean.class);
     }
 
     @Override
-    public @Nullable RayTraceResult rayTraceBlocks(@NotNull Position position, @NotNull Vector vector, double v, @NotNull FluidCollisionMode fluidCollisionMode, boolean b, @Nullable Predicate<? super Block> predicate) {
+    public @Nullable RayTraceResult rayTraceBlocks(@NotNull Position position, @NotNull Vector vector, double v,
+                                                   @NotNull FluidCollisionMode fluidCollisionMode, boolean b,
+                                                   @Nullable Predicate<? super Block> predicate) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceBlocks",
-                Position.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class,
-                boolean.class,
-                Predicate.class);
+                                                   "rayTraceBlocks",
+                                                   Position.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class,
+                                                   boolean.class,
+                                                   Predicate.class);
     }
 
     @Override
-    public @Nullable RayTraceResult rayTrace(@NotNull Position position, @NotNull Vector vector, double v, @NotNull FluidCollisionMode fluidCollisionMode, boolean b, double v1, @Nullable Predicate<? super Entity> predicate, @Nullable Predicate<? super Block> predicate1) {
+    public @Nullable RayTraceResult rayTrace(@NotNull Position position, @NotNull Vector vector, double v,
+                                             @NotNull FluidCollisionMode fluidCollisionMode, boolean b, double v1,
+                                             @Nullable Predicate<? super Entity> predicate, @Nullable Predicate<?
+                    super Block> predicate1) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTrace",
-                Position.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class,
-                boolean.class,
-                double.class,
-                Predicate.class,
-                Predicate.class);
+                                                   "rayTrace",
+                                                   Position.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class,
+                                                   boolean.class,
+                                                   double.class,
+                                                   Predicate.class,
+                                                   Predicate.class);
     }
 
     @Override
-    public RayTraceResult rayTraceBlocks(@NotNull Location arg0, @NotNull Vector arg1, double arg2, @NotNull FluidCollisionMode arg3) {
+    public RayTraceResult rayTraceBlocks(@NotNull Location arg0, @NotNull Vector arg1, double arg2,
+                                         @NotNull FluidCollisionMode arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTraceBlocks",
-                Location.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class);
+                                                   "rayTraceBlocks",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class);
     }
 
     @Override
-    public RayTraceResult rayTrace(@NotNull Location arg0, @NotNull Vector arg1, double arg2, @NotNull FluidCollisionMode arg3, boolean arg4, double arg5, Predicate arg6) {
+    public RayTraceResult rayTrace(@NotNull Location arg0, @NotNull Vector arg1, double arg2,
+                                   @NotNull FluidCollisionMode arg3, boolean arg4, double arg5, Predicate arg6) {
         throw NotImplementedException.createByLazy(World.class,
-                "rayTrace",
-                Location.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class,
-                boolean.class,
-                double.class,
-                Predicate.class);
+                                                   "rayTrace",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class,
+                                                   boolean.class,
+                                                   double.class,
+                                                   Predicate.class);
     }
 
     @Override
@@ -1073,11 +1169,11 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public boolean setSpawnLocation(int arg0, int arg1, int arg2, float arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "setSpawnLocation",
-                int.class,
-                int.class,
-                int.class,
-                float.class);
+                                                   "setSpawnLocation",
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   float.class);
     }
 
     @Override
@@ -1192,8 +1288,17 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     @Override
-    public <T extends LivingEntity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass, @NotNull CreatureSpawnEvent.SpawnReason spawnReason, boolean b, java.util.function.@Nullable Consumer<? super T> consumer) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(World.class, "spawn", Location.class, Class.class, CreatureSpawnEvent.SpawnReason.class, boolean.class, java.util.function.Consumer.class);
+    public <T extends LivingEntity> @NotNull T spawn(@NotNull Location location, @NotNull Class<T> aClass,
+                                                     @NotNull CreatureSpawnEvent.SpawnReason spawnReason, boolean b,
+                                                     java.util.function.@Nullable Consumer<? super T> consumer)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "spawn",
+                                                   Location.class,
+                                                   Class.class,
+                                                   CreatureSpawnEvent.SpawnReason.class,
+                                                   boolean.class,
+                                                   java.util.function.Consumer.class);
     }
 
     @Override
@@ -1205,19 +1310,19 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Deprecated
     public @NotNull FallingBlock spawnFallingBlock(@NotNull Location arg0, @NotNull MaterialData arg1) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnFallingBlock",
-                Location.class,
-                MaterialData.class);
+                                                   "spawnFallingBlock",
+                                                   Location.class,
+                                                   MaterialData.class);
     }
 
     @Deprecated
     @Override
     public @NotNull FallingBlock spawnFallingBlock(@NotNull Location arg0, @NotNull Material arg1, byte arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "spawnFallingBlock",
-                Location.class,
-                Material.class,
-                byte.class);
+                                                   "spawnFallingBlock",
+                                                   Location.class,
+                                                   Material.class,
+                                                   byte.class);
     }
 
     @Override
@@ -1228,40 +1333,40 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public void playEffect(@NotNull Location arg0, @NotNull Effect arg1, Object arg2, int arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "playEffect",
-                Location.class,
-                Effect.class,
-                Object.class,
-                int.class);
+                                                   "playEffect",
+                                                   Location.class,
+                                                   Effect.class,
+                                                   Object.class,
+                                                   int.class);
     }
 
     @Override
     public void playEffect(@NotNull Location arg0, @NotNull Effect arg1, Object arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "playEffect",
-                Location.class,
-                Effect.class,
-                Object.class);
+                                                   "playEffect",
+                                                   Location.class,
+                                                   Effect.class,
+                                                   Object.class);
     }
 
     @Override
     public void playEffect(@NotNull Location arg0, @NotNull Effect arg1, int arg2, int arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "playEffect",
-                Location.class,
-                Effect.class,
-                int.class,
-                int.class);
+                                                   "playEffect",
+                                                   Location.class,
+                                                   Effect.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Override
     public @NotNull ChunkSnapshot getEmptyChunkSnapshot(int arg0, int arg1, boolean arg2, boolean arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "getEmptyChunkSnapshot",
-                int.class,
-                int.class,
-                boolean.class,
-                boolean.class);
+                                                   "getEmptyChunkSnapshot",
+                                                   int.class,
+                                                   int.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -1308,11 +1413,11 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public void setBiome(int arg0, int arg1, int arg2, @NotNull Biome arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "setBiome",
-                int.class,
-                int.class,
-                int.class,
-                Biome.class);
+                                                   "setBiome",
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   Biome.class);
     }
 
     @Override
@@ -1358,7 +1463,12 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public void setBlockData(int i, int i1, int i2, @NotNull BlockData blockData) {
-        throw NotImplementedException.createByLazy(World.class, "setBlockData", int.class, int.class, int.class, BlockData.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "setBlockData",
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   BlockData.class);
     }
 
     @Override
@@ -1368,23 +1478,44 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public void setType(int i, int i1, int i2, @NotNull Material material) {
-        throw NotImplementedException.createByLazy(World.class, "setType", int.class, int.class, int.class, Material.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "setType",
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   Material.class);
 
     }
 
     @Override
     public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType treeType) {
-        throw NotImplementedException.createByLazy(World.class, "generateTree", Location.class, Random.class, TreeType.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "generateTree",
+                                                   Location.class,
+                                                   Random.class,
+                                                   TreeType.class);
     }
 
     @Override
-    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType treeType, java.util.function.@Nullable Consumer<? super BlockState> consumer) {
-        throw NotImplementedException.createByLazy(World.class, "generateTree", Location.class, Random.class, TreeType.class, java.util.function.Consumer.class);
+    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType treeType,
+                                java.util.function.@Nullable Consumer<? super BlockState> consumer) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "generateTree",
+                                                   Location.class,
+                                                   Random.class,
+                                                   TreeType.class,
+                                                   java.util.function.Consumer.class);
     }
 
     @Override
-    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType treeType, @Nullable Predicate<? super BlockState> predicate) {
-        throw NotImplementedException.createByLazy(World.class, "generateTree", Location.class, Random.class, TreeType.class, Predicate.class);
+    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType treeType,
+                                @Nullable Predicate<? super BlockState> predicate) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "generateTree",
+                                                   Location.class,
+                                                   Random.class,
+                                                   TreeType.class,
+                                                   Predicate.class);
 
     }
 
@@ -1641,95 +1772,157 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public void playNote(@NotNull Location location, @NotNull Instrument instrument, @NotNull Note note) {
-        throw NotImplementedException.createByLazy(World.class, "playNote", Location.class, Instrument.class, Note.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playNote",
+                                                   Location.class,
+                                                   Instrument.class,
+                                                   Note.class);
 
     }
 
     @Override
     public void playSound(@NotNull Location arg0, @NotNull String arg1, float arg2, float arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "playSound",
-                Location.class,
-                String.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   String.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Location arg0, @NotNull Sound arg1, @NotNull SoundCategory arg2, float arg3, float arg4) {
+    public void playSound(@NotNull Location arg0, @NotNull Sound arg1, @NotNull SoundCategory arg2, float arg3,
+                          float arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "playSound",
-                Location.class,
-                Sound.class,
-                SoundCategory.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
     public void playSound(@NotNull Location arg0, @NotNull Sound arg1, float arg2, float arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "playSound",
-                Location.class,
-                Sound.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Location arg0, @NotNull String arg1, @NotNull SoundCategory arg2, float arg3, float arg4) {
+    public void playSound(@NotNull Location arg0, @NotNull String arg1, @NotNull SoundCategory arg2, float arg3,
+                          float arg4) {
         throw NotImplementedException.createByLazy(World.class,
-                "playSound",
-                Location.class,
-                String.class,
-                SoundCategory.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Location.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory soundCategory,
+                          float v, float v1, long l) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
     }
 
     @Override
-    public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Location.class, String.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory,
+                          float v, float v1, long l) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Location.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
 
     }
 
     @Override
     public void playSound(@NotNull Entity entity, @NotNull Sound sound, float v, float v1) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, Sound.class, float.class, float.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
     public void playSound(@NotNull Entity entity, @NotNull String s, float v, float v1) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, String.class, float.class, float.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   float.class,
+                                                   float.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v
+            , float v1) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
+    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                          float v1) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v
+            , float v1, long l) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(World.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                          float v1, long l) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
 
     }
 
@@ -1776,42 +1969,55 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     }
 
     @Override
-    public Location locateNearestStructure(@NotNull Location arg0, @NotNull StructureType arg1, int arg2, boolean arg3) {
+    public Location locateNearestStructure(@NotNull Location arg0, @NotNull StructureType arg1, int arg2,
+                                           boolean arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "locateNearestStructure",
-                Location.class,
-                StructureType.class,
-                int.class,
-                boolean.class);
+                                                   "locateNearestStructure",
+                                                   Location.class,
+                                                   StructureType.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
-    public @Nullable StructureSearchResult locateNearestStructure(@NotNull Location location, org.bukkit.generator.structure.@NotNull StructureType structureType, int i, boolean b) {
-        throw NotImplementedException.createByLazy(World.class, "locateNearestStructure", Location.class, org.bukkit.generator.structure.StructureType.class, int.class, boolean.class);
+    public @Nullable StructureSearchResult locateNearestStructure(@NotNull Location location,
+                                                                  org.bukkit.generator.structure.@NotNull StructureType structureType, int i, boolean b) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "locateNearestStructure",
+                                                   Location.class,
+                                                   org.bukkit.generator.structure.StructureType.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
-    public @Nullable StructureSearchResult locateNearestStructure(@NotNull Location location, @NotNull Structure structure, int i, boolean b) {
-        throw NotImplementedException.createByLazy(World.class, "locateNearestStructure", Location.class, Structure.class, int.class, boolean.class);
+    public @Nullable StructureSearchResult locateNearestStructure(@NotNull Location location,
+                                                                  @NotNull Structure structure, int i, boolean b) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "locateNearestStructure",
+                                                   Location.class,
+                                                   Structure.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
     public Location locateNearestBiome(@NotNull Location arg0, @NotNull Biome arg1, int arg2) {
         throw NotImplementedException.createByLazy(World.class,
-                "locateNearestBiome",
-                Location.class,
-                Biome.class,
-                int.class);
+                                                   "locateNearestBiome",
+                                                   Location.class,
+                                                   Biome.class,
+                                                   int.class);
     }
 
     @Override
     public Location locateNearestBiome(@NotNull Location arg0, @NotNull Biome arg1, int arg2, int arg3) {
         throw NotImplementedException.createByLazy(World.class,
-                "locateNearestBiome",
-                Location.class,
-                Biome.class,
-                int.class,
-                int.class);
+                                                   "locateNearestBiome",
+                                                   Location.class,
+                                                   Biome.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Override
@@ -1868,7 +2074,11 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public void sendGameEvent(@Nullable Entity entity, @NotNull GameEvent gameEvent, @NotNull Vector vector) {
-        throw NotImplementedException.createByLazy(World.class, "sendGameEvent", Entity.class, GameEvent.class, Vector.class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "sendGameEvent",
+                                                   Entity.class,
+                                                   GameEvent.class,
+                                                   Vector.class);
 
     }
 
@@ -1930,13 +2140,24 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public @Nullable BiomeSearchResult locateNearestBiome(@NotNull Location location, int i, @NotNull Biome... biomes) {
-        throw NotImplementedException.createByLazy(World.class, "locateNearestBiome", Location.class, int.class, Biome[].class);
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "locateNearestBiome",
+                                                   Location.class,
+                                                   int.class,
+                                                   Biome[].class);
 
     }
 
     @Override
-    public @Nullable BiomeSearchResult locateNearestBiome(@NotNull Location location, int i, int i1, int i2, @NotNull Biome... biomes) {
-        throw NotImplementedException.createByLazy(World.class, "locateNearestBiome", Location.class, int.class, int.class, int.class, Biome[].class);
+    public @Nullable BiomeSearchResult locateNearestBiome(@NotNull Location location, int i, int i1, int i2,
+                                                          @NotNull Biome... biomes) {
+        throw NotImplementedException.createByLazy(World.class,
+                                                   "locateNearestBiome",
+                                                   Location.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   Biome[].class);
 
     }
 
@@ -2012,10 +2233,10 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
     @Override
     public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, byte[] message) {
         throw NotImplementedException.createByLazy(SoakWorld.class,
-                "sendPluginMessage",
-                Plugin.class,
-                String.class,
-                byte[].class);
+                                                   "sendPluginMessage",
+                                                   Plugin.class,
+                                                   String.class,
+                                                   byte[].class);
     }
 
     @Override
@@ -2030,10 +2251,9 @@ public class SoakWorld implements World, SoakSingleInstance<org.spongepowered.ap
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof SoakWorld)) {
+        if (!(obj instanceof SoakWorld world)) {
             return false;
         }
-        var world = (SoakWorld) obj;
         return this.sponge().equals(world.sponge());
     }
 

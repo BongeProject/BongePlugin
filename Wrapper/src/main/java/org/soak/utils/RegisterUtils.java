@@ -6,7 +6,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.soak.wrapper.inventory.meta.*;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.map.MapInfo;
 import org.spongepowered.api.world.server.ServerWorld;
 
 public class RegisterUtils {
@@ -21,12 +20,15 @@ public class RegisterUtils {
         ConfigurationSerialization.registerClass(SoakSkullMeta.class);
     }
 
-    public static void registerMapViews(){
+    public static void registerMapViews() {
         Sponge.server().worldManager().worlds().forEach(RegisterUtils::registerMapView);
     }
 
-    public static void registerMapView(ServerWorld world){
-        var mapInfo = Sponge.server().mapStorage().createNewMapInfo().orElseThrow(() -> new IllegalStateException("Cannot create MapView"));
+    public static void registerMapView(ServerWorld world) {
+        var mapInfo = Sponge.server()
+                .mapStorage()
+                .createNewMapInfo()
+                .orElseThrow(() -> new IllegalStateException("Cannot create MapView"));
         mapInfo.offer(Keys.MAP_WORLD, world.key());
         mapInfo.offer(Keys.MAP_TRACKS_PLAYERS, true);
     }

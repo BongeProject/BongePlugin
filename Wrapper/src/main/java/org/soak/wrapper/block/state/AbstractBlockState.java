@@ -28,7 +28,6 @@ import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.value.Value;
-import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.tag.BlockTypeTags;
 import org.spongepowered.api.world.server.ServerLocation;
 
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractBlockState implements BlockState {
 
     private final LinkedBlockingQueue<KeyValuePair<?>> toApply = new LinkedBlockingQueue<>();
-    private @Nullable ServerLocation location;
+    private final @Nullable ServerLocation location;
     private @NotNull org.spongepowered.api.block.BlockState state;
 
     public AbstractBlockState(@NotNull ServerLocation location) {
@@ -88,12 +87,16 @@ public abstract class AbstractBlockState implements BlockState {
         return new SoakBlock(this.location);
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull MaterialData getData() {
         throw NotImplementedException.createByLazy(BlockState.class, "getData");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public void setData(@NotNull MaterialData materialData) {
         throw NotImplementedException.createByLazy(BlockState.class, "setData", MaterialData.class);
     }
@@ -225,6 +228,9 @@ public abstract class AbstractBlockState implements BlockState {
 
     @Override
     public boolean isPlaced() {
+        if(this.location == null){
+            return false;
+        }
         return this.location.block().type().equals(this.state.type());
     }
 

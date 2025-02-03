@@ -31,7 +31,7 @@ public class SoakFireworkEffectMeta extends AbstractItemMeta implements Firework
                 .container
                 .get(Keys.FIREWORK_EFFECTS)
                 .filter(effects -> !effects.isEmpty())
-                .map(effects -> effects.get(0))
+                .map(effects -> effects.getFirst())
                 .map(SoakFireworkEffectMap::toBukkit)
                 .orElse(null);
     }

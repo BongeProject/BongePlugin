@@ -44,7 +44,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class AbstractLivingEntity<E extends Living> extends AbstractEntity<E> implements SoakDamageable, SoakAttributable, SoakProjectileSource, LivingEntity {
+public abstract class AbstractLivingEntity<E extends Living> extends AbstractEntity<E>
+        implements SoakDamageable, SoakAttributable, SoakProjectileSource, LivingEntity {
 
     public AbstractLivingEntity(Subject subject, Audience audience, E entity) {
         super(subject, audience, entity);
@@ -158,7 +159,11 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
 
     @Override
     public void knockback(double v, double v1, double v2) {
-        throw NotImplementedException.createByLazy(LivingEntity.class, "knockback", double.class, double.class, double.class);
+        throw NotImplementedException.createByLazy(LivingEntity.class,
+                                                   "knockback",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
@@ -168,7 +173,10 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
 
     @Override
     public void broadcastSlotBreak(@NotNull EquipmentSlot equipmentSlot, @NotNull Collection<Player> collection) {
-        throw NotImplementedException.createByLazy(LivingEntity.class, "broadcastSlotBreak", EquipmentSlot.class, Collection.class);
+        throw NotImplementedException.createByLazy(LivingEntity.class,
+                                                   "broadcastSlotBreak",
+                                                   EquipmentSlot.class,
+                                                   Collection.class);
     }
 
     @Override
@@ -178,7 +186,10 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
 
     @Override
     public void damageItemStack(@NotNull EquipmentSlot equipmentSlot, int i) {
-        throw NotImplementedException.createByLazy(LivingEntity.class, "damageItemStack", EquipmentSlot.class, int.class);
+        throw NotImplementedException.createByLazy(LivingEntity.class,
+                                                   "damageItemStack",
+                                                   EquipmentSlot.class,
+                                                   int.class);
     }
 
     @Override
@@ -209,9 +220,9 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     @Override
     public RayTraceResult rayTraceBlocks(double arg0, @NotNull FluidCollisionMode arg1) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "rayTraceBlocks",
-                double.class,
-                FluidCollisionMode.class);
+                                                   "rayTraceBlocks",
+                                                   double.class,
+                                                   FluidCollisionMode.class);
     }
 
     @Override
@@ -228,9 +239,9 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     @Override
     public void playPickupItemAnimation(@NotNull Item arg0, int arg1) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "playPickupItemAnimation",
-                Item.class,
-                int.class);
+                                                   "playPickupItemAnimation",
+                                                   Item.class,
+                                                   int.class);
     }
 
     @Override
@@ -278,34 +289,34 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
         return opBlock.flatMap(block -> block.selectedObject().location().onServer())
                 .map(SoakBlock::new)
                 .orElseGet(() -> new SoakBlock((ServerWorld) this.spongeEntity().world(),
-                        this.spongeEntity().eyePosition().get().toInt()));
+                                               this.spongeEntity().eyePosition().get().toInt()));
     }
 
     @Override
     @Deprecated
-    public @Nullable Block getTargetBlock(int maxDistance, TargetBlockInfo.FluidMode fluidMode) {
+    public @Nullable Block getTargetBlock(int maxDistance, @NotNull TargetBlockInfo.FluidMode fluidMode) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "getTargetBlockExact",
-                int.class,
-                FluidCollisionMode.class);
+                                                   "getTargetBlockExact",
+                                                   int.class,
+                                                   FluidCollisionMode.class);
     }
 
     @Override
     @Deprecated
     public @Nullable BlockFace getTargetBlockFace(int maxDistance, @NotNull TargetBlockInfo.FluidMode fluidMode) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "getTargetBlockFace",
-                int.class,
-                TargetBlockInfo.FluidMode.class);
+                                                   "getTargetBlockFace",
+                                                   int.class,
+                                                   TargetBlockInfo.FluidMode.class);
     }
 
     @Override
     @Deprecated
     public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance, @NotNull TargetBlockInfo.FluidMode fluidMode) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "getTargetBlockInfo",
-                int.class,
-                TargetBlockInfo.FluidMode.class);
+                                                   "getTargetBlockInfo",
+                                                   int.class,
+                                                   TargetBlockInfo.FluidMode.class);
     }
 
     @Override
@@ -316,9 +327,9 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     @Override
     public @Nullable Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "getTargetBlockExact",
-                int.class,
-                FluidCollisionMode.class);
+                                                   "getTargetBlockExact",
+                                                   int.class,
+                                                   FluidCollisionMode.class);
     }
 
     @Override
@@ -430,9 +441,9 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     @Override
     public boolean addPotionEffect(@NotNull PotionEffect arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(LivingEntity.class,
-                "addPotionEffect",
-                PotionEffect.class,
-                boolean.class);
+                                                   "addPotionEffect",
+                                                   PotionEffect.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -678,7 +689,7 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     }
 
     @Override
-    public ItemStack getActiveItem() {
+    public @NotNull ItemStack getActiveItem() {
         throw NotImplementedException.createByLazy(LivingEntity.class, "getActiveItem");
     }
 
@@ -764,18 +775,20 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
     }
 
     @Override
-    public void heal(double v, EntityRegainHealthEvent.RegainReason regainReason) {
+    public void heal(double v, @NotNull EntityRegainHealthEvent.RegainReason regainReason) {
         //TODO regain
         this.heal(v);
     }
 
     @Override
-    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass, @Nullable Vector vector, @Nullable Consumer<? super T> consumer) {
+    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass,
+                                                              @Nullable Vector vector,
+                                                              @Nullable Consumer<? super T> consumer) {
         if (consumer == null && vector == null) {
             return launchProjectile(aClass);
         }
         var projectile = launchProjectile(aClass, vector);
-        if (consumer == null) {
+        if (consumer != null) {
             consumer.accept(projectile);
         }
         return projectile;

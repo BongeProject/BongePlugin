@@ -29,9 +29,10 @@ public class SoakLoadingUser implements OfflinePlayer {
 
     public SoakLoadingUser(@NotNull GameProfile profile) {
         this.profile = profile;
-        Sponge.server().userManager().loadOrCreate(profile.uuid()).thenAccept(user -> {
-            loaded = new SoakLoadedUser(user);
-        });
+        Sponge.server()
+                .userManager()
+                .loadOrCreate(profile.uuid())
+                .thenAccept(user -> loaded = new SoakLoadedUser(user));
     }
 
     private <T> T checkLoadedSimple(Function<SoakLoadedUser, T> run, T value) {
@@ -76,18 +77,30 @@ public class SoakLoadingUser implements OfflinePlayer {
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date, @Nullable String s1) {
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date,
+                                                                       @Nullable String s1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "ban", String.class, Date.class, String.class);
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant, @Nullable String s1) {
-              throw NotImplementedException.createByLazy(OfflinePlayer.class, "ban", String.class, Instant.class, String.class);
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant,
+                                                                       @Nullable String s1) {
+        throw NotImplementedException.createByLazy(OfflinePlayer.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Instant.class,
+                                                   String.class);
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Duration duration, @Nullable String s1) {
-        throw NotImplementedException.createByLazy(OfflinePlayer.class, "ban", String.class, Duration.class, String.class);
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s,
+                                                                       @Nullable Duration duration,
+                                                                       @Nullable String s1) {
+        throw NotImplementedException.createByLazy(OfflinePlayer.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Duration.class,
+                                                   String.class);
     }
 
     @Override
@@ -102,8 +115,7 @@ public class SoakLoadingUser implements OfflinePlayer {
 
     @Override
     public @Nullable Player getPlayer() {
-        return Sponge
-                .server()
+        return Sponge.server()
                 .onlinePlayers()
                 .stream()
                 .filter(player -> player.profile().equals(this.profile))
@@ -160,13 +172,19 @@ public class SoakLoadingUser implements OfflinePlayer {
 
     @Override
     public void incrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "incrementStatistic", Statistic.class, int.class);
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   int.class);
 
     }
 
     @Override
     public void decrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "decrementStatistic", Statistic.class, int.class);
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   int.class);
 
     }
 
@@ -181,54 +199,97 @@ public class SoakLoadingUser implements OfflinePlayer {
     }
 
     @Override
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "incrementStatistic", Statistic.class, Material.class);
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "decrementStatistic", Statistic.class, Material.class);
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
     public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "getStatistic", Statistic.class, Material.class);
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "getStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "incrementStatistic", Statistic.class, Material.class, int.class);
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "decrementStatistic", Statistic.class, Material.class, int.class);
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "setStatistic", Statistic.class, Material.class, int.class);
+    public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int i)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "setStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "incrementStatistic", Statistic.class, EntityType.class);
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
 
     }
 
     @Override
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "decrementStatistic", Statistic.class, EntityType.class);
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
     }
 
     @Override
-    public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "getStatistic", Statistic.class, EntityType.class);
+    public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "getStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
     }
 
     @Override
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "incrementStatistic", Statistic.class, EntityType.class, int.class);
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class,
+                                                   int.class);
     }
 
     @Override
@@ -238,7 +299,11 @@ public class SoakLoadingUser implements OfflinePlayer {
 
     @Override
     public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) {
-        throw NotImplementedException.createByLazy(SoakLoadedUser.class, "setStatistic", Statistic.class, EntityType.class, int.class);
+        throw NotImplementedException.createByLazy(SoakLoadedUser.class,
+                                                   "setStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class,
+                                                   int.class);
     }
 
     @Override

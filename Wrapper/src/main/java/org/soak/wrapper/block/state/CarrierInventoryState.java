@@ -12,12 +12,12 @@ import org.soak.plugin.SoakManager;
 import org.soak.wrapper.inventory.SoakInventory;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.entity.carrier.CarrierBlockEntity;
-import org.spongepowered.api.block.entity.carrier.Dispenser;
 import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.UUID;
 
-public abstract class CarrierInventoryState extends AbstractTileState implements LootableBlockInventory, TileStateInventoryHolder {
+public abstract class CarrierInventoryState extends AbstractTileState
+        implements LootableBlockInventory, TileStateInventoryHolder {
 
     private Inventory snapshot;
 
@@ -40,23 +40,26 @@ public abstract class CarrierInventoryState extends AbstractTileState implements
     }
 
     @Override
-    public boolean canPlayerLoot(UUID uuid) {
+    public boolean canPlayerLoot(@NotNull UUID uuid) {
         throw NotImplementedException.createByLazy(LootableBlockInventory.class, "canPlayerLoot", UUID.class);
     }
 
     @Override
-    public boolean hasPlayerLooted(UUID uuid) {
+    public boolean hasPlayerLooted(@NotNull UUID uuid) {
         throw NotImplementedException.createByLazy(LootableBlockInventory.class, "hasPlayerLooted", UUID.class);
     }
 
     @Override
-    public @Nullable Long getLastLooted(UUID uuid) {
+    public @Nullable Long getLastLooted(@NotNull UUID uuid) {
         throw NotImplementedException.createByLazy(LootableBlockInventory.class, "getLastLooted", UUID.class);
     }
 
     @Override
-    public boolean setHasPlayerLooted(UUID uuid, boolean b) {
-        throw NotImplementedException.createByLazy(LootableBlockInventory.class, "setHasPlayerLooted", UUID.class, boolean.class);
+    public boolean setHasPlayerLooted(@NotNull UUID uuid, boolean b) {
+        throw NotImplementedException.createByLazy(LootableBlockInventory.class,
+                                                   "setHasPlayerLooted",
+                                                   UUID.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -91,7 +94,10 @@ public abstract class CarrierInventoryState extends AbstractTileState implements
 
     @Override
     public void setLootTable(@Nullable LootTable lootTable, long l) {
-        throw NotImplementedException.createByLazy(LootableBlockInventory.class, "setLootTable", LootTable.class, long.class);
+        throw NotImplementedException.createByLazy(LootableBlockInventory.class,
+                                                   "setLootTable",
+                                                   LootTable.class,
+                                                   long.class);
     }
 
     @Override
@@ -105,14 +111,21 @@ public abstract class CarrierInventoryState extends AbstractTileState implements
     }
 
     @Override
-    public Inventory getInventory() {
-        var opBlockEntity = this.spongeEntity().filter(entity -> entity instanceof CarrierBlockEntity).map(entity -> (CarrierBlockEntity) entity);
+    public @NotNull Inventory getInventory() {
+        var opBlockEntity = this.spongeEntity()
+                .filter(entity -> entity instanceof CarrierBlockEntity)
+                .map(entity -> (CarrierBlockEntity) entity);
         if (opBlockEntity.isEmpty()) {
             return getSnapshotInventory();
         }
         var bukkit = SoakInventoryMap.toBukkit(opBlockEntity.get());
         if (this.snapshot == null) {
-            var spongeInventory = org.spongepowered.api.item.inventory.Inventory.builder().inventory(opBlockEntity.get().inventory()).completeStructure().plugin(SoakManager.getManager().getOwnContainer()).carrier(opBlockEntity.get()).build();
+            var spongeInventory = org.spongepowered.api.item.inventory.Inventory.builder()
+                    .inventory(opBlockEntity.get().inventory())
+                    .completeStructure()
+                    .plugin(SoakManager.getManager().getOwnContainer())
+                    .carrier(opBlockEntity.get())
+                    .build();
             this.snapshot = SoakInventory.wrap(spongeInventory);
         }
         return bukkit;
@@ -121,7 +134,7 @@ public abstract class CarrierInventoryState extends AbstractTileState implements
     protected abstract org.spongepowered.api.item.inventory.Inventory createMockedInventory();
 
     @Override
-    public Inventory getSnapshotInventory() {
+    public @NotNull Inventory getSnapshotInventory() {
         if (snapshot == null) {
             this.snapshot = SoakInventory.wrap(createMockedInventory());
         }

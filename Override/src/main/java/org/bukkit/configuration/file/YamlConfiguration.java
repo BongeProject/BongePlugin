@@ -151,7 +151,8 @@ public class YamlConfiguration extends FileConfiguration {
                 String keyString = String.valueOf(this.constructor.construct(key));
 
                 Node value;
-                for (value = nodeTuple.getValueNode(); value instanceof AnchorNode; value = ((AnchorNode) value).getRealNode()) {
+                for (value = nodeTuple.getValueNode(); value instanceof AnchorNode; value =
+                        ((AnchorNode) value).getRealNode()) {
                 }
 
                 if (value instanceof MappingNode && !this.hasSerializedTypeKey((MappingNode) value)) {
@@ -173,10 +174,7 @@ public class YamlConfiguration extends FileConfiguration {
     }
 
     private boolean hasSerializedTypeKey(MappingNode node) {
-        Iterator var2 = node.getValue().iterator();
-
-        while (var2.hasNext()) {
-            NodeTuple nodeTuple = (NodeTuple) var2.next();
+        for (NodeTuple nodeTuple : node.getValue()) {
             Node keyNode = nodeTuple.getKeyNode();
             if (keyNode instanceof ScalarNode) {
                 String key = ((ScalarNode) keyNode).getValue();
@@ -185,7 +183,6 @@ public class YamlConfiguration extends FileConfiguration {
                 }
             }
         }
-
         return false;
     }
 
@@ -194,7 +191,9 @@ public class YamlConfiguration extends FileConfiguration {
 
         Node key;
         Object value;
-        for (Iterator var3 = section.getValues(false).entrySet().iterator(); var3.hasNext(); nodeTuples.add(new NodeTuple(key, (Node) value))) {
+        for (Iterator var3 = section.getValues(false)
+                .entrySet()
+                .iterator(); var3.hasNext(); nodeTuples.add(new NodeTuple(key, (Node) value))) {
             Map.Entry<String, Object> entry = (Map.Entry) var3.next();
             key = this.representer.represent(entry.getKey());
             if (entry.getValue() instanceof ConfigurationSection) {
@@ -205,9 +204,11 @@ public class YamlConfiguration extends FileConfiguration {
 
             key.setBlockComments(this.getCommentLines(section.getComments((String) entry.getKey()), CommentType.BLOCK));
             if (!(value instanceof MappingNode) && !(value instanceof SequenceNode)) {
-                ((Node) value).setInLineComments(this.getCommentLines(section.getInlineComments((String) entry.getKey()), CommentType.IN_LINE));
+                ((Node) value).setInLineComments(this.getCommentLines(section.getInlineComments((String) entry.getKey()),
+                                                                      CommentType.IN_LINE));
             } else {
-                key.setInLineComments(this.getCommentLines(section.getInlineComments((String) entry.getKey()), CommentType.IN_LINE));
+                key.setInLineComments(this.getCommentLines(section.getInlineComments((String) entry.getKey()),
+                                                           CommentType.IN_LINE));
             }
         }
 
