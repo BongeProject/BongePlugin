@@ -1,12 +1,15 @@
 package org.soak.map.item.inventory;
 
 import org.bukkit.event.inventory.InventoryType;
+import org.jetbrains.annotations.NotNull;
+import org.soak.WrapperManager;
 import org.soak.generate.bukkit.InventoryTypeList;
 import org.soak.generate.bukkit.SlotTypeList;
-import org.spongepowered.api.item.inventory.Container;
-import org.spongepowered.api.item.inventory.ContainerType;
-import org.spongepowered.api.item.inventory.ContainerTypes;
-import org.spongepowered.api.item.inventory.Slot;
+import org.soak.plugin.SoakManager;
+import org.soak.wrapper.inventory.SoakInventory;
+import org.soak.wrapper.inventory.carrier.SoakPlayerInventory;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.item.inventory.*;
 
 public class SoakInventoryMap {
 
@@ -16,5 +19,12 @@ public class SoakInventoryMap {
 
     public static InventoryType.SlotType toBukkit(Slot slot) {
         return SlotTypeList.value(slot);
+    }
+
+    public static @NotNull SoakInventory<?> toBukkit(Carrier carrier) {
+        if (carrier instanceof ServerPlayer player) {
+            return (SoakPlayerInventory) SoakManager.<WrapperManager>getManager().getMemoryStore().get(player).getInventory();
+        }
+        return SoakInventory.wrap(carrier.inventory());
     }
 }

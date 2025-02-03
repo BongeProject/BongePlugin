@@ -342,11 +342,6 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     @Override
     public @NotNull List<HumanEntity> getViewers() {
         var sponge = sponge();
-        var isMenu = sponge instanceof org.spongepowered.api.item.inventory.menu.InventoryMenu;
-        var isViewableInventory = sponge instanceof ViewableInventory;
-        var isCarried = sponge instanceof CarriedInventory;
-        var isBlockEntity = sponge instanceof BlockEntityInventory;
-        var isContainer = sponge instanceof Container;
         var opViewable = sponge.asViewable();
         if (opViewable.isPresent()) {
             var viewers = opViewable.get().viewers();
@@ -391,10 +386,14 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         }
         var carrier = opCarrier.get();
         if (carrier instanceof CarrierBlockEntity blockCarrier) {
-            if (asSnapshot) {
-                return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block().copy(), true);
-            } else {
-                return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block(), false);
+            try {
+                if (asSnapshot) {
+                    return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block().copy(), true);
+                } else {
+                    return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(), blockCarrier.block(), false);
+                }
+            } catch (ClassCastException ex) {
+                throw new RuntimeException("Cannot get the holder of an inventory due to " + blockCarrier.block().type().key(RegistryTypes.BLOCK_TYPE).formatted() + " Bukkit's blockstate is not of InventoryHolder. Check AbstractBlockState#wrap", ex);
             }
         }
         if (!(carrier instanceof org.spongepowered.api.entity.Entity carrierEntity)) {

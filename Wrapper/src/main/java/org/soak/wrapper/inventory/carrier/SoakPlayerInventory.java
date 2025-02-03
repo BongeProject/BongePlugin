@@ -1,4 +1,4 @@
-package org.soak.wrapper.inventory;
+package org.soak.wrapper.inventory.carrier;
 
 
 import org.bukkit.entity.HumanEntity;
@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.map.item.inventory.SoakEquipmentMap;
+import org.soak.wrapper.inventory.SoakInventory;
 import org.spongepowered.api.item.inventory.Inventory;
 
 public class SoakPlayerInventory extends SoakInventory<org.spongepowered.api.item.inventory.entity.PlayerInventory> implements PlayerInventory {

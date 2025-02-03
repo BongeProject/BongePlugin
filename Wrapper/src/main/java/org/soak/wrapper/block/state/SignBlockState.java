@@ -9,10 +9,13 @@ import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.SoakColourMap;
 import org.soak.map.SoakMessageMap;
 import org.soak.map.SoakVectorMap;
+import org.soak.utils.DataOverride;
+import org.soak.utils.KeyValuePair;
 import org.soak.utils.NullUtils;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.Keys;
@@ -20,14 +23,13 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class SignBlockState extends AbstractTileState implements Sign {
 
-    private final SoakSignSide front = new SoakSignSide();
-    private final SoakSignSide back = new SoakSignSide();
+    private final SoakSignSide front = new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_FRONT_TEXT)));
+    private final SoakSignSide back = new SoakSignSide(() -> spongeEntity().flatMap(entity -> entity.get(Keys.SIGN_BACK_TEXT)));
 
     public SignBlockState(@Nullable ServerLocation location, @NotNull BlockState state, boolean isSnapshot) {
         super(location, state, isSnapshot);
@@ -83,12 +85,12 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     @Override
     public boolean isWaxed() {
-        return key(Keys.SIGN_WAXED).getValue();
+        return key(Keys.SIGN_WAXED).map(KeyValuePair::getValue).orElse(false);
     }
 
     @Override
     public void setWaxed(boolean b) {
-        key(Keys.SIGN_WAXED).setValue(b);
+        offer(Keys.SIGN_WAXED, b);
     }
 
     @Override
@@ -121,7 +123,7 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
     @Override
     public @NotNull SignSide getTargetSide(@NotNull Player player) {
-        var direction = this.state().get(Keys.DIRECTION).orElseThrow();
+        var direction = this.spongeState().get(Keys.DIRECTION).orElseThrow();
         Vector3d blockPosition = NullUtils.mapTo(this.location(), Location::position, () -> Vector3d.from(0, 0, 0));
         Vector3d playerPosition = SoakVectorMap.to3d(player.getLocation().toVector());
 
@@ -180,15 +182,21 @@ public class SignBlockState extends AbstractTileState implements Sign {
     }
 
     private void apply(org.spongepowered.api.block.entity.Sign.SignText text, SoakSignSide side) {
-        text.offer(Keys.GLOWING_TEXT, side.isGlowingText());
+        side.glowingText.applyTo((value) -> text.offer(Keys.GLOWING_TEXT, value));
         text.offer(Keys.SIGN_LINES, side.lines());
-        text.offer(Keys.COLOR, SoakColourMap.toSponge(side.getColor().getColor()));
+        side.colour.applyTo(colour -> text.offer(Keys.COLOR, SoakColourMap.toSponge(colour.getColor())));
     }
 
-    public class SoakSignSide implements SignSide {
+    public static class SoakSignSide implements SignSide {
 
+        private Supplier<Optional<org.spongepowered.api.block.entity.Sign.SignText>> signText;
         private final List<Component> lines = new ArrayList<>();
-        private DyeColor colour;
+        private final DataOverride<Boolean> glowingText = new DataOverride<>(() -> signText.get().flatMap(side -> side.get(Keys.GLOWING_TEXT)).orElse(false));
+        private DataOverride<DyeColor> colour = new DataOverride<>(() -> signText.get().flatMap(side -> side.get(Keys.COLOR)).flatMap(SoakColourMap::toSpongeDye).map(SoakColourMap::toBukkitDye).orElse(DyeColor.BLACK));
+
+        public SoakSignSide(Supplier<Optional<org.spongepowered.api.block.entity.Sign.SignText>> side) {
+            this.signText = side;
+        }
 
         @Override
         public @NotNull List<Component> lines() {
@@ -196,8 +204,12 @@ public class SignBlockState extends AbstractTileState implements Sign {
         }
 
         @Override
-        public @NotNull Component line(int i) throws IndexOutOfBoundsException {
-            return this.lines.get(i);
+        public @NotNull Component line(@Range(from = 0, to = 4) int i) throws IndexOutOfBoundsException {
+            try {
+                return Objects.requireNonNullElseGet(this.lines.get(i), Component::empty);
+            } catch (IndexOutOfBoundsException e) {
+                return Component.empty();
+            }
         }
 
         @Override
@@ -222,22 +234,22 @@ public class SignBlockState extends AbstractTileState implements Sign {
 
         @Override
         public boolean isGlowingText() {
-            return key(Keys.GLOWING_TEXT).getValue();
+            return Objects.requireNonNull(this.glowingText.get());
         }
 
         @Override
         public void setGlowingText(boolean b) {
-            key(Keys.GLOWING_TEXT).setValue(b);
+            glowingText.set(b);
         }
 
         @Override
         public @Nullable DyeColor getColor() {
-            return this.colour;
+            return this.colour.get();
         }
 
         @Override
         public void setColor(DyeColor dyeColor) {
-            this.colour = dyeColor;
+            this.colour.set(dyeColor);
         }
     }
 }

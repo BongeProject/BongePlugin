@@ -43,7 +43,7 @@ import org.soak.wrapper.block.state.AbstractBlockState;
 import org.soak.wrapper.inventory.SoakInventory;
 import org.soak.wrapper.inventory.view.AbstractInventoryView;
 import org.soak.wrapper.inventory.view.SoakOpeningInventoryView;
-import org.soak.wrapper.inventory.SoakPlayerInventory;
+import org.soak.wrapper.inventory.carrier.SoakPlayerInventory;
 import org.soak.wrapper.world.SoakWorld;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;

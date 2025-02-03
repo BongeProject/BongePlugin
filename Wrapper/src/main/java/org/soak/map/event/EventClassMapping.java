@@ -248,6 +248,9 @@ public class EventClassMapping {
         if(name.equals(ChunkPopulateEvent.class.getName())){
             return reflection(SoakChunkGenerateEvent.class);
         }
+        if (name.equals(BlockDispenseEvent.class.getName())) {
+            return reflection(SoakBlockDispenseEvent.class);
+        }
         throw new RuntimeException("No mapping found for Bukkit Event: " + bukkitClass.getName());
     }
 

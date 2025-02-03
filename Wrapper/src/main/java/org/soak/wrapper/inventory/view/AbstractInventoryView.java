@@ -163,8 +163,10 @@ public class AbstractInventoryView implements InventoryView {
                 }
                 var spongeWrappedComponent = ReflectionHelper.getField(menuProvider, "title");
                 return ReflectionHelper.getField(spongeWrappedComponent, "wrapped");
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                return Component.empty();
             }
         }
         var opTitle = currentMenu.get().title();

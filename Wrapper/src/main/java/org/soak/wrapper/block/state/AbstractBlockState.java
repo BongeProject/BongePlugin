@@ -24,13 +24,17 @@ import org.soak.utils.KeyValuePair;
 import org.soak.wrapper.block.SoakBlock;
 import org.soak.wrapper.block.data.AbstractBlockData;
 import org.soak.wrapper.block.data.SoakBlockData;
+import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.value.Value;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.tag.BlockTypeTags;
 import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
@@ -49,17 +53,23 @@ public abstract class AbstractBlockState implements BlockState {
         this.state = state;
     }
 
-    public org.spongepowered.api.block.BlockState spongeState(){
+    public @NotNull org.spongepowered.api.block.BlockState spongeState() {
         return this.state;
     }
 
-    public ServerLocation spongeLocation(){
-        return  this.location;
+    public @Nullable ServerLocation spongeLocation() {
+        return this.location;
     }
 
+    public Optional<? extends BlockEntity> spongeEntity() {
+        if (this.location == null) {
+            return Optional.empty();
+        }
+        return this.location.blockEntity();
+    }
 
     public static AbstractBlockState wrap(@Nullable ServerLocation location, org.spongepowered.api.block.BlockState state, boolean isSnapshot) {
-        if (state.get(Keys.SIGN_WAXED).isPresent()) {
+        if (state.type().is(BlockTypeTags.ALL_SIGNS)) {
             return new SignBlockState(location, state, isSnapshot);
         }
         return new BasicBlockState(location, state);
@@ -71,10 +81,6 @@ public abstract class AbstractBlockState implements BlockState {
 
     public @Nullable ServerLocation location() {
         return this.location;
-    }
-
-    public @NotNull org.spongepowered.api.block.BlockState state() {
-        return this.state;
     }
 
     @Override
@@ -118,8 +124,19 @@ public abstract class AbstractBlockState implements BlockState {
         return copy;
     }
 
-    public <Val> KeyValuePair<Val> key(Key<? extends Value<Val>> key) {
-        return (KeyValuePair<Val>) this.toApply.stream().filter(pair -> pair.getKey().equals(key)).findAny().orElseThrow();
+    @SuppressWarnings("unchecked")
+    public <Val> Optional<KeyValuePair<Val>> key(Key<? extends Value<Val>> key) {
+        return this.toApply.stream().filter(pair -> pair.getKey().equals(key)).map(t -> (KeyValuePair<Val>) t).findAny();
+    }
+
+    public <Val> void offer(Key<? extends Value<Val>> key, Val value) {
+        var opPair = key(key);
+        if (opPair.isPresent()) {
+            opPair.get().setValue(value);
+            return;
+        }
+        var pair = new KeyValuePair<>(key, value);
+        this.toApply.offer(pair);
     }
 
     @Override

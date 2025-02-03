@@ -18,8 +18,7 @@ public class SlotTypeList {
 
     public static final SlotTypeEntry ARMOR = register("ARMOR", EquipmentSlot.class);
     public static final SlotTypeEntry CRAFTING = register("CRAFTING", slot -> {
-        System.out.println("Check chest");
-        return false;
+        return slot.parent().getClass().getSimpleName().contains("Chest");
     });
     public static final SlotTypeEntry RESULT = register("RESULT", slot -> slot instanceof OutputSlot);
 

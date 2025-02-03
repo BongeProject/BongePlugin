@@ -94,6 +94,7 @@ public class MaterialList {
         classCreator = buildGetMaxDurabilityMethod(classCreator);
         classCreator = buildGetKeyMethod(classCreator);
         classCreator = buildIsTransparent(classCreator);
+        classCreator = buildHasGravity(classCreator);
 
         classCreator = buildStaticMatchMaterial(classCreator);
         classCreator = buildStaticGetMaterial(classCreator);
@@ -208,6 +209,10 @@ public class MaterialList {
         return CommonGenerationCode.callStaticMethodReturnSelf(MaterialList.class, builder, "getMaterial", MethodCall::withAllArguments, String.class);
     }
 
+    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> buildHasGravity(DynamicType.Builder<? extends Enum<?>> builder) throws NoSuchMethodException {
+        return CommonGenerationCode.callMethod(MaterialList.class, builder, "hasGravity", boolean.class);
+    }
+
     public static Optional<org.spongepowered.api.block.BlockType> getBlockType(Enum<?> enumEntry) {
         return Optional.ofNullable(BLOCK_TYPE_MAP.get(enumEntry.name()));
     }
@@ -265,6 +270,10 @@ public class MaterialList {
 
     public static boolean isAir(Enum<?> enumEntry) {
         return getItemType(enumEntry).map(type -> type.equals(ItemTypes.AIR.get())).orElse(false);
+    }
+
+    public static boolean hasGravity(Enum<?> enumEntry) {
+        return getBlockType(enumEntry).flatMap(type -> type.get(Keys.IS_GRAVITY_AFFECTED)).orElse(false);
     }
 
     public static boolean isTransparent(Enum<?> enumEntry) {
