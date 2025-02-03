@@ -23,7 +23,8 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakPlayerInteractBlockEvent extends SoakEvent<InteractBlockEvent, PlayerInteractEvent> {
 
-    public SoakPlayerInteractBlockEvent(Class<PlayerInteractEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerInteractBlockEvent(Class<PlayerInteractEvent> bukkitEvent, EventPriority priority, Plugin plugin
+            , Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -42,10 +43,7 @@ public class SoakPlayerInteractBlockEvent extends SoakEvent<InteractBlockEvent, 
 
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongePlayer);
         var spongePosition = event.block().position();
-        var interactionPoint = new Vector(
-                spongePosition.x(),
-                spongePosition.y(),
-                spongePosition.z());
+        var interactionPoint = new Vector(spongePosition.x(), spongePosition.y(), spongePosition.z());
         var clickedFace = SoakDirectionMap.toBukkit(event.targetSide());
         var spongeHand = event.context()
                 .get(EventContextKeys.USED_HAND)

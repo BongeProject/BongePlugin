@@ -13,7 +13,8 @@ import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 public class SoakPlayerQuitEvent extends SoakEvent<ServerSideConnectionEvent.Leave, PlayerQuitEvent> {
 
-    public SoakPlayerQuitEvent(Class<PlayerQuitEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerQuitEvent(Class<PlayerQuitEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

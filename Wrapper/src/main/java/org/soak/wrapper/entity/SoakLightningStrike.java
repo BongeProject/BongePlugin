@@ -30,7 +30,7 @@ public class SoakLightningStrike extends AbstractEntity<LightningBolt> implement
     }
 
     @Override
-    public SpigotLightningStrike spigot() {
+    public @NotNull SpigotLightningStrike spigot() {
         return new SpigotLightningStrike(new SoakSpigotEntity(this));
     }
 
@@ -77,7 +77,9 @@ public class SoakLightningStrike extends AbstractEntity<LightningBolt> implement
     @Override
     public @Nullable Player getCausingPlayer() {
         var opCreator = this.spongeEntity().creator();
-        return opCreator.flatMap(mut -> Sponge.server().player(mut.get())).map(player -> SoakManager.<WrapperManager>getManager().getMemoryStore().get(player)).orElse(null);
+        return opCreator.flatMap(mut -> Sponge.server().player(mut.get()))
+                .map(player -> SoakManager.<WrapperManager>getManager().getMemoryStore().get(player))
+                .orElse(null);
     }
 
     @Override
@@ -96,35 +98,42 @@ public class SoakLightningStrike extends AbstractEntity<LightningBolt> implement
         return true;
     }
 
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public class SpigotLightningStrike extends LightningStrike.Spigot {
 
-        private SoakSpigotEntity spigotEntity;
+        private final SoakSpigotEntity spigotEntity;
 
         SpigotLightningStrike(SoakSpigotEntity entity) {
             this.spigotEntity = entity;
         }
 
         @Override
+        @Deprecated
         public boolean isSilent() {
             return SoakLightningStrike.this.isSilent();
         }
 
         @Override
+        @Deprecated
         public void sendMessage(@NotNull BaseComponent component) {
             this.spigotEntity.sendMessage(component);
         }
 
         @Override
+        @Deprecated
         public void sendMessage(@NotNull BaseComponent... components) {
             this.spigotEntity.sendMessage(components);
         }
 
         @Override
+        @Deprecated
         public void sendMessage(@Nullable UUID sender, @NotNull BaseComponent component) {
             this.spigotEntity.sendMessage(sender, component);
         }
 
         @Override
+        @Deprecated
         public void sendMessage(@Nullable UUID sender, @NotNull BaseComponent... components) {
             this.spigotEntity.sendMessage(sender, components);
         }

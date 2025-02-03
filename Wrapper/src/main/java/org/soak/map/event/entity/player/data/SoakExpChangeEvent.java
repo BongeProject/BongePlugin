@@ -18,7 +18,8 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public class SoakExpChangeEvent extends AbstractDataEvent<Integer, PlayerExpChangeEvent> {
 
-    public SoakExpChangeEvent(Class<PlayerExpChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakExpChangeEvent(Class<PlayerExpChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                              Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -38,7 +39,8 @@ public class SoakExpChangeEvent extends AbstractDataEvent<Integer, PlayerExpChan
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player, Integer changedTo, Integer changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player,
+                             Integer changedTo, Integer changedFrom) {
         var human = SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerPlayer) player);
         //TODO get entity that caused exp
         var event = new PlayerExpChangeEvent(human, changedTo);

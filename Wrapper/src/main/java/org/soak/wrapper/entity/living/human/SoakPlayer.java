@@ -104,7 +104,9 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     public @NotNull InventoryView getOpenInventory() {
         var opOpenInventory = this.spongeEntity().openInventory();
         if (opOpenInventory.isEmpty()) {
-            SoakManager.getManager().getLogger().error("A plugin requested the players open inventory, but the players inventory is not open");
+            SoakManager.getManager()
+                    .getLogger()
+                    .error("A plugin requested the players open inventory, but the players inventory is not open");
             throw NotImplementedException.createByLazy(HumanEntity.class, "getOpenInventory");
         }
         var openInventory = opOpenInventory.get();
@@ -115,8 +117,8 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {
         SoakInventory<?> soakInv = (SoakInventory<?>) inventory;
         try {
-            return openInventory(soakInv.sponge(), soakInv.requestedTitle().orElse(null)).map(AbstractInventoryView::wrap)
-                    .orElse(null);
+            return openInventory(soakInv.sponge(),
+                                 soakInv.requestedTitle().orElse(null)).map(AbstractInventoryView::wrap).orElse(null);
         } catch (UnsupportedOperationException ex) {
             Sponge.server().scheduler().executor(SoakManager.getManager().getOwnContainer()).execute(() -> {
                 openInventory(soakInv.sponge(), soakInv.requestedTitle().orElse(null));
@@ -148,7 +150,8 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         closeInventory();
     }
 
-    private Optional<Container> openInventory(org.spongepowered.api.item.inventory.Inventory inv, @Nullable Component title) {
+    private Optional<Container> openInventory(org.spongepowered.api.item.inventory.Inventory inv,
+                                              @Nullable Component title) {
         if (title == null) {
             return this.spongeEntity().openInventory(inv);
         }
@@ -185,12 +188,16 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason,
+                                                                       @Nullable Date expires,
+                                                                       @Nullable String source) {
         return ban(reason, expires == null ? null : expires.toInstant(), source);
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason, @Nullable Instant expires, @Nullable String source) {
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason,
+                                                                       @Nullable Instant expires,
+                                                                       @Nullable String source) {
         var banService = Sponge.server().serviceProvider().banService();
         var sourceComponent = source == null ? Component.empty() : Component.text(source);
         var reasonComponent = reason == null ? Component.empty() : Component.text(reason);
@@ -207,7 +214,9 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason, @Nullable Duration expires, @Nullable String source) {
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String reason,
+                                                                       @Nullable Duration expires,
+                                                                       @Nullable String source) {
         return ban(reason, expires == null ? null : Instant.from(expires.addTo(LocalDateTime.now())), source);
     }
 
@@ -321,7 +330,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType type, int value) {
-//TODO fix lazy code
+        //TODO fix lazy code
         setStatistic(statistic, value);
     }
 
@@ -347,23 +356,24 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void setStatistic(@NotNull Statistic arg0, @NotNull Material arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "setStatistic",
-                Statistic.class,
-                Material.class,
-                int.class);
+                                                   "setStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
-    private Optional<Map.Entry<org.spongepowered.api.statistic.Statistic, Long>> statistic(Statistic statistic, Material material) {
+    private Optional<Map.Entry<org.spongepowered.api.statistic.Statistic, Long>> statistic(Statistic statistic,
+                                                                                           Material material) {
         var spongeStatistics = this.spongeEntity().statistics().get();
         var spongeKey = SoakResourceKeyMap.mapToSponge(statistic.getKey());
-        return spongeStatistics
-                .entrySet()
+        return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
                 .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
                 .filter(entry -> {
-                    var typedStatistic = ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type();
+                    var typedStatistic =
+                            ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type();
                     if (SoakBlockMap.toSponge(material).map(typedStatistic::equals).orElse(false)) {
                         return true;
                     }
@@ -374,16 +384,13 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) {
-        return statistic(statistic, material)
-                .map(entry -> entry.getValue().intValue())
-                .orElse(-1);
+        return statistic(statistic, material).map(entry -> entry.getValue().intValue()).orElse(-1);
     }
 
     private Optional<Map.Entry<org.spongepowered.api.statistic.Statistic, Long>> statistic(Statistic statistic) {
         var spongeStatistics = this.spongeEntity().statistics().get();
         var spongeKey = SoakResourceKeyMap.mapToSponge(statistic.getKey());
-        return spongeStatistics
-                .entrySet()
+        return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
                 .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
@@ -392,30 +399,27 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public int getStatistic(@NotNull Statistic statistic) {
-        return statistic(statistic)
-                .map(entry -> entry.getValue().intValue())
-                .orElse(-1);
+        return statistic(statistic).map(entry -> entry.getValue().intValue()).orElse(-1);
     }
 
-    public Optional<Map.Entry<org.spongepowered.api.statistic.Statistic, Long>> statistic(Statistic statistic, EntityType type) {
+    public Optional<Map.Entry<org.spongepowered.api.statistic.Statistic, Long>> statistic(Statistic statistic,
+                                                                                          EntityType type) {
         var spongeStatistics = this.spongeEntity().statistics().get();
         var spongeEntityType = SoakEntityMap.toSponge(type);
         var spongeKey = SoakResourceKeyMap.mapToSponge(statistic.getKey());
-        return spongeStatistics
-                .entrySet()
+        return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
                 .filter(entry -> entry.getKey().criterion().get().key(RegistryTypes.STATISTIC).equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
-                .filter(entry -> ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type().equals(spongeEntityType))
+                .filter(entry -> ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type()
+                        .equals(spongeEntityType))
                 .findAny();
     }
 
     @Override
     public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType type) {
-        return statistic(statistic, type)
-                .map(entry -> entry.getValue().intValue())
-                .orElse(-1);
+        return statistic(statistic, type).map(entry -> entry.getValue().intValue()).orElse(-1);
     }
 
     @Deprecated
@@ -514,7 +518,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, @Nullable String s1) {
-        throw NotImplementedException.createByLazy(Player.class, "setResourcePack", String.class, byte.class, String.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "setResourcePack",
+                                                   String.class,
+                                                   byte.class,
+                                                   String.class);
     }
 
     @Override
@@ -529,18 +537,37 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void setResourcePack(@NotNull String s, byte @Nullable [] bytes, @Nullable Component component, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "setResourcePack", String.class, byte.class, Component.class, boolean.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "setResourcePack",
+                                                   String.class,
+                                                   byte.class,
+                                                   Component.class,
+                                                   boolean.class);
     }
 
     @Override
-    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "setResourcePack", UUID.class, String.class, byte[].class, String.class, boolean.class);
+    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1,
+                                boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "setResourcePack",
+                                                   UUID.class,
+                                                   String.class,
+                                                   byte[].class,
+                                                   String.class,
+                                                   boolean.class);
 
     }
 
     @Override
-    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, byte @Nullable [] bytes, @Nullable Component component, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "setResourcePack", UUID.class, String.class, byte[].class, Component.class, boolean.class);
+    public void setResourcePack(@NotNull UUID uuid, @NotNull String s, byte @Nullable [] bytes,
+                                @Nullable Component component, boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "setResourcePack",
+                                                   UUID.class,
+                                                   String.class,
+                                                   byte[].class,
+                                                   Component.class,
+                                                   boolean.class);
 
     }
 
@@ -556,7 +583,12 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void setResourcePack(@NotNull String s, @NotNull String s1, boolean b, @Nullable Component component) {
-        throw NotImplementedException.createByLazy(Player.class, "setResourcePack", String.class, String.class, boolean.class, Component.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "setResourcePack",
+                                                   String.class,
+                                                   String.class,
+                                                   boolean.class,
+                                                   Component.class);
     }
 
     @Deprecated
@@ -607,7 +639,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void sendHealthUpdate(double v, int i, float v1) {
-        throw NotImplementedException.createByLazy(Player.class, "sendHealthUpdate", double.class, int.class, float.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendHealthUpdate",
+                                                   double.class,
+                                                   int.class,
+                                                   float.class);
     }
 
     @Override
@@ -631,189 +667,199 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, Object arg6) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, Object arg6) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, Object arg8) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, Object arg8) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, double arg6) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, double arg6) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, double arg8) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, double arg8) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class);
     }
 
     @Override
-    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1, double v2, double v3, @Nullable T t, boolean b) {
+    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
+                                  double v2, double v3, @Nullable T t, boolean b) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class,
-                boolean.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class,
+                                                   boolean.class);
     }
 
     @Override
-    public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3, double v4, double v5, double v6, @Nullable T t, boolean b) {
+    public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3,
+                                  double v4, double v5, double v6, @Nullable T t, boolean b) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class,
-                boolean.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class,
+                                                   boolean.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4, double arg5, double arg6, Object arg7) {
+    public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, double arg3, double arg4,
+                              double arg5, double arg6, Object arg7) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
-    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5, double arg6, double arg7, double arg8, Object arg9) {
+    public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, double arg5,
+                              double arg6, double arg7, double arg8, Object arg9) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                double.class,
-                double.class,
-                double.class,
-                double.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4, Object arg5) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, @NotNull Location arg1, int arg2, Object arg3) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                Location.class,
-                int.class,
-                Object.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   Location.class,
+                                                   int.class,
+                                                   Object.class);
     }
 
     @Override
     public void spawnParticle(@NotNull Particle arg0, double arg1, double arg2, double arg3, int arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "spawnParticle",
-                Particle.class,
-                double.class,
-                double.class,
-                double.class,
-                int.class);
+                                                   "spawnParticle",
+                                                   Particle.class,
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   int.class);
     }
 
     @Override
@@ -863,12 +909,16 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         throw NotImplementedException.createByLazy(Player.class, "setSimulationDistance", int.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public int getNoTickViewDistance() {
         throw NotImplementedException.createByLazy(Player.class, "getNoTickViewDistance");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void setNoTickViewDistance(int i) {
         throw NotImplementedException.createByLazy(Player.class, "setNoTickViewDistance", int.class);
     }
@@ -913,7 +963,8 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         throw NotImplementedException.createByLazy(Player.class, "getResourcePackStatus");
     }
 
-    @Deprecated
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
     @Override
     public String getResourcePackHash() {
         throw NotImplementedException.createByLazy(Player.class, "getResourcePackHash");
@@ -925,8 +976,14 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void addResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "addResourcePack", UUID.class, String.class, byte[].class, String.class, boolean.class);
+    public void addResourcePack(@NotNull UUID uuid, @NotNull String s, byte[] bytes, @Nullable String s1, boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "addResourcePack",
+                                                   UUID.class,
+                                                   String.class,
+                                                   byte[].class,
+                                                   String.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -969,7 +1026,9 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         throw NotImplementedException.createByLazy(Player.class, "getClientOption", ClientOption.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public Firework boostElytra(@NotNull ItemStack arg0) {
         throw NotImplementedException.createByLazy(Player.class, "boostElytra", ItemStack.class);
     }
@@ -1002,12 +1061,21 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void lookAt(double v, double v1, double v2, @NotNull LookAnchor lookAnchor) {
-        throw NotImplementedException.createByLazy(Player.class, "lookAt", double.class, double.class, double.class, LookAnchor.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "lookAt",
+                                                   double.class,
+                                                   double.class,
+                                                   double.class,
+                                                   LookAnchor.class);
     }
 
     @Override
     public void lookAt(@NotNull Entity entity, @NotNull LookAnchor lookAnchor, @NotNull LookAnchor lookAnchor1) {
-        throw NotImplementedException.createByLazy(Player.class, "lookAt", Entity.class, LookAnchor.class, LookAnchor.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "lookAt",
+                                                   Entity.class,
+                                                   LookAnchor.class,
+                                                   LookAnchor.class);
     }
 
     @Override
@@ -1103,7 +1171,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public Component playerListName() {
+    public @NotNull Component playerListName() {
         throw NotImplementedException.createByLazy(Player.class, "playerListName");
     }
 
@@ -1162,27 +1230,27 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void setPlayerListHeaderFooter(BaseComponent[] arg0, BaseComponent[] arg1) {
         throw NotImplementedException.createByLazy(Player.class,
-                "setPlayerListHeaderFooter",
-                BaseComponent[].class,
-                BaseComponent[].class);
+                                                   "setPlayerListHeaderFooter",
+                                                   BaseComponent[].class,
+                                                   BaseComponent[].class);
     }
 
     @Deprecated
     @Override
     public void setPlayerListHeaderFooter(String arg0, String arg1) {
         throw NotImplementedException.createByLazy(Player.class,
-                "setPlayerListHeaderFooter",
-                String.class,
-                String.class);
+                                                   "setPlayerListHeaderFooter",
+                                                   String.class,
+                                                   String.class);
     }
 
     @Deprecated
     @Override
     public void setPlayerListHeaderFooter(BaseComponent arg0, BaseComponent arg1) {
         throw NotImplementedException.createByLazy(Player.class,
-                "setPlayerListHeaderFooter",
-                BaseComponent.class,
-                BaseComponent.class);
+                                                   "setPlayerListHeaderFooter",
+                                                   BaseComponent.class,
+                                                   BaseComponent.class);
     }
 
     @Override
@@ -1218,7 +1286,10 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void abandonConversation(@NotNull Conversation conversation, @NotNull ConversationAbandonedEvent details) {
-        throw NotImplementedException.createByLazy(Player.class, "abandonConversation", Conversation.class, ConversationAbandonedEvent.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "abandonConversation",
+                                                   Conversation.class,
+                                                   ConversationAbandonedEvent.class);
     }
 
     @Override
@@ -1244,35 +1315,72 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Date.class, String.class, boolean.class);
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date,
+                                                                       @Nullable String s1, boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Date.class,
+                                                   String.class,
+                                                   boolean.class);
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Instant.class, String.class, boolean.class);
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant,
+                                                                       @Nullable String s1, boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Instant.class,
+                                                   String.class,
+                                                   boolean.class);
 
     }
 
     @Override
-    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Duration duration, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Duration.class, String.class, boolean.class);
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s,
+                                                                       @Nullable Duration duration,
+                                                                       @Nullable String s1, boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Duration.class,
+                                                   String.class,
+                                                   boolean.class);
     }
 
     @Override
-    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Date date, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Date.class, String.class, boolean.class);
+    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Date date, @Nullable String s1,
+                                                 boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Date.class,
+                                                   String.class,
+                                                   boolean.class);
 
     }
 
     @Override
-    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Instant instant, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Instant.class, String.class, boolean.class);
+    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Instant instant, @Nullable String s1,
+                                                 boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Instant.class,
+                                                   String.class,
+                                                   boolean.class);
     }
 
     @Override
-    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Duration duration, @Nullable String s1, boolean b) {
-        throw NotImplementedException.createByLazy(Player.class, "ban", String.class, Duration.class, String.class, boolean.class);
+    public @Nullable BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Duration duration, @Nullable String s1
+            , boolean b) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "ban",
+                                                   String.class,
+                                                   Duration.class,
+                                                   String.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -1387,24 +1495,25 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void playNote(@NotNull Location arg0, @NotNull Instrument arg1, @NotNull Note arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "playNote",
-                Location.class,
-                Instrument.class,
-                Note.class);
+                                                   "playNote",
+                                                   Location.class,
+                                                   Instrument.class,
+                                                   Note.class);
     }
 
     @Override
     public void playSound(@NotNull Location arg0, @NotNull Sound arg1, float arg2, float arg3) {
         throw NotImplementedException.createByLazy(Player.class,
-                "playSound",
-                Location.class,
-                Sound.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Location arg0, @NotNull String arg1, @NotNull SoundCategory arg2, float arg3, float arg4) {
+    public void playSound(@NotNull Location arg0, @NotNull String arg1, @NotNull SoundCategory arg2, float arg3,
+                          float arg4) {
         var soundType = SoakSoundMap.toSponge(arg1);
         var soundSource = SoakSoundMap.toAdventure(arg2);
         var sound = net.kyori.adventure.sound.Sound.sound(soundType, soundSource, arg3, arg4);
@@ -1412,66 +1521,123 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Location.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory soundCategory,
+                          float v, float v1, long l) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
     }
 
     @Override
-    public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Location.class, String.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory,
+                          float v, float v1, long l) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Location.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
     }
 
     @Override
     public void playSound(@NotNull Entity entity, @NotNull Sound sound, float v, float v1) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, Sound.class, float.class, float.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
     public void playSound(@NotNull Entity entity, @NotNull String s, float v, float v1) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, String.class, float.class, float.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   float.class,
+                                                   float.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v
+            , float v1) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
 
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
+    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                          float v1) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v
+            , float v1, long l) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
     }
 
     @Override
-    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v, float v1, long l) {
-        throw NotImplementedException.createByLazy(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class, long.class);
+    public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                          float v1, long l) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "playSound",
+                                                   Entity.class,
+                                                   String.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class,
+                                                   long.class);
     }
 
     @Override
     public void playSound(@NotNull Location arg0, @NotNull String arg1, float arg2, float arg3) {
         throw NotImplementedException.createByLazy(Player.class,
-                "playSound",
-                Location.class,
-                String.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   String.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
-    public void playSound(@NotNull Location arg0, @NotNull Sound arg1, @NotNull SoundCategory arg2, float arg3, float arg4) {
+    public void playSound(@NotNull Location arg0, @NotNull Sound arg1, @NotNull SoundCategory arg2, float arg3,
+                          float arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "playSound",
-                Location.class,
-                Sound.class,
-                SoundCategory.class,
-                float.class,
-                float.class);
+                                                   "playSound",
+                                                   Location.class,
+                                                   Sound.class,
+                                                   SoundCategory.class,
+                                                   float.class,
+                                                   float.class);
     }
 
     @Override
@@ -1519,23 +1685,31 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void playEffect(@NotNull Location arg0, @NotNull Effect arg1, Object arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "playEffect",
-                Location.class,
-                Effect.class,
-                Object.class);
+                                                   "playEffect",
+                                                   Location.class,
+                                                   Effect.class,
+                                                   Object.class);
     }
 
     @Override
     public void sendBlockChange(@NotNull Location atPosition, @NotNull BlockData data) {
         SoakBlockData soakData = (SoakBlockData) data;
-        this.spongeEntity().sendBlockChange(atPosition.getBlockX(), atPosition.getBlockY(), atPosition.getBlockZ(), soakData.sponge());
+        this.spongeEntity()
+                .sendBlockChange(atPosition.getBlockX(),
+                                 atPosition.getBlockY(),
+                                 atPosition.getBlockZ(),
+                                 soakData.sponge());
     }
 
     @Override
     public void sendBlockChanges(@NotNull Collection<BlockState> collection) {
         collection.forEach(state -> {
-            var blockState = ((AbstractBlockState)state);
-            spongeEntity().sendBlockChange(blockState.spongeLocation().position().toInt(), blockState.spongeState());
+            var blockState = ((AbstractBlockState) state);
+            var loc = blockState.spongeLocation();
+            if (loc == null) {
+                return;
+            }
+            spongeEntity().sendBlockChange(loc.position().toInt(), blockState.spongeState());
         });
     }
 
@@ -1548,10 +1722,10 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void sendBlockChange(@NotNull Location arg0, @NotNull Material arg1, byte arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendBlockChange",
-                Location.class,
-                Material.class,
-                byte.class);
+                                                   "sendBlockChange",
+                                                   Location.class,
+                                                   Material.class,
+                                                   byte.class);
     }
 
     @Override
@@ -1564,7 +1738,9 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         throw NotImplementedException.createByLazy(Player.class, "sendMultiBlockChange", Map.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> map, boolean b) {
         throw NotImplementedException.createByLazy(Player.class, "sendMultiBlockChange", Map.class, boolean.class);
 
@@ -1572,7 +1748,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void sendBlockDamage(@NotNull Location location, float v, @NotNull Entity entity) {
-        throw NotImplementedException.createByLazy(Player.class, "sendBlockDamage", Location.class, float.class, Entity.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendBlockDamage",
+                                                   Location.class,
+                                                   float.class,
+                                                   Entity.class);
 
     }
 
@@ -1582,8 +1762,13 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void sendEquipmentChange(@NotNull LivingEntity livingEntity, @NotNull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack) {
-        throw NotImplementedException.createByLazy(Player.class, "sendEquipmentChange", LivingEntity.class, EquipmentSlot.class, ItemStack.class);
+    public void sendEquipmentChange(@NotNull LivingEntity livingEntity, @NotNull EquipmentSlot equipmentSlot,
+                                    @Nullable ItemStack itemStack) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendEquipmentChange",
+                                                   LivingEntity.class,
+                                                   EquipmentSlot.class,
+                                                   ItemStack.class);
 
     }
 
@@ -1594,58 +1779,82 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void sendSignChange(@NotNull Location location, @Nullable List<? extends Component> list, @NotNull DyeColor dyeColor, boolean b) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(Player.class, "sendSignChange", Location.class, List.class, DyeColor.class, boolean.class);
+    public void sendSignChange(@NotNull Location location, @Nullable List<? extends Component> list,
+                               @NotNull DyeColor dyeColor, boolean b)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendSignChange",
+                                                   Location.class,
+                                                   List.class,
+                                                   DyeColor.class,
+                                                   boolean.class);
     }
 
     @Deprecated
     public boolean sendChunkChange(@NotNull Location arg0, int arg1, int arg2, int arg3, byte[] arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendChunkChange",
-                Location.class,
-                int.class,
-                int.class,
-                int.class,
-                byte[].class);
+                                                   "sendChunkChange",
+                                                   Location.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class,
+                                                   byte[].class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendSignChange(@NotNull Location arg0, List arg1, @NotNull DyeColor arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendSignChange",
-                Location.class,
-                List.class,
-                DyeColor.class);
+                                                   "sendSignChange",
+                                                   Location.class,
+                                                   List.class,
+                                                   DyeColor.class);
     }
 
     @Deprecated
     @Override
     public void sendSignChange(@NotNull Location arg0, String[] arg1, @NotNull DyeColor arg2) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendSignChange",
-                Location.class,
-                String[].class,
-                DyeColor.class);
+                                                   "sendSignChange",
+                                                   Location.class,
+                                                   String[].class,
+                                                   DyeColor.class);
     }
 
     @Override
-    public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor, boolean b) throws IllegalArgumentException {
-        throw NotImplementedException.createByLazy(Player.class, "sendSignChange", Location.class, String[].class, DyeColor.class, boolean.class);
+    public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor,
+                               boolean b)
+            throws IllegalArgumentException {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendSignChange",
+                                                   Location.class,
+                                                   String[].class,
+                                                   DyeColor.class,
+                                                   boolean.class);
     }
 
     @Override
-    public void sendBlockUpdate(@NotNull Location location, @NotNull TileState tileState) throws IllegalArgumentException {
+    public void sendBlockUpdate(@NotNull Location location, @NotNull TileState tileState)
+            throws IllegalArgumentException {
         throw NotImplementedException.createByLazy(Player.class, "sendBlockUpdate", Location.class, TileState.class);
     }
 
     @Override
     public void sendPotionEffectChange(@NotNull LivingEntity livingEntity, @NotNull PotionEffect potionEffect) {
-        throw NotImplementedException.createByLazy(Player.class, "sendPotionEffectChange", LivingEntity.class, PotionEffect.class);
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendPotionEffectChange",
+                                                   LivingEntity.class,
+                                                   PotionEffect.class);
     }
 
     @Override
-    public void sendPotionEffectChangeRemove(@NotNull LivingEntity livingEntity, @NotNull PotionEffectType potionEffectType) {
-        throw NotImplementedException.createByLazy(Player.class, "sendPotionEffectChangeRemove", LivingEntity.class, PotionEffectType.class);
+    public void sendPotionEffectChangeRemove(@NotNull LivingEntity livingEntity,
+                                             @NotNull PotionEffectType potionEffectType) {
+        throw NotImplementedException.createByLazy(Player.class,
+                                                   "sendPotionEffectChangeRemove",
+                                                   LivingEntity.class,
+                                                   PotionEffectType.class);
     }
 
     @Deprecated
@@ -1654,7 +1863,9 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         throw NotImplementedException.createByLazy(Player.class, "sendSignChange", Location.class, String[].class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendSignChange(@NotNull Location arg0, List arg1) {
         throw NotImplementedException.createByLazy(Player.class, "sendSignChange", Location.class, List.class);
     }
@@ -1731,35 +1942,35 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void showTitle(BaseComponent[] arg0, BaseComponent[] arg1, int arg2, int arg3, int arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "showTitle",
-                BaseComponent[].class,
-                BaseComponent[].class,
-                int.class,
-                int.class,
-                int.class);
+                                                   "showTitle",
+                                                   BaseComponent[].class,
+                                                   BaseComponent[].class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Deprecated
     @Override
     public void showTitle(BaseComponent arg0, BaseComponent arg1, int arg2, int arg3, int arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "showTitle",
-                BaseComponent.class,
-                BaseComponent.class,
-                int.class,
-                int.class,
-                int.class);
+                                                   "showTitle",
+                                                   BaseComponent.class,
+                                                   BaseComponent.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Override
     public void sendTitle(String arg0, String arg1, int arg2, int arg3, int arg4) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendTitle",
-                String.class,
-                String.class,
-                int.class,
-                int.class,
-                int.class);
+                                                   "sendTitle",
+                                                   String.class,
+                                                   String.class,
+                                                   int.class,
+                                                   int.class,
+                                                   int.class);
     }
 
     @Deprecated
@@ -1813,7 +2024,8 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public void updateInventory() {
-        //inventory is updated on the go -> if compatibility needs it then we can store the updates and then apply them here
+        //inventory is updated on the go -> if compatibility needs it then we can store the updates and then apply
+        // them here
 
         //throw NotImplementedException.createByLazy(Player.class, "updateInventory");
     }
@@ -2022,7 +2234,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     }
 
     @Override
-    public void storeCookie(@NotNull NamespacedKey namespacedKey, @NotNull byte[] bytes) {
+    public void storeCookie(@NotNull NamespacedKey namespacedKey, byte[] bytes) {
         throw NotImplementedException.createByLazy(Player.class, "storeCookie", NamespacedKey.class, byte[].class);
     }
 
@@ -2049,10 +2261,10 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
     @Override
     public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, byte[] message) {
         throw NotImplementedException.createByLazy(Player.class,
-                "sendPluginMessage",
-                Plugin.class,
-                String.class,
-                byte[].class);
+                                                   "sendPluginMessage",
+                                                   Plugin.class,
+                                                   String.class,
+                                                   byte[].class);
     }
 
     @Override

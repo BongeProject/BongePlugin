@@ -16,7 +16,8 @@ import org.spongepowered.math.vector.Vector3d;
 
 public class SoakPlayerRespawnEvent extends SoakEvent<RespawnPlayerEvent.Recreate, PlayerRespawnEvent> {
 
-    public SoakPlayerRespawnEvent(Class<PlayerRespawnEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerRespawnEvent(Class<PlayerRespawnEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                  Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -30,9 +31,9 @@ public class SoakPlayerRespawnEvent extends SoakEvent<RespawnPlayerEvent.Recreat
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.entity());
         var newWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.destinationWorld());
         var newLocation = new Location(newWorld,
-                event.destinationPosition().x(),
-                event.destinationPosition().y(),
-                event.destinationPosition().z());
+                                       event.destinationPosition().x(),
+                                       event.destinationPosition().y(),
+                                       event.destinationPosition().z());
 
         var bukkitEvent = new PlayerRespawnEvent(player, newLocation, event.isBedSpawn());
         fireEvent(bukkitEvent);
@@ -40,15 +41,15 @@ public class SoakPlayerRespawnEvent extends SoakEvent<RespawnPlayerEvent.Recreat
         if (!newLocation.equals(newSetLocation)) {
             if (newLocation.getWorld().equals(newSetLocation.getWorld())) {
                 event.setDestinationPosition(new Vector3d(newSetLocation.getX(),
-                        newSetLocation.getY(),
-                        newSetLocation.getZ()));
+                                                          newSetLocation.getY(),
+                                                          newSetLocation.getZ()));
                 return;
             }
             event.setCancelled(true);
             var spongeNewWorld = ((SoakWorld) newSetLocation.getWorld()).sponge();
             var spongeNewLocation = spongeNewWorld.location(newSetLocation.getX(),
-                    newSetLocation.getY(),
-                    newSetLocation.getZ());
+                                                            newSetLocation.getY(),
+                                                            newSetLocation.getZ());
             //this may need a schedule on it, depending on if its a death respawn
             event.entity().setLocation(spongeNewLocation);
         }

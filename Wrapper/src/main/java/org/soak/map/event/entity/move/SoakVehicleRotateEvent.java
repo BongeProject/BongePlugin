@@ -17,7 +17,8 @@ import org.spongepowered.math.vector.Vector3d;
 
 public class SoakVehicleRotateEvent extends SoakEvent<RotateEntityEvent, VehicleMoveEvent> {
 
-    public SoakVehicleRotateEvent(Class<VehicleMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakVehicleRotateEvent(Class<VehicleMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                  Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

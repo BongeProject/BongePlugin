@@ -21,7 +21,9 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 
 public class SoakEntityInteractWithBlockEvent extends SoakEvent<InteractBlockEvent, EntityInteractEvent> {
 
-    public SoakEntityInteractWithBlockEvent(Class<EntityInteractEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEntityInteractWithBlockEvent(Class<EntityInteractEvent> bukkitEvent, EventPriority priority,
+                                            Plugin plugin, Listener listener, EventExecutor executor,
+                                            boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

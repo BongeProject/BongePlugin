@@ -86,16 +86,4 @@ public class AbstractSoakPluginContainer implements SoakPluginContainer {
         }
         return Optional.of(ret);
     }
-
-    /*@Override
-    public Optional<URI> locateResource(URI relative) {
-        boolean exists = this.plugin.getResource(relative.getPath()) != null;
-        if (!exists) {
-            return Optional.empty();
-        }
-
-        URI localPath = this.bukkitPluginFile.toURI();
-        URI ret = localPath.relativize(relative);
-        return Optional.of(ret);
-    }*/
 }

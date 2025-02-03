@@ -64,10 +64,20 @@ public class InventoryTypeEntry {
     }
 
     public <T extends Enum<T>> Enum<T> toType() {
-        return (T) InventoryTypeList.values().stream().filter(enu -> enu.name().equals(this.enumId)).findFirst().orElseThrow();
+        return (T) InventoryTypeList.values()
+                .stream()
+                .filter(enu -> enu.name().equals(this.enumId))
+                .findFirst()
+                .orElseThrow();
     }
 
     public static InventoryTypeEntry fromContainerType(String name, ContainerType type) {
-        return new InventoryTypeEntry(name, container -> container.type().map(t -> t.equals(type)).orElse(false)).setDefaultName(() -> Component.text(name.toLowerCase().replaceAll("_", " ")));
+        return new InventoryTypeEntry(name,
+                                      container -> container.type()
+                                              .map(t -> t.equals(type))
+                                              .orElse(false)).setDefaultName(() -> Component.text(name.toLowerCase()
+                                                                                                          .replaceAll(
+                                                                                                                  "_",
+                                                                                                                  " ")));
     }
 }

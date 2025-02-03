@@ -20,7 +20,8 @@ import org.spongepowered.api.tag.BlockTypeTags;
 
 public class SoakEntityExitPortalEvent extends SoakEvent<MoveEntityEvent, EntityPortalExitEvent> {
 
-    public SoakEntityExitPortalEvent(Class<EntityPortalExitEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEntityExitPortalEvent(Class<EntityPortalExitEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                     Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -52,7 +53,11 @@ public class SoakEntityExitPortalEvent extends SoakEvent<MoveEntityEvent, Entity
         var bukkitPositionTo = bukkitLocationTo.toVector();
 
 
-        var bukkitEvent = new EntityPortalExitEvent(bukkitEntity, bukkitLocationFrom, bukkitLocationTo, bukkitPositionFrom, bukkitPositionTo);
+        var bukkitEvent = new EntityPortalExitEvent(bukkitEntity,
+                                                    bukkitLocationFrom,
+                                                    bukkitLocationTo,
+                                                    bukkitPositionFrom,
+                                                    bukkitPositionTo);
         fireEvent(bukkitEvent);
 
         //TODO change position after event

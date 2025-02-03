@@ -47,6 +47,7 @@ public abstract class JavaPlugin extends PluginBase {
     private boolean naggable = true;
     private FileConfiguration newConfig = null;
     private File configFile = null;
+    @SuppressWarnings("SpongeLogging")
     private Logger logger = null;
 
     public JavaPlugin() {

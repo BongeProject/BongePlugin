@@ -13,7 +13,8 @@ import org.spongepowered.api.event.entity.living.player.KickPlayerEvent;
 
 public class SoakPlayerKickEvent extends SoakEvent<KickPlayerEvent, PlayerKickEvent> {
 
-    public SoakPlayerKickEvent(Class<PlayerKickEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerKickEvent(Class<PlayerKickEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

@@ -14,7 +14,8 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public abstract class AbstractDataEvent<T, BE extends Event> extends SoakEvent<ChangeDataHolderEvent.ValueChange, BE> {
 
-    public AbstractDataEvent(Class<BE> bukkitEvent, EventPriority priority, Plugin plugin, org.bukkit.event.Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public AbstractDataEvent(Class<BE> bukkitEvent, EventPriority priority, Plugin plugin,
+                             org.bukkit.event.Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -40,5 +41,6 @@ public abstract class AbstractDataEvent<T, BE extends Event> extends SoakEvent<C
     }
 
 
-    protected abstract void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player, T changedTo, T changedFrom);
+    protected abstract void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player,
+                                      T changedTo, T changedFrom);
 }

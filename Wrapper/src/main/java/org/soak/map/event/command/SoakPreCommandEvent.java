@@ -16,7 +16,8 @@ import org.spongepowered.api.event.command.ExecuteCommandEvent;
 
 public class SoakPreCommandEvent extends SoakEvent<ExecuteCommandEvent.Pre, PlayerCommandPreprocessEvent> {
 
-    public SoakPreCommandEvent(Class<PlayerCommandPreprocessEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPreCommandEvent(Class<PlayerCommandPreprocessEvent> bukkitEvent, EventPriority priority, Plugin plugin
+            , Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 
 public class SoakEntityDeathEvent extends SoakEvent<DropItemEvent.Destruct, EntityDeathEvent> {
 
-    public SoakEntityDeathEvent(Class<EntityDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEntityDeathEvent(Class<EntityDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -36,7 +37,10 @@ public class SoakEntityDeathEvent extends SoakEvent<DropItemEvent.Destruct, Enti
 
     @Override
     public void handle(DropItemEvent.Destruct event) throws Exception {
-        var opBukkitEntity = event.cause().first(Living.class).filter(living -> !(living instanceof ServerPlayer)).map(AbstractEntity::wrap);
+        var opBukkitEntity = event.cause()
+                .first(Living.class)
+                .filter(living -> !(living instanceof ServerPlayer))
+                .map(AbstractEntity::wrap);
         if (opBukkitEntity.isEmpty()) {
             return;
         }
@@ -45,7 +49,8 @@ public class SoakEntityDeathEvent extends SoakEvent<DropItemEvent.Destruct, Enti
         if (opSpongeDamageCause.isEmpty()) {
             return;
         }
-        var bukkitDamageCause = new SoakDamageSource(opSpongeDamageCause.get(), (ServerWorld) entity.spongeEntity().world());
+        var bukkitDamageCause = new SoakDamageSource(opSpongeDamageCause.get(),
+                                                     (ServerWorld) entity.spongeEntity().world());
         var items = event.entities()
                 .parallelStream()
                 .map(itemEntity -> itemEntity.get(Keys.ITEM_STACK_SNAPSHOT)

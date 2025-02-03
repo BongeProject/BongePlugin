@@ -15,7 +15,8 @@ import org.spongepowered.api.event.entity.ChangeEntityWorldEvent;
 
 public class SoakPortalTeleportEntityEvent extends SoakEvent<ChangeEntityWorldEvent.Reposition, EntityPortalEvent> {
 
-    public SoakPortalTeleportEntityEvent(Class<EntityPortalEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPortalTeleportEntityEvent(Class<EntityPortalEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                         Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

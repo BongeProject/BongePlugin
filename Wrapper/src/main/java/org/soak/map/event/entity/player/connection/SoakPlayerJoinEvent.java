@@ -13,7 +13,8 @@ import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 public class SoakPlayerJoinEvent extends SoakEvent<ServerSideConnectionEvent.Join, PlayerJoinEvent> {
 
-    public SoakPlayerJoinEvent(Class<PlayerJoinEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerJoinEvent(Class<PlayerJoinEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

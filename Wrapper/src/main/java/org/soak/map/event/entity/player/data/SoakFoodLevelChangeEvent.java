@@ -20,7 +20,8 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public class SoakFoodLevelChangeEvent extends AbstractDataEvent<Integer, FoodLevelChangeEvent> {
 
-    public SoakFoodLevelChangeEvent(Class<FoodLevelChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakFoodLevelChangeEvent(Class<FoodLevelChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                    Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -40,7 +41,8 @@ public class SoakFoodLevelChangeEvent extends AbstractDataEvent<Integer, FoodLev
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player, Integer changedTo, Integer changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player,
+                             Integer changedTo, Integer changedFrom) {
         var human = (HumanEntity) AbstractEntity.wrap((Humanoid) player);
         var stack = spongeEvent.context().get(EventContextKeys.USED_ITEM).map(SoakItemStackMap::toBukkit);
         var event = new FoodLevelChangeEvent(human, changedTo, stack.orElse(null));

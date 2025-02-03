@@ -18,7 +18,8 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean, EntityToggleGlideEvent> {
 
-    public SoakToggleGlideEvent(Class<EntityToggleGlideEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakToggleGlideEvent(Class<EntityToggleGlideEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -38,7 +39,8 @@ public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean, EntityToggl
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongeHolder, Boolean changedTo, Boolean changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongeHolder,
+                             Boolean changedTo, Boolean changedFrom) {
         var living = AbstractEntity.wrap((Living) spongeHolder);
         var event = new EntityToggleGlideEvent(living, changedTo);
 

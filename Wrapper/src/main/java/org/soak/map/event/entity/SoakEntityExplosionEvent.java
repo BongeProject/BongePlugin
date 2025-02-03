@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 
 public class SoakEntityExplosionEvent extends SoakEvent<ExplosionEvent.Detonate, EntityExplodeEvent> {
 
-    public SoakEntityExplosionEvent(Class<EntityExplodeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEntityExplosionEvent(Class<EntityExplodeEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                    Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -49,7 +50,10 @@ public class SoakEntityExplosionEvent extends SoakEvent<ExplosionEvent.Detonate,
         var spongeLocation = event.explosion().serverLocation();
         var bukkitWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.world());
         var bukkitLocation = new Location(bukkitWorld, spongeLocation.x(), spongeLocation.y(), spongeLocation.z());
-        var blocks = event.affectedLocations().stream().map(loc -> (Block) new SoakBlock(loc)).collect(Collectors.toList());
+        var blocks = event.affectedLocations()
+                .stream()
+                .map(loc -> (Block) new SoakBlock(loc))
+                .collect(Collectors.toList());
         var result = result(event);
 
         var bukkitEvent = new EntityExplodeEvent(bukkitEntity, bukkitLocation, blocks, 0, result);

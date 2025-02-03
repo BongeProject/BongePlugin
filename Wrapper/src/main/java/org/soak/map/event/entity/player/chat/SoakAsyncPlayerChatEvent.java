@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("deprecation")
 public class SoakAsyncPlayerChatEvent extends SoakEvent<PlayerChatEvent.Submit, AsyncPlayerChatEvent> {
 
     private static final String DEFAULT_FORMAT = "<%1$s> %2$s";
 
-    public SoakAsyncPlayerChatEvent(Class<AsyncPlayerChatEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakAsyncPlayerChatEvent(Class<AsyncPlayerChatEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                    Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -40,22 +42,22 @@ public class SoakAsyncPlayerChatEvent extends SoakEvent<PlayerChatEvent.Submit, 
         }
         var player = opPlayer.get();
         var bukkitPlayer = SoakManager.<WrapperManager>getManager().getMemoryStore().get(player);
-        Set<Player> receivers = event
-                .filter()
-                .map(filter -> Sponge
-                        .server()
+        Set<Player> receivers = event.filter()
+                .map(filter -> Sponge.server()
                         .onlinePlayers()
                         .stream()
                         .filter(filter)
-                        .map(spongePlayer -> (Player) SoakManager
-                                .<WrapperManager>getManager()
+                        .map(spongePlayer -> (Player) SoakManager.<WrapperManager>getManager()
                                 .getMemoryStore()
                                 .get(spongePlayer))
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
         var message = SoakMessageMap.mapToBukkit(event.message());
 
-        var bukkitEvent = new AsyncPlayerChatEvent(Bukkit.getServer().isPrimaryThread(), bukkitPlayer, message, receivers);
+        var bukkitEvent = new AsyncPlayerChatEvent(Bukkit.getServer().isPrimaryThread(),
+                                                   bukkitPlayer,
+                                                   message,
+                                                   receivers);
         fireEvent(bukkitEvent);
 
         if (bukkitEvent.isCancelled()) {

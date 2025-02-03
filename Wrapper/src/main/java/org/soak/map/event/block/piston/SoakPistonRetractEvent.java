@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 
 public class SoakPistonRetractEvent extends SoakEvent<NotifyNeighborBlockEvent, BlockPistonRetractEvent> {
 
-    public SoakPistonRetractEvent(Class<BlockPistonRetractEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPistonRetractEvent(Class<BlockPistonRetractEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                  Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -38,8 +39,10 @@ public class SoakPistonRetractEvent extends SoakEvent<NotifyNeighborBlockEvent, 
             return;
         }
         var piston = opPiston.get();
-        //The piston here is the head position. When retracting this may show the block that retracted rather than the piston
-        //the pistons body is stored in the piston. Ill contact Sponge for a none implementation specific way to get this
+        //The piston here is the head position. When retracting this may show the block that retracted rather than
+        // the piston
+        //the pistons body is stored in the piston. Ill contact Sponge for a none implementation specific way to get
+        // this
         BlockState state;
         try {
             var classType = Class.forName("net.minecraft.world.level.block.entity.BlockEntity");
@@ -55,11 +58,18 @@ public class SoakPistonRetractEvent extends SoakEvent<NotifyNeighborBlockEvent, 
         }
         var pistonDirection = state.get(Keys.DIRECTION).orElseThrow(() -> new RuntimeException("Cannot get direction"));
         var pistonLocation = piston.serverLocation().relativeToBlock(pistonDirection.opposite());
-        var pistonBody = BlockSnapshot.builder().blockState(state).world(pistonLocation.world().properties()).position(pistonLocation.blockPosition()).build();
+        var pistonBody = BlockSnapshot.builder()
+                .blockState(state)
+                .world(pistonLocation.world().properties())
+                .position(pistonLocation.blockPosition())
+                .build();
 
         var bukkitPiston = new SoakBlockSnapshot(pistonBody);
         var bukkitDirection = SoakDirectionMap.toBukkit(pistonDirection);
-        var movedBlocks = event.tickets().stream().map(ticket -> (Block) new SoakBlockSnapshot(ticket.target())).collect(Collectors.toList());
+        var movedBlocks = event.tickets()
+                .stream()
+                .map(ticket -> (Block) new SoakBlockSnapshot(ticket.target()))
+                .collect(Collectors.toList());
 
         var bukkitEvent = new BlockPistonRetractEvent(bukkitPiston, movedBlocks, bukkitDirection);
         fireEvent(bukkitEvent);

@@ -17,7 +17,8 @@ import org.spongepowered.api.service.permission.Subject;
 
 public class SoakServerCommandEvent extends SoakEvent<ExecuteCommandEvent.Pre, ServerCommandEvent> {
 
-    public SoakServerCommandEvent(Class<ServerCommandEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakServerCommandEvent(Class<ServerCommandEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                  Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

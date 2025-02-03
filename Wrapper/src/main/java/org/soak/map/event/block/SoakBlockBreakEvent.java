@@ -17,7 +17,8 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakBlockBreakEvent extends SoakEvent<ChangeBlockEvent.All, BlockBreakEvent> {
 
-    public SoakBlockBreakEvent(Class<BlockBreakEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakBlockBreakEvent(Class<BlockBreakEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

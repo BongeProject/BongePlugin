@@ -70,7 +70,8 @@ public class EventClassMapping {
 
     public interface EventCreator<BE extends Event> {
 
-        SoakEvent<?, BE> create(Class<BE> bukkitClass, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled);
+        SoakEvent<?, BE> create(Class<BE> bukkitClass, Listener listener, EventPriority priority,
+                                EventExecutor executor, Plugin plugin, boolean ignoreCancelled);
     }
 
     //not good practise ... but quick to type, as it only happens onload it should be fine performance wise
@@ -83,9 +84,16 @@ public class EventClassMapping {
         }
 
         @Override
-        public SoakEvent<?, BE> create(Class<BE> bukkitClass, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
+        public SoakEvent<?, BE> create(Class<BE> bukkitClass, Listener listener, EventPriority priority,
+                                       EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
             try {
-                return (SoakEvent<?, BE>) creatingClass.getConstructors()[0].newInstance(bukkitClass, priority, plugin, listener, executor, ignoreCancelled);
+                //noinspection unchecked
+                return (SoakEvent<?, BE>) creatingClass.getConstructors()[0].newInstance(bukkitClass,
+                                                                                         priority,
+                                                                                         plugin,
+                                                                                         listener,
+                                                                                         executor,
+                                                                                         ignoreCancelled);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
@@ -230,6 +238,7 @@ public class EventClassMapping {
         if (name.equals(ServerCommandEvent.class.getName())) {
             return reflection(SoakServerCommandEvent.class);
         }
+        //noinspection deprecation
         if (name.equals(AsyncPlayerChatEvent.class.getName())) {
             return reflection(SoakAsyncPlayerChatEvent.class);
         }
@@ -245,7 +254,7 @@ public class EventClassMapping {
         if (name.equals(EntityInteractEvent.class.getName())) {
             return reflection(SoakEntityInteractWithBlockEvent.class);
         }
-        if(name.equals(ChunkPopulateEvent.class.getName())){
+        if (name.equals(ChunkPopulateEvent.class.getName())) {
             return reflection(SoakChunkGenerateEvent.class);
         }
         if (name.equals(BlockDispenseEvent.class.getName())) {
@@ -254,7 +263,10 @@ public class EventClassMapping {
         throw new RuntimeException("No mapping found for Bukkit Event: " + bukkitClass.getName());
     }
 
-    private static <E extends Event, BE extends Event> Collection<EventCreator<E>> reflection(Class<? extends SoakEvent<?, BE>>... values) {
+    @SuppressWarnings("unchecked")
+    @SafeVarargs
+    private static <E extends Event, BE extends Event> Collection<EventCreator<E>> reflection(Class<?
+            extends SoakEvent<?, BE>>... values) {
         return Stream.of(values).map(clazz -> (EventCreator<E>) new ReflectionEventCreator<>(clazz)).toList();
     }
 }

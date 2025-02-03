@@ -20,21 +20,24 @@ import java.util.Comparator;
 public class PortalCooldownCustomData {
 
     public static void createTickScheduler() {
-        Sponge.asyncScheduler().executor(SoakManager.getManager().getOwnContainer()).scheduleAtFixedRate(() -> Sponge
-                .server()
-                .worldManager()
-                .worlds()
-                .stream()
-                .flatMap(world -> world.entities().stream())
-                .filter(entity -> entity.get(SoakKeys.PORTAL_COOLDOWN).map(ticks -> ticks.ticks() > 0).orElse(false))
-                .forEach(entity -> {
-                    var ticksLeft = entity.get(SoakKeys.PORTAL_COOLDOWN).orElseThrow().ticks();
-                    if (ticksLeft == 0) {
-                        entity.remove(SoakKeys.PORTAL_COOLDOWN);
-                        return;
-                    }
-                    entity.offer(SoakKeys.PORTAL_COOLDOWN, Ticks.of(ticksLeft - 1));
-                }), 0, 1, Tick.tick());
+        Sponge.asyncScheduler()
+                .executor(SoakManager.getManager().getOwnContainer())
+                .scheduleAtFixedRate(() -> Sponge.server()
+                        .worldManager()
+                        .worlds()
+                        .stream()
+                        .flatMap(world -> world.entities().stream())
+                        .filter(entity -> entity.get(SoakKeys.PORTAL_COOLDOWN)
+                                .map(ticks -> ticks.ticks() > 0)
+                                .orElse(false))
+                        .forEach(entity -> {
+                            var ticksLeft = entity.get(SoakKeys.PORTAL_COOLDOWN).orElseThrow().ticks();
+                            if (ticksLeft == 0) {
+                                entity.remove(SoakKeys.PORTAL_COOLDOWN);
+                                return;
+                            }
+                            entity.offer(SoakKeys.PORTAL_COOLDOWN, Ticks.of(ticksLeft - 1));
+                        }), 0, 1, Tick.tick());
     }
 
     static Key<Value<Ticks>> generateKey() {
@@ -56,8 +59,7 @@ public class PortalCooldownCustomData {
 
         var provider = DataProvider.mutableBuilder().key(SoakKeys.PORTAL_COOLDOWN).dataHolder(Entity.class).build();
 
-        var registration = DataRegistration
-                .builder()
+        var registration = DataRegistration.builder()
                 .dataKey(SoakKeys.PORTAL_COOLDOWN)
                 .store(store)
                 .provider(provider)

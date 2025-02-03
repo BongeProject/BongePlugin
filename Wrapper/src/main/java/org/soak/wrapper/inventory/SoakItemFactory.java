@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.function.UnaryOperator;
 
 public class SoakItemFactory implements ItemFactory {
+
     @Override
     public @NotNull Component displayName(@NotNull ItemStack arg0) {
         ItemMeta meta = arg0.getItemMeta();
@@ -93,9 +94,11 @@ public class SoakItemFactory implements ItemFactory {
 
     @Override
     public ItemMeta asMetaFor(@NotNull ItemMeta arg0, @NotNull ItemStack arg1) {
-        ItemMeta stacksMeta = arg1.hasItemMeta() ? arg1.getItemMeta() : SoakItemStackMap.toBukkitMeta(org.spongepowered.api.item.inventory.ItemStack.of(
-                SoakItemStackMap.toSponge(arg1.getType()).orElseThrow(() -> new RuntimeException("Material is not item in itemstack")),
-                arg1.getAmount()));
+        ItemMeta stacksMeta = arg1.hasItemMeta() ?
+                arg1.getItemMeta() :
+                SoakItemStackMap.toBukkitMeta(org.spongepowered.api.item.inventory.ItemStack.of(SoakItemStackMap.toSponge(
+                                                                                                        arg1.getType()).orElseThrow(() -> new RuntimeException("Material is not item in itemstack")),
+                                                                                                arg1.getAmount()));
         if (!(stacksMeta instanceof AbstractItemMeta)) {
             throw new RuntimeException("An item meta was not of abstract type: From: " + stacksMeta.getClass()
                     .getSimpleName());
@@ -110,44 +113,36 @@ public class SoakItemFactory implements ItemFactory {
         return asMetaFor(arg0, new ItemStack(arg1));
     }
 
-    /*@Override
-    public @NotNull Material updateMaterial(@NotNull ItemMeta arg0, @NotNull Material arg1) {
-        if (!(arg0 instanceof AbstractItemMeta abstractMeta)) {
-            throw new RuntimeException("ItemMeta is not extending AbstractItemMeta (" + arg0.getClass()
-                    .getName() + ")");
-        }
-        ItemType type = arg1.asItem().orElseThrow(() -> new RuntimeException("Material is not a item"));
-
-        abstractMeta.manipulate(container -> {
-            var stack = org.spongepowered.api.item.inventory.ItemStack.builder()
-                    .fromSnapshot(container.asImmutable())
-                    .itemType(type)
-                    .build();
-            if (container instanceof org.spongepowered.api.item.inventory.ItemStack) {
-                return stack;
-            }
-            return stack
-                    .asImmutable();
-        });
-        return arg1;
-    }*/
-
     @Override
-    public @NotNull ItemStack enchantWithLevels(@NotNull ItemStack itemStack, @Range(from = 1L, to = 30L) int i, boolean b, @NotNull Random random) {
-        throw NotImplementedException.createByLazy(ItemFactory.class, "enchantWithLevels", ItemStack.class, int.class, boolean.class, Random.class);
-    }
-
-    @Override
-    public @NotNull ItemStack enchantWithLevels(@NotNull ItemStack itemStack, @Range(from = 1L, to = 30L) int i, @NotNull RegistryKeySet<@NotNull Enchantment> registryKeySet, @NotNull Random random) {
-        throw NotImplementedException.createByLazy(ItemFactory.class, "enchantWithLevels", ItemStack.class, int.class, RegistryKeySet.class, Random.class);
-    }
-
-    @Override
-    public @NotNull HoverEvent<HoverEvent.ShowItem> asHoverEvent(@NotNull ItemStack item, @NotNull UnaryOperator<HoverEvent.ShowItem> op) {
+    public @NotNull ItemStack enchantWithLevels(@NotNull ItemStack itemStack, @Range(from = 1L, to = 30L) int i,
+                                                boolean b, @NotNull Random random) {
         throw NotImplementedException.createByLazy(ItemFactory.class,
-                "asHoverEvent",
-                ItemStack.class,
-                UnaryOperator.class);
+                                                   "enchantWithLevels",
+                                                   ItemStack.class,
+                                                   int.class,
+                                                   boolean.class,
+                                                   Random.class);
+    }
+
+    @Override
+    public @NotNull ItemStack enchantWithLevels(@NotNull ItemStack itemStack, @Range(from = 1L, to = 30L) int i,
+                                                @NotNull RegistryKeySet<@NotNull Enchantment> registryKeySet,
+                                                @NotNull Random random) {
+        throw NotImplementedException.createByLazy(ItemFactory.class,
+                                                   "enchantWithLevels",
+                                                   ItemStack.class,
+                                                   int.class,
+                                                   RegistryKeySet.class,
+                                                   Random.class);
+    }
+
+    @Override
+    public @NotNull HoverEvent<HoverEvent.ShowItem> asHoverEvent(@NotNull ItemStack item,
+                                                                 @NotNull UnaryOperator<HoverEvent.ShowItem> op) {
+        throw NotImplementedException.createByLazy(ItemFactory.class,
+                                                   "asHoverEvent",
+                                                   ItemStack.class,
+                                                   UnaryOperator.class);
     }
 
     @Override
@@ -165,18 +160,18 @@ public class SoakItemFactory implements ItemFactory {
     @Override
     public @NotNull Content hoverContentOf(@NotNull Entity arg0, BaseComponent arg1) {
         throw NotImplementedException.createByLazy(ItemFactory.class,
-                "hoverContentOf",
-                Entity.class,
-                BaseComponent.class);
+                                                   "hoverContentOf",
+                                                   Entity.class,
+                                                   BaseComponent.class);
     }
 
     @Deprecated
     @Override
     public @NotNull Content hoverContentOf(@NotNull Entity arg0, BaseComponent[] arg1) {
         throw NotImplementedException.createByLazy(ItemFactory.class,
-                "hoverContentOf",
-                Entity.class,
-                BaseComponent[].class);
+                                                   "hoverContentOf",
+                                                   Entity.class,
+                                                   BaseComponent[].class);
     }
 
     @Override
@@ -186,17 +181,31 @@ public class SoakItemFactory implements ItemFactory {
 
     @Override
     public @NotNull ItemStack enchantItem(@NotNull Entity entity, @NotNull ItemStack itemStack, int i, boolean b) {
-        throw NotImplementedException.createByLazy(ItemFactory.class, "enchantItem", Entity.class, ItemStack.class, int.class, boolean.class);
+        throw NotImplementedException.createByLazy(ItemFactory.class,
+                                                   "enchantItem",
+                                                   Entity.class,
+                                                   ItemStack.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
     public @NotNull ItemStack enchantItem(@NotNull World world, @NotNull ItemStack itemStack, int i, boolean b) {
-        throw NotImplementedException.createByLazy(ItemFactory.class, "enchantItem", World.class, ItemStack.class, int.class, boolean.class);
+        throw NotImplementedException.createByLazy(ItemFactory.class,
+                                                   "enchantItem",
+                                                   World.class,
+                                                   ItemStack.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Override
     public @NotNull ItemStack enchantItem(@NotNull ItemStack itemStack, int i, boolean b) {
-        throw NotImplementedException.createByLazy(ItemFactory.class, "enchantItem", ItemStack.class, int.class, boolean.class);
+        throw NotImplementedException.createByLazy(ItemFactory.class,
+                                                   "enchantItem",
+                                                   ItemStack.class,
+                                                   int.class,
+                                                   boolean.class);
     }
 
     @Deprecated
@@ -206,6 +215,7 @@ public class SoakItemFactory implements ItemFactory {
     }
 
     @Override
+    @Deprecated
     public @NotNull Content hoverContentOf(@NotNull ItemStack arg0) {
         throw NotImplementedException.createByLazy(ItemFactory.class, "hoverContentOf", ItemStack.class);
     }

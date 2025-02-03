@@ -37,7 +37,8 @@ public class SoakServerProperties {
                         e.printStackTrace();
                         return null;
                     }
-                }).filter(Objects::nonNull);
+                })
+                .filter(Objects::nonNull);
     }
 
     private <T extends PropertiesNode<?>> T property(Class<T> type) {

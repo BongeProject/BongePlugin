@@ -118,7 +118,8 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         return this.container.asImmutable();
     }
 
-    public boolean addAttribute(AttributeType type, org.spongepowered.api.entity.attribute.AttributeModifier modifier, Stream<EquipmentType> equipmentTypes) {
+    public boolean addAttribute(AttributeType type, org.spongepowered.api.entity.attribute.AttributeModifier modifier
+            , Stream<EquipmentType> equipmentTypes) {
         var newStack = this.container.asMutableCopy();
         AtomicBoolean hasApplied = new AtomicBoolean();
         equipmentTypes.forEach(equipmentType -> {
@@ -140,8 +141,7 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         }
         var opStack = ((ItemStackSnapshot) this.container).with(key, value);
         if (opStack.isEmpty()) {
-            throw new RuntimeException("Key of " + key.key()
-                    .formatted() + " is not supported with ItemStackSnapshot");
+            throw new RuntimeException("Key of " + key.key().formatted() + " is not supported with ItemStackSnapshot");
         }
 
         this.container = opStack.get();
@@ -220,16 +220,18 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         displayName(displayName);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull BaseComponent[] getDisplayNameComponent() {
         throw NotImplementedException.createByLazy(AbstractItemMeta.class, "getDisplayNameComponent");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setDisplayNameComponent(@Nullable BaseComponent[] component) {
         throw NotImplementedException.createByLazy(AbstractItemMeta.class,
-                "setDisplayNameComponent",
-                BaseComponent.class);
+                                                   "setDisplayNameComponent",
+                                                   BaseComponent.class);
     }
 
     @Override
@@ -272,8 +274,7 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         if (list == null) {
             return null;
         }
-        return CollectionStreamBuilder
-                .builder()
+        return CollectionStreamBuilder.builder()
                 .<Component, String>collection(list, SoakMessageMap::toComponent)
                 .basicMap(SoakMessageMap::mapToBukkit)
                 .buildList();
@@ -289,15 +290,16 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         lore(list);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable List<BaseComponent[]> getLoreComponents() {
         throw NotImplementedException.createByLazy(ItemMeta.class, "getLoreComponents");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setLoreComponents(@Nullable List<BaseComponent[]> lore) {
         throw NotImplementedException.createByLazy(ItemMeta.class, "setLoreComponents", List.class);
-
     }
 
     @Override
@@ -349,34 +351,38 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
 
     @Override
     public @NotNull Map<Enchantment, Integer> getEnchants() {
-        List<org.spongepowered.api.item.enchantment.Enchantment> spongeEnchantments = this.container.get(Keys.APPLIED_ENCHANTMENTS)
+        List<org.spongepowered.api.item.enchantment.Enchantment> spongeEnchantments =
+                this.container.get(Keys.APPLIED_ENCHANTMENTS)
                 .orElse(new LinkedList<>());
-        return spongeEnchantments
-                .stream()
+        return spongeEnchantments.stream()
                 .collect(Collectors.toMap(ench -> SoakEnchantmentTypeMap.toBukkit(ench.type()),
-                        org.spongepowered.api.item.enchantment.Enchantment::level));
+                                          org.spongepowered.api.item.enchantment.Enchantment::level));
     }
 
     @Override
     public boolean addEnchant(@NotNull Enchantment ench, int level, boolean ignoreLevelRestriction) {
         var enchantment = org.spongepowered.api.item.enchantment.Enchantment.of(SoakEnchantmentTypeMap.toSponge(ench),
-                level);
+                                                                                level);
         return modifyEnchantments(enchantments -> {
             enchantments.add(enchantment);
             return enchantments;
         });
     }
 
-    private boolean modifyEnchantments(Function<List<org.spongepowered.api.item.enchantment.Enchantment>, List<org.spongepowered.api.item.enchantment.Enchantment>> apply) {
+    private boolean modifyEnchantments(Function<List<org.spongepowered.api.item.enchantment.Enchantment>,
+            List<org.spongepowered.api.item.enchantment.Enchantment>> apply) {
         try {
-            List<org.spongepowered.api.item.enchantment.Enchantment> appliedEnchantments = this.container.get(Keys.APPLIED_ENCHANTMENTS)
+            List<org.spongepowered.api.item.enchantment.Enchantment> appliedEnchantments =
+                    this.container.get(Keys.APPLIED_ENCHANTMENTS)
                     .map(LinkedList::new)
                     .orElse(new LinkedList<>());
             List<org.spongepowered.api.item.enchantment.Enchantment> appliedChanges = apply.apply(appliedEnchantments);
             this.setList(Keys.APPLIED_ENCHANTMENTS, appliedChanges);
 
             if (this.container.supports(Keys.STORED_ENCHANTMENTS)) {
-                var storedEnchantments = this.container.get(Keys.STORED_ENCHANTMENTS).map(LinkedList::new).orElse(new LinkedList<>());
+                var storedEnchantments = this.container.get(Keys.STORED_ENCHANTMENTS)
+                        .map(LinkedList::new)
+                        .orElse(new LinkedList<>());
                 var storedChanges = apply.apply(storedEnchantments);
                 this.setList(Keys.STORED_ENCHANTMENTS, storedChanges);
             }
@@ -493,9 +499,9 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
     @Override
     public boolean removeAttributeModifier(@NotNull Attribute attribute, @NotNull AttributeModifier modifier) {
         throw NotImplementedException.createByLazy(ItemMeta.class,
-                "removeAttributeModifier",
-                Attribute.class,
-                AttributeModifier.class);
+                                                   "removeAttributeModifier",
+                                                   Attribute.class,
+                                                   AttributeModifier.class);
     }
 
     @Override
@@ -512,33 +518,41 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
     @Override
     @Deprecated
     public Set<Material> getCanDestroy() {
-        return this.container.get(Keys.BREAKABLE_BLOCK_TYPES).orElse(Set.of()).stream().map(SoakBlockMap::toBukkit).collect(Collectors.toSet());
+        return this.container.get(Keys.BREAKABLE_BLOCK_TYPES)
+                .orElse(Set.of())
+                .stream()
+                .map(SoakBlockMap::toBukkit)
+                .collect(Collectors.toSet());
     }
 
     @Override
     @Deprecated
     public void setCanDestroy(Set<Material> canDestroy) {
-        setSet(Keys.BREAKABLE_BLOCK_TYPES, canDestroy
-                .stream()
-                .map(SoakBlockMap::toSponge)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet()));
+        setSet(Keys.BREAKABLE_BLOCK_TYPES,
+               canDestroy.stream()
+                       .map(SoakBlockMap::toSponge)
+                       .filter(Optional::isPresent)
+                       .map(Optional::get)
+                       .collect(Collectors.toSet()));
     }
 
     @Override
     public Set<Material> getCanPlaceOn() {
-        return this.container.get(Keys.PLACEABLE_BLOCK_TYPES).orElse(Set.of()).stream().map(SoakBlockMap::toBukkit).collect(Collectors.toSet());
+        return this.container.get(Keys.PLACEABLE_BLOCK_TYPES)
+                .orElse(Set.of())
+                .stream()
+                .map(SoakBlockMap::toBukkit)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public void setCanPlaceOn(Set<Material> canPlaceOn) {
-        setSet(Keys.PLACEABLE_BLOCK_TYPES, canPlaceOn
-                .stream()
-                .map(SoakBlockMap::toSponge)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet()));
+        setSet(Keys.PLACEABLE_BLOCK_TYPES,
+               canPlaceOn.stream()
+                       .map(SoakBlockMap::toSponge)
+                       .filter(Optional::isPresent)
+                       .map(Optional::get)
+                       .collect(Collectors.toSet()));
     }
 
     @Override
@@ -718,7 +732,10 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
 
     @Override
     public int getMaxStackSize() {
-        return this.container.getInt(Keys.MAX_STACK_SIZE).orElseThrow(() -> new RuntimeException("Item '" + this.container.type().key(RegistryTypes.ITEM_TYPE).asString() + "' does not have a max stack size?"));
+        return this.container.getInt(Keys.MAX_STACK_SIZE)
+                .orElseThrow(() -> new RuntimeException("Item '" + this.container.type()
+                        .key(RegistryTypes.ITEM_TYPE)
+                        .asString() + "' does not have a max stack size?"));
     }
 
     @Override
@@ -761,7 +778,10 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
             return;
         }
         set(Keys.CAN_ALWAYS_EAT, foodComponent.canAlwaysEat());
-        set(Keys.FOOD_CONVERTS_TO, foodComponent.getUsingConvertsTo() == null ? null : SoakItemStackMap.toSponge(foodComponent.getUsingConvertsTo()));
+        set(Keys.FOOD_CONVERTS_TO,
+            foodComponent.getUsingConvertsTo() == null ?
+                    null :
+                    SoakItemStackMap.toSponge(foodComponent.getUsingConvertsTo()));
         set(Keys.EATING_TIME, Ticks.of((long) foodComponent.getEatSeconds() * 20));
         set(Keys.SATURATION, (double) foodComponent.getSaturation());
     }
@@ -802,7 +822,9 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
 
     @Override
     public void setJukeboxPlayable(@Nullable JukeboxPlayableComponent jukeboxPlayableComponent) {
-        throw NotImplementedException.createByLazy(ItemMeta.class, "setJukeboxPlayable", JukeboxPlayableComponent.class);
+        throw NotImplementedException.createByLazy(ItemMeta.class,
+                                                   "setJukeboxPlayable",
+                                                   JukeboxPlayableComponent.class);
     }
 
     @Override
@@ -829,7 +851,7 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
 
         compareStack.setQuantity(1);
         stack.setQuantity(1);
-        if(compareStack.equalTo(stack)){
+        if (compareStack.equalTo(stack)) {
             return true;
         }
         //attempt to find difference -> used for debugging
@@ -837,18 +859,18 @@ public abstract class AbstractItemMeta implements ItemMeta, Damageable {
         var originalContainer = stack.asImmutable().toContainer();
         var compareContainer = compareStack.asImmutable().toContainer();
 
-        var keys =  compareContainer.keys(true);
-        for(var key : keys){
-            if(!originalContainer.contains(key)){
+        var keys = compareContainer.keys(true);
+        for (var key : keys) {
+            if (!originalContainer.contains(key)) {
                 return false;
             }
             var originalValue = originalContainer.get(key).orElseThrow();
-            if(originalValue instanceof DataView){
+            if (originalValue instanceof DataView) {
                 //deep compare, another key will get inside this view
                 continue;
             }
             var compareValue = compareContainer.get(key).orElseThrow();
-            if(!originalValue.equals(compareValue)){
+            if (!originalValue.equals(compareValue)) {
                 return false;
             }
         }

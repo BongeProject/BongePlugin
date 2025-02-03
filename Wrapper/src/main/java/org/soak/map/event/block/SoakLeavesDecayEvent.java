@@ -13,7 +13,8 @@ import org.spongepowered.api.tag.BlockTypeTags;
 
 public class SoakLeavesDecayEvent extends SoakEvent<ChangeBlockEvent.All, LeavesDecayEvent> {
 
-    public SoakLeavesDecayEvent(Class<LeavesDecayEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakLeavesDecayEvent(Class<LeavesDecayEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -24,7 +25,9 @@ public class SoakLeavesDecayEvent extends SoakEvent<ChangeBlockEvent.All, Leaves
 
     @Override
     public void handle(ChangeBlockEvent.All event) throws Exception {
-        var leaveTransactions = event.transactions(Operations.DECAY.get()).filter(transaction -> transaction.original().state().type().is(BlockTypeTags.LEAVES)).toList();
+        var leaveTransactions = event.transactions(Operations.DECAY.get())
+                .filter(transaction -> transaction.original().state().type().is(BlockTypeTags.LEAVES))
+                .toList();
         for (var leaveTransaction : leaveTransactions) {
             var bukkitBlock = new SoakBlockSnapshot(leaveTransaction.original());
             var bukkitEvent = new LeavesDecayEvent(bukkitBlock);

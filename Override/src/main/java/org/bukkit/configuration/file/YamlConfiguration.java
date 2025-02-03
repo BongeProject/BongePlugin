@@ -23,6 +23,7 @@ import java.util.logging.Level;
 /*
 Override due to SnakeYaml being a newer version on Bukkit then Sponge
  */
+@SuppressWarnings({"FieldCanBeLocal", "CommentedOutCode"})
 public class YamlConfiguration extends FileConfiguration {
 
     /**

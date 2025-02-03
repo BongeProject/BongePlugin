@@ -23,7 +23,8 @@ import org.spongepowered.api.event.filter.type.Exclude;
 
 public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerInteractEvent> {
 
-    public SoakPlayerInteractAirEvent(Class<PlayerInteractEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerInteractAirEvent(Class<PlayerInteractEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                      Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

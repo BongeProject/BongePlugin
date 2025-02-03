@@ -13,20 +13,30 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class BukkitDataContainerDataType implements BukkitDataType<PersistentDataContainer> {
+
     @Override
     public Optional<PersistentDataContainer> get(DataView view, DataQuery from) {
         return view.getMap(from).map(map -> {
-            var persistent = new FakePersistentDataContainer();
-            map.forEach((key, value) -> convert(value, (dataType, v) -> persistent.set(NamespacedKey.fromString(key.toString()), dataType, v)));
+            PersistentDataContainer persistent = new FakePersistentDataContainer();
+            map.forEach((key, value) -> convert(value,
+                                                (dataType, v) -> persistent.set(NamespacedKey.fromString(key.toString()),
+                                                                                dataType,
+                                                                                v)));
             return persistent;
         });
     }
 
     private <P, C> void convert(Object obj, BiConsumer<PersistentDataType<P, C>, C> consumer) {
         var entry = (DataView) obj;
-        var value = (C) entry.get(DataQuery.of("value")).orElseThrow(() -> new IllegalArgumentException("Cannot find value"));
+        var value = (C) entry.get(DataQuery.of("value"))
+                .orElseThrow(() -> new IllegalArgumentException("Cannot find value"));
         var type = entry.get(DataQuery.of("type")).orElseThrow(() -> new IllegalArgumentException("Cannot find type"));
-        PersistentDataType<P, C> dataType = (PersistentDataType<P, C>) BukkitDataTypes.TYPES.values().stream().filter(bukkitDataType -> bukkitDataType.typeName().equals(type)).findAny().orElseThrow(() -> new IllegalArgumentException("Unable to get Bukkit data mapping for " + type)).toBukkit();
+        PersistentDataType<P, C> dataType = (PersistentDataType<P, C>) BukkitDataTypes.TYPES.values()
+                .stream()
+                .filter(bukkitDataType -> bukkitDataType.typeName().equals(type))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Unable to get Bukkit data mapping for " + type))
+                .toBukkit();
         consumer.accept(dataType, value);
     }
 
@@ -48,7 +58,8 @@ public class BukkitDataContainerDataType implements BukkitDataType<PersistentDat
     @Override
     public DataContainer set(DataContainer container, DataQuery from, PersistentDataContainer value) {
         if (!(value instanceof SoakPersistentData soak)) {
-            throw new IllegalArgumentException("Unknown PersistentDataContainer implementation of " + value.getClass().getTypeName());
+            throw new IllegalArgumentException("Unknown PersistentDataContainer implementation of " + value.getClass()
+                    .getTypeName());
         }
         var map = soak.wrapper().toMap();
         return container.set(from, map);

@@ -37,7 +37,8 @@ public class SlotTypeList {
     public static <T> DynamicType.Builder<T> createSlotTypeList() throws Exception {
         var slotTypes = SLOT_TYPE_MAPPINGS.stream().map(SlotTypeEntry::id).toList();
 
-        return (DynamicType.Builder<T>) new ByteBuddy().makeEnumeration(slotTypes).name("org.bukkit.event.inventory.InventoryType$SlotType");
+        return (DynamicType.Builder<T>) new ByteBuddy().makeEnumeration(slotTypes)
+                .name("org.bukkit.event.inventory.InventoryType$SlotType");
     }
 
     public static <T extends Enum<T>> EnumSet<T> values() {
@@ -48,6 +49,10 @@ public class SlotTypeList {
     }
 
     public static <T extends Enum<T>> T value(Slot container) {
-        return (T) SLOT_TYPE_MAPPINGS.stream().filter(entry -> entry.is(container)).findFirst().map(entry -> entry.toType()).orElseThrow();
+        return (T) SLOT_TYPE_MAPPINGS.stream()
+                .filter(entry -> entry.is(container))
+                .findFirst()
+                .map(entry -> entry.toType())
+                .orElseThrow();
     }
 }

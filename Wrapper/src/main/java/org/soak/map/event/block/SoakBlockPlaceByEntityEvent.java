@@ -20,7 +20,8 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakBlockPlaceByEntityEvent extends SoakEvent<ChangeBlockEvent.All, EntityBlockFormEvent> {
 
-    public SoakBlockPlaceByEntityEvent(Class<EntityBlockFormEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakBlockPlaceByEntityEvent(Class<EntityBlockFormEvent> bukkitEvent, EventPriority priority, Plugin plugin
+            , Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -44,8 +45,7 @@ public class SoakBlockPlaceByEntityEvent extends SoakEvent<ChangeBlockEvent.All,
             var originalBlock = new SoakBlockSnapshot(transaction.original());
             var newBlock = new SoakBlockSnapshot(transaction.custom().orElseGet(transaction::finalReplacement));
 
-            var bukkitEvent = new EntityBlockFormEvent(entity, originalBlock,
-                    newBlock.getState());
+            var bukkitEvent = new EntityBlockFormEvent(entity, originalBlock, newBlock.getState());
             fireEvent(bukkitEvent);
             if (bukkitEvent.isCancelled()) {
                 transaction.invalidate();

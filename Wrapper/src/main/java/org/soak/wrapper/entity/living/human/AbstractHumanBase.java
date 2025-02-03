@@ -31,13 +31,16 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
 
     @Override
     public void startRiptideAttack(int i, float v, @Nullable ItemStack itemStack) {
-        throw NotImplementedException.createByLazy(HumanEntity.class, "startRiptideAttack", int.class, float.class, ItemStack.class);
+        throw NotImplementedException.createByLazy(HumanEntity.class,
+                                                   "startRiptideAttack",
+                                                   int.class,
+                                                   float.class,
+                                                   ItemStack.class);
     }
 
     @Override
     public boolean canUseEquipmentSlot(@NotNull EquipmentSlot equipmentSlot) {
-        var equipmentType = EquipmentTypes
-                .registry()
+        var equipmentType = EquipmentTypes.registry()
                 .stream()
                 .filter(type -> equipmentSlot.name().equalsIgnoreCase(type.key(RegistryTypes.EQUIPMENT_TYPE).value()))
                 .findAny()
@@ -101,9 +104,9 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
     @Override
     public boolean setWindowProperty(InventoryView.@NotNull Property arg0, int arg1) {
         throw NotImplementedException.createByLazy(HumanEntity.class,
-                "setWindowProperty",
-                InventoryView.Property.class,
-                int.class);
+                                                   "setWindowProperty",
+                                                   InventoryView.Property.class,
+                                                   int.class);
     }
 
     @Override
@@ -139,9 +142,9 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
     @Override
     public InventoryView openCartographyTable(Location arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(HumanEntity.class,
-                "openCartographyTable",
-                Location.class,
-                boolean.class);
+                                                   "openCartographyTable",
+                                                   Location.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -157,9 +160,9 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
     @Override
     public InventoryView openSmithingTable(Location arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(HumanEntity.class,
-                "openSmithingTable",
-                Location.class,
-                boolean.class);
+                                                   "openSmithingTable",
+                                                   Location.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -310,8 +313,10 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
         throw NotImplementedException.createByLazy(HumanEntity.class, "setShoulderEntityRight", Entity.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void openSign(Sign arg0) {
+    @Deprecated
+    public void openSign(@NotNull Sign arg0) {
         throw NotImplementedException.createByLazy(HumanEntity.class, "openSign", Sign.class);
     }
 
@@ -391,12 +396,12 @@ public abstract class AbstractHumanBase<E extends Humanoid> extends AbstractLivi
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         throw NotImplementedException.createByLazy(HumanEntity.class, "getName");
     }
 
     @Override
-    public boolean sleep(Location arg0, boolean arg1) {
+    public boolean sleep(@NotNull Location arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(HumanEntity.class, "sleep", Location.class, boolean.class);
     }
 

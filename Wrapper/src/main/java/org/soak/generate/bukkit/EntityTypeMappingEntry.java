@@ -28,7 +28,9 @@ public class EntityTypeMappingEntry<SE extends Entity, SoakE extends org.bukkit.
 
     private final @NotNull Function<SE, SoakE> creation;
 
-    public EntityTypeMappingEntry(boolean isFinal, @NotNull EntityType<SE> soakEntityType, @NotNull Class<SoakE> soakEntity, @Nullable Class<SE> spongeEntity, @Nullable Function<SE, SoakE> function) {
+    public EntityTypeMappingEntry(boolean isFinal, @NotNull EntityType<SE> soakEntityType,
+                                  @NotNull Class<SoakE> soakEntity, @Nullable Class<SE> spongeEntity,
+                                  @Nullable Function<SE, SoakE> function) {
         this.soakEntityClass = soakEntity;
         this.spongeEntityType = soakEntityType;
         this.spongeEntityClass = spongeEntity;
@@ -51,7 +53,9 @@ public class EntityTypeMappingEntry<SE extends Entity, SoakE extends org.bukkit.
 
     public <SoakEntity extends org.bukkit.entity.Entity> EntityTypeMappingEntry<SE, SoakEntity> updateWithSoakClass(@NotNull Class<SE> clazz) {
         if (Living.class.isAssignableFrom(clazz)) {
-            EntityTypeMappingEntry<SE, AbstractLivingEntity> t = updateWithSoakClass(AbstractLivingEntity.class, e -> new SoakLivingEntity<>((Living)e), clazz);
+            EntityTypeMappingEntry<SE, AbstractLivingEntity> t = updateWithSoakClass(AbstractLivingEntity.class,
+                                                                                     e -> new SoakLivingEntity<>((Living) e),
+                                                                                     clazz);
             return (EntityTypeMappingEntry<SE, SoakEntity>) t;
         }
         return (EntityTypeMappingEntry<SE, SoakEntity>) updateWithSoakClass(this.soakEntityClass, this.creation, clazz);
@@ -59,7 +63,10 @@ public class EntityTypeMappingEntry<SE extends Entity, SoakE extends org.bukkit.
 
     public <SoakEntity extends org.bukkit.entity.Entity> EntityTypeMappingEntry<SE, SoakEntity> updateWithSoakClass(@NotNull Class<SoakEntity> soakClass, @NotNull Function<SE, SoakEntity> function, @Nullable Class<SE> spongeEntity) {
         var newMapping = new EntityTypeMappingEntry<>(true, this.spongeEntityType, soakClass, spongeEntity, function);
-        SoakManager.getManager().getLogger().info("Updating mapping of " + this.spongeEntityType.key(RegistryTypes.ENTITY_TYPE).formatted() + " to " + soakClass.getSimpleName());
+        SoakManager.getManager()
+                .getLogger()
+                .info("Updating mapping of " + this.spongeEntityType.key(RegistryTypes.ENTITY_TYPE)
+                        .formatted() + " to " + soakClass.getSimpleName());
         EntityTypeList.ENTITIES_MAPPINGS.add(newMapping);
         EntityTypeList.ENTITIES_MAPPINGS.remove(this);
         return newMapping;
@@ -76,7 +83,11 @@ public class EntityTypeMappingEntry<SE extends Entity, SoakE extends org.bukkit.
 
     @NotNull
     public Enum<?> soakEntityType() {
-        return EntityTypeList.values().stream().filter(e -> e.name().equals(this.soakEntityType)).findAny().orElseThrow();
+        return EntityTypeList.values()
+                .stream()
+                .filter(e -> e.name().equals(this.soakEntityType))
+                .findAny()
+                .orElseThrow();
     }
 
     @NotNull

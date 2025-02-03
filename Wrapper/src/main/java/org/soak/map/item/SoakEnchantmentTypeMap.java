@@ -10,7 +10,8 @@ import org.spongepowered.api.registry.RegistryTypes;
 
 public class SoakEnchantmentTypeMap {
 
-    //despite both bukkit and sponge having a way to get based on Key, both Sponge and Bukkit don't share the same keys for everything ... so enjoy the if statements for exceptions
+    //despite both bukkit and sponge having a way to get based on Key, both Sponge and Bukkit don't share the same
+    // keys for everything ... so enjoy the if statements for exceptions
 
     public static EnchantmentType toSponge(Enchantment enchantment) {
         ResourceKey keyType = SoakResourceKeyMap.mapToSponge(enchantment.getKey());
@@ -18,19 +19,7 @@ public class SoakEnchantmentTypeMap {
     }
 
     public static Enchantment toBukkit(EnchantmentType type) {
-        /*if (type.equals(EnchantmentTypes.UNBREAKING.get())) {
-            return Enchantment.DURABILITY;
-        }
-        if (type.equals(EnchantmentTypes.PROTECTION.get())) {
-            return Enchantment.PROTECTION_ENVIRONMENTAL;
-        }
-
-        if (type.equals(EnchantmentTypes.THORNS.get())) {
-            return Enchantment.THORNS; //these have the same id, but you can't get the enchantment using the id .... for some reason
-        }*/
-
         NamespacedKey key = SoakResourceKeyMap.mapToBukkit(type.key(RegistryTypes.ENCHANTMENT_TYPE));
-
 
         var enchantmentType = Enchantment.getByKey(key);
         if (enchantmentType == null) {

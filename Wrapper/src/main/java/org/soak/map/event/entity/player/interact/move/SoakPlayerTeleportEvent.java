@@ -23,7 +23,8 @@ import org.spongepowered.math.vector.Vector3d;
 
 public class SoakPlayerTeleportEvent extends SoakEvent<MoveEntityEvent, PlayerTeleportEvent> {
 
-    public SoakPlayerTeleportEvent(Class<PlayerTeleportEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerTeleportEvent(Class<PlayerTeleportEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                   Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -58,9 +59,9 @@ public class SoakPlayerTeleportEvent extends SoakEvent<MoveEntityEvent, PlayerTe
         var spongeOriginalPosition = event.originalPosition();
         var newPositionWorld = bukkitPlayer.getWorld();
         var originalPosition = new Location(newPositionWorld,
-                spongeOriginalPosition.x(),
-                spongeOriginalPosition.y(),
-                spongeOriginalPosition.z());
+                                            spongeOriginalPosition.x(),
+                                            spongeOriginalPosition.y(),
+                                            spongeOriginalPosition.z());
         var originalRotation = spongePlayer.rotation();
         originalPosition.setDirection(new Vector(originalRotation.x(), originalRotation.y(), originalRotation.z()));
 
@@ -72,9 +73,9 @@ public class SoakPlayerTeleportEvent extends SoakEvent<MoveEntityEvent, PlayerTe
                     .get(((ChangeEntityWorldEvent.Reposition) event).destinationWorld());
         }
         var newPosition = new Location(newPositionWorld,
-                spongeNewPosition.x(),
-                spongeNewPosition.y(),
-                spongeNewPosition.z());
+                                       spongeNewPosition.x(),
+                                       spongeNewPosition.y(),
+                                       spongeNewPosition.z());
 
         var bukkitEvent = new PlayerTeleportEvent(bukkitPlayer, originalPosition, newPosition);
         fireEvent(bukkitEvent);

@@ -17,7 +17,8 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 
 public class SoakToggleSprintEvent extends AbstractDataEvent<Boolean, PlayerToggleSprintEvent> {
 
-    public SoakToggleSprintEvent(Class<PlayerToggleSprintEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakToggleSprintEvent(Class<PlayerToggleSprintEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -37,7 +38,8 @@ public class SoakToggleSprintEvent extends AbstractDataEvent<Boolean, PlayerTogg
     }
 
     @Override
-    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongePlayer, Boolean changedTo, Boolean changedFrom) {
+    protected void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable spongePlayer,
+                             Boolean changedTo, Boolean changedFrom) {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerPlayer) spongePlayer);
         var event = new PlayerToggleSprintEvent(player, changedTo);
         fireEvent(event);

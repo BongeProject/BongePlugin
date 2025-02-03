@@ -24,11 +24,11 @@ public class AttributeTypeList {
             var name = CommonGenerationCode.toName(key);
             attributes.add(name);
         }
-        var classCreator = new ByteBuddy()
-                .makeEnumeration(attributes)
-                .name("org.bukkit.Attribute");
+        var classCreator = new ByteBuddy().makeEnumeration(attributes).name("org.bukkit.Attribute");
 
-        return classCreator.implement(Keyed.class, Translatable.class, net.kyori.adventure.translation.Translatable.class).make();
+        return classCreator.implement(Keyed.class,
+                                      Translatable.class,
+                                      net.kyori.adventure.translation.Translatable.class).make();
     }
 
     public static <T extends Enum<T>> EnumSet<T> values() {
@@ -41,14 +41,19 @@ public class AttributeTypeList {
     public static <T extends Enum<T>> T value(AttributeType type) {
         var enumName = CommonGenerationCode.toName(type.key(RegistryTypes.ATTRIBUTE_TYPE));
         EnumSet<T> values = values();
-        return values
-                .stream()
+        return values.stream()
                 .filter(v -> v.name().equals(enumName))
                 .findAny()
-                .orElseThrow(() -> new RuntimeException("Found AttributeType name of '" + enumName + "' but couldnt find the enum"));
+                .orElseThrow(() -> new RuntimeException("Found AttributeType name of '" + enumName + "' but couldnt " +
+                                                                "find the enum"));
     }
 
     public static AttributeType getAttributeType(Enum<?> enumEntry) {
-        return AttributeTypes.registry().stream().filter(t -> CommonGenerationCode.toName(t.key(RegistryTypes.ATTRIBUTE_TYPE)).equals(enumEntry.name())).findAny().orElseThrow(() -> new IllegalArgumentException("Could not find a registered AttributeType with the enum mapped name of '" + enumEntry.name() + "'"));
+        return AttributeTypes.registry()
+                .stream()
+                .filter(t -> CommonGenerationCode.toName(t.key(RegistryTypes.ATTRIBUTE_TYPE)).equals(enumEntry.name()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Could not find a registered AttributeType with the enum mapped name of '" + enumEntry.name() + "'"));
     }
 }

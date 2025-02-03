@@ -25,7 +25,8 @@ import org.spongepowered.api.util.blockray.RayTrace;
 
 public class SoakBlockPlaceEvent extends SoakEvent<ChangeBlockEvent.All, BlockPlaceEvent> {
 
-    public SoakBlockPlaceEvent(Class<BlockPlaceEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakBlockPlaceEvent(Class<BlockPlaceEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -72,12 +73,12 @@ public class SoakBlockPlaceEvent extends SoakEvent<ChangeBlockEvent.All, BlockPl
             var newBlock = new SoakBlockSnapshot(transaction.custom().orElseGet(transaction::finalReplacement));
 
             var bukkitEvent = new BlockPlaceEvent(originalBlock,
-                    newBlock.getState(),
-                    placedAgainst,
-                    usedItem,
-                    player,
-                    canBuild,
-                    usedHand);
+                                                  newBlock.getState(),
+                                                  placedAgainst,
+                                                  usedItem,
+                                                  player,
+                                                  canBuild,
+                                                  usedHand);
             fireEvent(bukkitEvent);
             if (bukkitEvent.isCancelled()) {
                 transaction.invalidate();

@@ -21,7 +21,8 @@ import org.spongepowered.api.item.ItemTypes;
 
 public class SoakNetherPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All, PortalCreateEvent> {
 
-    public SoakNetherPortalCreateEvent(Class<PortalCreateEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakNetherPortalCreateEvent(Class<PortalCreateEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                       Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -33,9 +34,11 @@ public class SoakNetherPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All,
     @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         var entity = spongeEvent.cause().first(Entity.class).map(AbstractEntity::wrap).orElse(null);
-        var blocks = spongeEvent
-                .transactions(Operations.PLACE.get())
-                .filter(transaction -> transaction.finalReplacement().state().type().equals(BlockTypes.NETHER_PORTAL.get()))
+        var blocks = spongeEvent.transactions(Operations.PLACE.get())
+                .filter(transaction -> transaction.finalReplacement()
+                        .state()
+                        .type()
+                        .equals(BlockTypes.NETHER_PORTAL.get()))
                 .map(Transaction::finalReplacement)
                 .map(blockSnapshot -> new SoakBlockSnapshot(blockSnapshot).getState())
                 .toList();
@@ -43,12 +46,10 @@ public class SoakNetherPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All,
             return;
         }
         var world = blocks.getFirst().getWorld();
-        var cause = spongeEvent
-                .context()
+        var cause = spongeEvent.context()
                 .get(EventContextKeys.USED_ITEM)
-                .filter(item ->
-                        item.type().equals(ItemTypes.FLINT_AND_STEEL.get()) ||
-                                item.type().equals(ItemTypes.FIRE_CHARGE.get()))
+                .filter(item -> item.type().equals(ItemTypes.FLINT_AND_STEEL.get()) || item.type()
+                        .equals(ItemTypes.FIRE_CHARGE.get()))
                 .map(snapshot -> PortalCreateEvent.CreateReason.FIRE)
                 .orElse(PortalCreateEvent.CreateReason.NETHER_PAIR);
 

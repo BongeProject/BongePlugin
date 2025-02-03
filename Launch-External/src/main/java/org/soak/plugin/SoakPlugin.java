@@ -80,9 +80,15 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     private final SoakMemoryStore memoryStore = new SoakMemoryStore();
     private final SoakServerProperties serverProperties = new SoakServerProperties();
     private final ConsoleHandler consoleHandler = new ConsoleHandler();
+
+    @SuppressWarnings("FieldCanBeLocal")
     private final int generatedClassesCount = 5;
     private final Collection<SoakPluginContainer> loadedPlugins = new TreeSet<>((plugin, compare) -> {
-        var opDepends = plugin.metadata().dependencies().stream().filter(p -> p.id().equals(compare.metadata().id())).findAny();
+        var opDepends = plugin.metadata()
+                .dependencies()
+                .stream()
+                .filter(p -> p.id().equals(compare.metadata().id()))
+                .findAny();
         if (opDepends.isPresent()) {
             Integer result = switch (opDepends.get().loadOrder()) {
                 case PluginDependency.LoadOrder.AFTER -> 1;
@@ -93,7 +99,11 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
                 return result;
             }
         }
-        opDepends = compare.metadata().dependencies().stream().filter(p -> p.id().equals(plugin.metadata().id())).findAny();
+        opDepends = compare.metadata()
+                .dependencies()
+                .stream()
+                .filter(p -> p.id().equals(plugin.metadata().id()))
+                .findAny();
         if (opDepends.isPresent()) {
             Integer result = switch (opDepends.get().loadOrder()) {
                 case PluginDependency.LoadOrder.AFTER -> 1;
@@ -133,11 +143,8 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
 
     private boolean hasDependency(Plugin plugin) {
         String id = plugin.getName().toLowerCase();
-        return this
-                .loadedPlugins
-                .stream()
-                .anyMatch(pluginContainer -> pluginContainer
-                        .metadata()
+        return this.loadedPlugins.stream()
+                .anyMatch(pluginContainer -> pluginContainer.metadata()
                         .dependencies()
                         .stream()
                         .anyMatch(dependency -> dependency.id().equals(id)));
@@ -150,29 +157,40 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
             var classLoader = SoakPlugin.class.getClassLoader();
 
             var materialList = MaterialList.createMaterialList();
-            MaterialList.LOADED_CLASS = materialList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+            MaterialList.LOADED_CLASS = materialList.load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
             generatedClasses.add(MaterialList.LOADED_CLASS);
 
             creatingClass = "EntityType";
             var entityTypeList = EntityTypeList.createEntityTypeList();
-            EntityTypeList.LOADED_CLASS = entityTypeList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+            EntityTypeList.LOADED_CLASS = entityTypeList.load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
             generatedClasses.add(EntityTypeList.LOADED_CLASS);
 
             creatingClass = "Attribute";
             var attributeList = AttributeTypeList.createEntityTypeList();
-            AttributeTypeList.LOADED_CLASS = attributeList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+            AttributeTypeList.LOADED_CLASS = attributeList.load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
             generatedClasses.add(AttributeTypeList.LOADED_CLASS);
 
             creatingClass = "InventoryType";
             var inventoryList = InventoryTypeList.createInventoryTypeList();
-            InventoryTypeList.LOADED_CLASS = inventoryList.load(classLoader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+            InventoryTypeList.LOADED_CLASS = inventoryList.load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
             generatedClasses.add(InventoryTypeList.LOADED_CLASS);
 
             creatingClass = "SlotType";
-            SlotTypeList.LOADED_CLASS = (Class<? extends Enum<?>>) Arrays.stream(InventoryTypeList.LOADED_CLASS.getDeclaredClasses()).filter(clazz -> clazz.getSimpleName().equals("SlotType")).findFirst().orElseThrow();
+            SlotTypeList.LOADED_CLASS =
+                    (Class<? extends Enum<?>>) Arrays.stream(InventoryTypeList.LOADED_CLASS.getDeclaredClasses())
+                    .filter(clazz -> clazz.getSimpleName().equals("SlotType"))
+                    .findFirst()
+                    .orElseThrow();
             generatedClasses.add(SlotTypeList.LOADED_CLASS);
         } catch (MethodTooLargeException e) {
-            throw new IllegalStateException("This is a problem with Bukkit's design: PaperMC seem to be making a fix with its hardfork: Too many entries in " + creatingClass, e);
+            throw new IllegalStateException(
+                    "This is a problem with Bukkit's design: PaperMC seem to be making a fix with its hardfork: Too " +
+                            "many entries in " + creatingClass,
+                    e);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -234,7 +252,7 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     }
 
     @Listener
-    public void registerMapView(LoadWorldEvent event){
+    public void registerMapView(LoadWorldEvent event) {
         System.out.println("Registering map view");
         RegisterUtils.registerMapView(event.world());
     }
@@ -261,9 +279,9 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
     @Listener
     public void dataRegister(RegisterDataEvent event) {
         DataStore dataStore = DataStore.of(SoakKeys.BUKKIT_DATA,
-                DataQuery.of("soak"),
-                ItemStack.class,
-                ItemStackSnapshot.class); //TODO -> find more
+                                           DataQuery.of("soak"),
+                                           ItemStack.class,
+                                           ItemStackSnapshot.class); //TODO -> find more
         DataRegistration registration = DataRegistration.builder()
                 .dataKey(SoakKeys.BUKKIT_DATA)
                 .store(dataStore)
@@ -276,8 +294,6 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
 
     @Listener(order = Order.FIRST)
     public void startingPlugin(StartingEngineEvent<Server> event) {
-        //SoakRegister.startEnchantmentTypes(this.logger);
-        //SoakRegister.startPotionEffects(this.logger);
         PortalCooldownCustomData.createTickScheduler();
 
         loadPlugins(true);
@@ -299,10 +315,7 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
             container.getBukkitInstance().onDisable();
         });
         MoseStream.stream(plugins)
-                .map(plugin -> SoakPlugin
-                        .server()
-                        .getSoakPluginManager()
-                        .getContext(plugin.getBukkitInstance()))
+                .map(plugin -> SoakPlugin.server().getSoakPluginManager().getContext(plugin.getBukkitInstance()))
                 .forEach(context -> {
                     var loader = context.loader();
                     try {
@@ -315,7 +328,10 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
         plugins.forEach(SoakPluginInjector::removePluginFromPlatform);
 
         var thread = new Thread(() -> {
-            while (Thread.getAllStackTraces().keySet().stream().anyMatch(mainThread -> mainThread.getName().equals("server thread"))) {
+            while (Thread.getAllStackTraces()
+                    .keySet()
+                    .stream()
+                    .anyMatch(mainThread -> mainThread.getName().equals("server thread"))) {
                 try {
                     Thread.currentThread().wait(100);
                 } catch (InterruptedException e) {
@@ -388,7 +404,8 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
                 }
                 var is = jarFile.getInputStream(entry);
                 var br = new BufferedReader(new InputStreamReader(is));
-                var yamlNode = YamlConfigurationLoader.builder().buildAndLoadString(br.lines().collect(Collectors.joining("\n")));
+                var yamlNode = YamlConfigurationLoader.builder()
+                        .buildAndLoadString(br.lines().collect(Collectors.joining("\n")));
                 var pluginName = yamlNode.node("name").getString();
                 if (pluginName == null) {
                     continue;
@@ -396,7 +413,8 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
                 if ((late && !latePlugins.contains(pluginName)) || (!late && latePlugins.contains(pluginName))) {
                     continue;
                 }
-                if (late && loadedPlugins.stream().anyMatch(pl -> pl.getBukkitInstance().getName().equals(pluginName))) {
+                if (late && loadedPlugins.stream()
+                        .anyMatch(pl -> pl.getBukkitInstance().getName().equals(pluginName))) {
                     continue;
                 }
                 jarFile.close();
@@ -418,7 +436,11 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
                 continue;
             }
 
-            SoakPluginContainer container = new AbstractSoakPluginContainer(file, plugin, hasDependency(plugin) ? Order.EARLY : Order.DEFAULT);
+            SoakPluginContainer container = new AbstractSoakPluginContainer(file,
+                                                                            plugin,
+                                                                            hasDependency(plugin) ?
+                                                                                    Order.EARLY :
+                                                                                    Order.DEFAULT);
             container.downloadLibraries();
             loadedPlugins.add(container);
             loadingPlugins.add(container);
@@ -426,15 +448,15 @@ public class SoakPlugin implements SoakExternalManager, WrapperManager {
         }
         SoakPluginInjector.injectPlugins(loadingPlugins);
 
-        loadingPlugins.forEach(container -> ((AbstractSoakPluginContainer) container).instance().onPluginsConstructed());
+        loadingPlugins.forEach(container -> ((AbstractSoakPluginContainer) container).instance()
+                .onPluginsConstructed());
         if (late) {
             loadingPlugins.forEach(container -> ((AbstractSoakPluginContainer) container).getBukkitInstance().onLoad());
         }
     }
 
     public Stream<SoakPluginContainer> getPlugins() {
-        return loadedPlugins
-                .stream();
+        return loadedPlugins.stream();
     }
 
     public PluginContainer container() {

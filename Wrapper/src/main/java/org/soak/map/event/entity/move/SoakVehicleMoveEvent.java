@@ -20,7 +20,8 @@ import org.spongepowered.math.vector.Vector3d;
 
 public class SoakVehicleMoveEvent extends SoakEvent<MoveEntityEvent, VehicleMoveEvent> {
 
-    public SoakVehicleMoveEvent(Class<VehicleMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakVehicleMoveEvent(Class<VehicleMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -40,18 +41,18 @@ public class SoakVehicleMoveEvent extends SoakEvent<MoveEntityEvent, VehicleMove
         var spongeOriginalPosition = event.originalPosition();
         var newPositionWorld = bukkitVehicle.getWorld();
         var originalPosition = new Location(newPositionWorld,
-                spongeOriginalPosition.x(),
-                spongeOriginalPosition.y(),
-                spongeOriginalPosition.z());
+                                            spongeOriginalPosition.x(),
+                                            spongeOriginalPosition.y(),
+                                            spongeOriginalPosition.z());
         var originalRotation = entity.rotation();
         originalPosition.setPitch((float) originalRotation.x());
         originalPosition.setYaw((float) originalRotation.y());
 
         var spongeNewPosition = event.destinationPosition();
         var newPosition = new Location(newPositionWorld,
-                spongeNewPosition.x(),
-                spongeNewPosition.y(),
-                spongeNewPosition.z());
+                                       spongeNewPosition.x(),
+                                       spongeNewPosition.y(),
+                                       spongeNewPosition.z());
         newPosition.setPitch(originalPosition.getPitch());
         newPosition.setYaw(originalPosition.getYaw());
 

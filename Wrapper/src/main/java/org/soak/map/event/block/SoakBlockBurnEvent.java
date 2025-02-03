@@ -19,7 +19,8 @@ import org.spongepowered.api.world.LocatableBlock;
 
 public class SoakBlockBurnEvent extends SoakEvent<ChangeBlockEvent.All, BlockBurnEvent> {
 
-    public SoakBlockBurnEvent(Class<BlockBurnEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakBlockBurnEvent(Class<BlockBurnEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                              Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

@@ -33,13 +33,13 @@ import java.util.function.UnaryOperator;
  */
 public class CraftItemStack extends ItemStack {
 
-    private @NotNull net.minecraft.world.item.ItemStack handle;
+    private final @NotNull net.minecraft.world.item.ItemStack handle;
 
     public CraftItemStack(@NotNull net.minecraft.world.item.ItemStack handle) {
         this.handle = handle;
     }
 
-    public CraftItemStack(){
+    public CraftItemStack() {
         this(new net.minecraft.world.item.ItemStack(new SoakItemStack()));
     }
 
@@ -48,7 +48,9 @@ public class CraftItemStack extends ItemStack {
         return this.handle.getSoak().getType();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void setType(@NotNull Material type) {
         this.handle.getSoak().setType(type);
     }
@@ -68,22 +70,27 @@ public class CraftItemStack extends ItemStack {
         this.handle.getSoak().setAmount(amount);
     }
 
+    @SuppressWarnings("removal")
     @Override
     @Deprecated
     public @Nullable MaterialData getData() {
         return this.handle.getSoak().getData();
     }
 
+    @SuppressWarnings("removal")
     @Override
     public void setData(@Nullable MaterialData data) {
         this.handle.getSoak().setData(data);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public short getDurability() {
         return this.handle.getSoak().getDurability();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setDurability(short durability) {
         this.handle.getSoak().setDurability(durability);
@@ -99,6 +106,7 @@ public class CraftItemStack extends ItemStack {
         return this.handle.getSoak().toString();
     }
 
+    @SuppressWarnings("EqualsDoesntCheckParameterClass")
     @Override
     public boolean equals(Object obj) {
         return this.handle.getSoak().equals(obj);
@@ -194,18 +202,23 @@ public class CraftItemStack extends ItemStack {
         return this.handle.getSoak().setItemMeta(itemMeta);
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull String getTranslationKey() {
         return this.handle.getSoak().getTranslationKey();
     }
 
     @Override
-    public @NotNull ItemStack enchantWithLevels(@Range(from = 1L, to = 30L) int levels, boolean allowTreasure, @NotNull Random random) {
+    public @NotNull ItemStack enchantWithLevels(@Range(from = 1L, to = 30L) int levels, boolean allowTreasure,
+                                                @NotNull Random random) {
         return this.handle.getSoak().enchantWithLevels(levels, allowTreasure, random);
     }
 
     @Override
-    public @NotNull ItemStack enchantWithLevels(@Range(from = 1L, to = 30L) int levels, @NotNull RegistryKeySet<@NotNull Enchantment> keySet, @NotNull Random random) {
+    public @NotNull ItemStack enchantWithLevels(@Range(from = 1L, to = 30L) int levels,
+                                                @NotNull RegistryKeySet<@NotNull Enchantment> keySet,
+                                                @NotNull Random random) {
         return this.handle.getSoak().enchantWithLevels(levels, keySet, random);
     }
 
@@ -225,16 +238,19 @@ public class CraftItemStack extends ItemStack {
     }
 
     @Override
-    public @NotNull byte[] serializeAsBytes() {
+    public byte[] serializeAsBytes() {
         return this.handle.getSoak().serializeAsBytes();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable String getI18NDisplayName() {
         return this.handle.getSoak().getI18NDisplayName();
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public int getMaxItemUseDuration() {
         return this.handle.getSoak().getMaxItemUseDuration();
     }
@@ -274,11 +290,13 @@ public class CraftItemStack extends ItemStack {
         return this.handle.getSoak().subtract(qty);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable List<String> getLore() {
         return this.handle.getSoak().getLore();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setLore(@Nullable List<String> lore) {
         this.handle.getSoak().setLore(lore);
@@ -319,7 +337,9 @@ public class CraftItemStack extends ItemStack {
         return this.handle.getSoak().translationKey();
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull ItemRarity getRarity() {
         return this.handle.getSoak().getRarity();
     }
@@ -345,7 +365,8 @@ public class CraftItemStack extends ItemStack {
     }
 
     @Override
-    public @NotNull @Unmodifiable List<Component> computeTooltipLines(@NotNull TooltipContext tooltipContext, @Nullable Player player) {
+    public @NotNull @Unmodifiable List<Component> computeTooltipLines(@NotNull TooltipContext tooltipContext,
+                                                                      @Nullable Player player) {
         return this.handle.getSoak().computeTooltipLines(tooltipContext, player);
     }
 

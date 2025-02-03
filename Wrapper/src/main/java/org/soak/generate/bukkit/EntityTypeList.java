@@ -39,10 +39,26 @@ public class EntityTypeList {
 
     public static Class<? extends Enum<?>> LOADED_CLASS;
     public static Collection<EntityTypeMappingEntry<?, ?>> ENTITIES_MAPPINGS = new LinkedTransferQueue<>();
-    public static EntityTypeMappingEntry<Player, SoakPlayer> PLAYER = register(EntityTypes.PLAYER.get(), SoakPlayer.class, Player.class, player -> SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerPlayer) player));
-    public static EntityTypeMappingEntry<FireworkRocket, SoakFirework> FIREWORK_ROCKET = register(EntityTypes.FIREWORK_ROCKET.get(), SoakFirework.class, FireworkRocket.class, SoakFirework::new);
-    public static EntityTypeMappingEntry<LightningBolt, SoakLightningStrike> LIGHTNING = register(EntityTypes.LIGHTNING_BOLT.get(), SoakLightningStrike.class, LightningBolt.class, SoakLightningStrike::new);
-    public static EntityTypeMappingEntry<Sheep, SoakSheep> SHEEP = register(EntityTypes.SHEEP.get(), SoakSheep.class, Sheep.class, SoakSheep::new);
+    public static EntityTypeMappingEntry<Player, SoakPlayer> PLAYER = register(EntityTypes.PLAYER.get(),
+                                                                               SoakPlayer.class,
+                                                                               Player.class,
+                                                                               player -> SoakManager.<WrapperManager>getManager()
+                                                                                       .getMemoryStore()
+                                                                                       .get((ServerPlayer) player));
+    public static EntityTypeMappingEntry<FireworkRocket, SoakFirework> FIREWORK_ROCKET =
+            register(EntityTypes.FIREWORK_ROCKET.get(),
+                                                                                                  SoakFirework.class,
+                                                                                                  FireworkRocket.class,
+                                                                                                  SoakFirework::new);
+    public static EntityTypeMappingEntry<LightningBolt, SoakLightningStrike> LIGHTNING =
+            register(EntityTypes.LIGHTNING_BOLT.get(),
+                                                                                                  SoakLightningStrike.class,
+                                                                                                  LightningBolt.class,
+                                                                                                  SoakLightningStrike::new);
+    public static EntityTypeMappingEntry<Sheep, SoakSheep> SHEEP = register(EntityTypes.SHEEP.get(),
+                                                                            SoakSheep.class,
+                                                                            Sheep.class,
+                                                                            SoakSheep::new);
 
 
     private static <SE extends org.spongepowered.api.entity.Entity, SSE extends AbstractEntity<? extends SE>> EntityTypeMappingEntry<SE, SSE> register(@NotNull EntityType<SE> soakEntityType, @NotNull Class<SSE> soakEntity, Class<SE> spongeEntity, @Nullable Function<SE, SSE> function) {
@@ -57,23 +73,26 @@ public class EntityTypeList {
         entityTypes.add("UNKNOWN");
         while (entityTypeIterator.hasNext()) {
             var entityType = entityTypeIterator.next();
-            var opCurrentMapping = ENTITIES_MAPPINGS.stream().filter(mappings -> mappings.spongeEntityType().equals(entityType)).findAny();
+            var opCurrentMapping = ENTITIES_MAPPINGS.stream()
+                    .filter(mappings -> mappings.spongeEntityType().equals(entityType))
+                    .findAny();
             if (opCurrentMapping.isPresent()) {
                 entityTypes.add(opCurrentMapping.get().soakEntityTypeName());
                 continue;
             }
             //TODO get common mappings from already registered
             var newMappings = new EntityTypeMappingEntry<>(false, entityType, SoakEntity.class, null, SoakEntity::new);
-            SoakManager.getManager().getLogger().warn("No mapping for EntityType '" + entityType.key(RegistryTypes.ENTITY_TYPE).formatted() + "'. Mapping to " + newMappings.soakEntityClass().getSimpleName());
+            SoakManager.getManager()
+                    .getLogger()
+                    .warn("No mapping for EntityType '" + entityType.key(RegistryTypes.ENTITY_TYPE)
+                            .formatted() + "'. Mapping to " + newMappings.soakEntityClass().getSimpleName());
 
             var key = entityType.key(RegistryTypes.ENTITY_TYPE);
             var name = CommonGenerationCode.toName(key);
             entityTypes.add(name);
             ENTITIES_MAPPINGS.add(newMappings);
         }
-        var classCreator = new ByteBuddy()
-                .makeEnumeration(entityTypes)
-                .name("org.bukkit.entity.EntityType");
+        var classCreator = new ByteBuddy().makeEnumeration(entityTypes).name("org.bukkit.entity.EntityType");
 
         classCreator = createGetKeyMethod(classCreator);
         classCreator = createIsAliveMethod(classCreator);
@@ -81,26 +100,34 @@ public class EntityTypeList {
         classCreator = createIsSpawnableMethod(classCreator);
         classCreator = createGetEntityClassMethod(classCreator);
 
-        return classCreator.implement(FeatureDependant.class, Keyed.class, Translatable.class, net.kyori.adventure.translation.Translatable.class).make();
+        return classCreator.implement(FeatureDependant.class,
+                                      Keyed.class,
+                                      Translatable.class,
+                                      net.kyori.adventure.translation.Translatable.class).make();
     }
 
-    private static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createGetKeyMethod(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    private static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createGetKeyMethod(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(EntityTypeList.class, classCreator, "getKey", NamespacedKey.class);
     }
 
-    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsAliveMethod(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsAliveMethod(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(EntityTypeList.class, classCreator, "isAlive", boolean.class);
     }
 
-    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsSummableMethod(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsSummableMethod(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(EntityTypeList.class, classCreator, "isSummable", boolean.class);
     }
 
-    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsSpawnableMethod(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createIsSpawnableMethod(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(EntityTypeList.class, classCreator, "isSpawnable", boolean.class);
     }
 
-    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createGetEntityClassMethod(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    public static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createGetEntityClassMethod(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(EntityTypeList.class, classCreator, "getEntityClass", Class.class);
     }
 
@@ -112,17 +139,25 @@ public class EntityTypeList {
     }
 
     public static <T extends Enum<T>> T value(org.spongepowered.api.entity.EntityType<?> type) {
-        String enumName = ENTITIES_MAPPINGS.stream().filter(entry -> entry.spongeEntityType().equals(type)).findAny().map(EntityTypeMappingEntry::soakEntityTypeName).orElseThrow();
+        String enumName = ENTITIES_MAPPINGS.stream()
+                .filter(entry -> entry.spongeEntityType().equals(type))
+                .findAny()
+                .map(EntityTypeMappingEntry::soakEntityTypeName)
+                .orElseThrow();
         EnumSet<T> values = values();
-        return values
-                .stream()
+        return values.stream()
                 .filter(enumValue -> enumValue.name().equals(enumName))
                 .findAny()
-                .orElseThrow(() -> new RuntimeException("Found EntityType name of '" + enumName + "' but couldnt find the enum"));
+                .orElseThrow(() -> new RuntimeException("Found EntityType name of '" + enumName + "' but couldnt find" +
+                                                                " the enum"));
     }
 
     public static <SE extends org.spongepowered.api.entity.Entity> EntityTypeMappingEntry<SE, ?> getEntityTypeMapping(org.spongepowered.api.entity.EntityType<SE> type) {
-        return ENTITIES_MAPPINGS.stream().filter(map -> map.spongeEntityType().equals(type)).findAny().map(t -> (EntityTypeMappingEntry<SE, ?>) t).orElseThrow();
+        return ENTITIES_MAPPINGS.stream()
+                .filter(map -> map.spongeEntityType().equals(type))
+                .findAny()
+                .map(t -> (EntityTypeMappingEntry<SE, ?>) t)
+                .orElseThrow();
     }
 
     public static Optional<EntityType<?>> getEntityType(Enum<?> enumEntry) {
@@ -130,15 +165,20 @@ public class EntityTypeList {
     }
 
     public static Optional<EntityTypeMappingEntry<?, ?>> getEntityTypeMapping(Enum<?> enumEntry) {
-        return ENTITIES_MAPPINGS.stream().filter(mapping -> mapping.soakEntityTypeName().equals(enumEntry.name())).findAny();
+        return ENTITIES_MAPPINGS.stream()
+                .filter(mapping -> mapping.soakEntityTypeName().equals(enumEntry.name()))
+                .findAny();
     }
 
     public static NamespacedKey getKey(Enum<?> enumEntry) {
-        return getEntityType(enumEntry).map(type -> type.key(RegistryTypes.ENTITY_TYPE)).map(SoakResourceKeyMap::mapToBukkit).orElseThrow(() -> new IllegalStateException(enumEntry.name() + " does not have a key"));
+        return getEntityType(enumEntry).map(type -> type.key(RegistryTypes.ENTITY_TYPE))
+                .map(SoakResourceKeyMap::mapToBukkit)
+                .orElseThrow(() -> new IllegalStateException(enumEntry.name() + " does not have a key"));
     }
 
     public static boolean isAlive(Enum<?> enumEntry) {
-        return getEntityType(enumEntry).map(type -> !type.category().equals(EntityCategories.AMBIENT.get())).orElse(false);
+        return getEntityType(enumEntry).map(type -> !type.category().equals(EntityCategories.AMBIENT.get()))
+                .orElse(false);
     }
 
     public static boolean isSummable(Enum<?> enumEntry) {
@@ -146,7 +186,8 @@ public class EntityTypeList {
     }
 
     public static boolean isSpawnable(Enum<?> enumEntry) {
-        return getEntityType(enumEntry).map(type -> type.canSpawnAwayFromPlayer()).orElse(false); //TODO find true method
+        return getEntityType(enumEntry).map(type -> type.canSpawnAwayFromPlayer())
+                .orElse(false); //TODO find true method
     }
 
     public static Class<? extends Entity> getEntityClass(Enum<?> enumEntry) {

@@ -15,6 +15,8 @@ import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
@@ -25,9 +27,7 @@ public class SoakPluginMetadata implements PluginMetadata {
     private final ArtifactVersion artifactVersion;
     private final Plugin plugin;
 
-    private SoakPluginMetadata(Plugin plugin,
-                               ArtifactVersion artifactVersion
-    ) {
+    private SoakPluginMetadata(Plugin plugin, ArtifactVersion artifactVersion) {
         this.plugin = plugin;
         this.artifactVersion = artifactVersion;
     }
@@ -95,8 +95,8 @@ public class SoakPluginMetadata implements PluginMetadata {
             public Optional<URL> homepage() {
                 return Optional.ofNullable(meta(PluginMeta::getWebsite)).flatMap(web -> {
                     try {
-                        return Optional.of(new URL(web));
-                    } catch (MalformedURLException e) {
+                        return Optional.of(new URI(web).toURL());
+                    } catch (MalformedURLException | URISyntaxException e) {
                         return Optional.empty();
                     }
                 });
@@ -116,18 +116,16 @@ public class SoakPluginMetadata implements PluginMetadata {
 
     @Override
     public List<PluginContributor> contributors() {
-        return meta(PluginMeta::getContributors).stream().map(name -> {
-            return new PluginContributor() {
-                @Override
-                public String name() {
-                    return name;
-                }
+        return meta(PluginMeta::getContributors).stream().map(name -> new PluginContributor() {
+            @Override
+            public String name() {
+                return name;
+            }
 
-                @Override
-                public Optional<String> description() {
-                    return Optional.empty();
-                }
-            };
+            @Override
+            public Optional<String> description() {
+                return Optional.empty();
+            }
         }).collect(Collectors.toList());
     }
 
@@ -138,9 +136,15 @@ public class SoakPluginMetadata implements PluginMetadata {
 
     @Override
     public Set<PluginDependency> dependencies() {
-        Set<PluginDependency> hardDepends = meta(PluginMeta::getPluginDependencies).stream().map(name -> new BukkitPluginDependency(name, true, false)).collect(Collectors.toSet());
-        Set<PluginDependency> softDepends = meta(PluginMeta::getPluginSoftDependencies).stream().map(name -> new BukkitPluginDependency(name, false, false)).collect(Collectors.toSet());
-        Set<PluginDependency> beforeDepends = meta(PluginMeta::getLoadBeforePlugins).stream().map(name -> new BukkitPluginDependency(name, false, true)).collect(Collectors.toSet());
+        Set<PluginDependency> hardDepends = meta(PluginMeta::getPluginDependencies).stream()
+                .map(name -> new BukkitPluginDependency(name, true, false))
+                .collect(Collectors.toSet());
+        Set<PluginDependency> softDepends = meta(PluginMeta::getPluginSoftDependencies).stream()
+                .map(name -> new BukkitPluginDependency(name, false, false))
+                .collect(Collectors.toSet());
+        Set<PluginDependency> beforeDepends = meta(PluginMeta::getLoadBeforePlugins).stream()
+                .map(name -> new BukkitPluginDependency(name, false, true))
+                .collect(Collectors.toSet());
 
         Set<PluginDependency> ret = new HashSet<>();
         ret.addAll(hardDepends);
@@ -161,17 +165,8 @@ public class SoakPluginMetadata implements PluginMetadata {
         throw NotImplementedException.createByLazy(PluginMetadata.class, "properties");
     }
 
-    private class BukkitPluginDependency implements PluginDependency {
-
-        private final String name;
-        private final boolean hardDependency;
-        private final boolean loadBefore;
-
-        public BukkitPluginDependency(String name, boolean hardDependency, boolean loadBefore) {
-            this.hardDependency = hardDependency;
-            this.loadBefore = loadBefore;
-            this.name = name;
-        }
+    private record BukkitPluginDependency(String name, boolean hardDependency, boolean loadBefore)
+            implements PluginDependency {
 
         @Override
         public String id() {

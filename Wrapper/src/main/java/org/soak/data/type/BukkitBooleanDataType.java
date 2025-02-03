@@ -8,6 +8,7 @@ import org.spongepowered.api.data.persistence.DataView;
 import java.util.Optional;
 
 public class BukkitBooleanDataType implements BukkitDataType<Boolean> {
+
     @Override
     public Optional<Boolean> get(DataView view, DataQuery from) {
         return view.getBoolean(from);

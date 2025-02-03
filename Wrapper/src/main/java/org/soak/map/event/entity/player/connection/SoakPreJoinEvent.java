@@ -16,7 +16,8 @@ import java.util.UUID;
 
 public class SoakPreJoinEvent extends SoakEvent<ServerSideConnectionEvent.Login, AsyncPlayerPreLoginEvent> {
 
-    public SoakPreJoinEvent(Class<AsyncPlayerPreLoginEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPreJoinEvent(Class<AsyncPlayerPreLoginEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                            Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

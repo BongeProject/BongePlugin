@@ -15,7 +15,8 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 
 public class SoakBlockPhysicsEvent extends SoakEvent<ChangeBlockEvent.All, BlockPhysicsEvent> {
 
-    public SoakBlockPhysicsEvent(Class<BlockPhysicsEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakBlockPhysicsEvent(Class<BlockPhysicsEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

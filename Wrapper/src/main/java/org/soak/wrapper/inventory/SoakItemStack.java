@@ -77,7 +77,9 @@ public class SoakItemStack extends ItemStack {
         return SoakItemStackMap.toBukkit(getItemMeta().sponge().type());
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void setType(@NotNull Material type) {
         var currentMeta = getItemMeta();
         var itemType = SoakItemStackMap.toSponge(type).orElseThrow(() -> new RuntimeException("material is not item"));
@@ -109,22 +111,30 @@ public class SoakItemStack extends ItemStack {
         meta.setQuantity(amount);
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @Nullable MaterialData getData() {
         throw NotImplementedException.createByLazy(ItemStack.class, "getData");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public void setData(@Nullable MaterialData data) {
         throw NotImplementedException.createByLazy(ItemStack.class, "setData", MaterialData.class);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public short getDurability() {
         return (short) getItemMeta().durability();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void setDurability(short durability) {
         getItemMeta().setDurability(durability);
     }
@@ -240,6 +250,7 @@ public class SoakItemStack extends ItemStack {
         if (!metaClass.isInstance(meta)) {
             return false;
         }
+        //noinspection unchecked
         consumer.accept((M) meta);
         return true;
     }
@@ -249,7 +260,9 @@ public class SoakItemStack extends ItemStack {
         return this.meta;
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull String getTranslationKey() {
         var component = getItemMeta().sponge().asComponent();
         if (!(component instanceof TranslatableComponent trans)) {
@@ -285,16 +298,20 @@ public class SoakItemStack extends ItemStack {
     }
 
     @Override
-    public @NotNull byte[] serializeAsBytes() {
+    public byte[] serializeAsBytes() {
         throw NotImplementedException.createByLazy(ItemStack.class, "serializeAsBytes");
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public @Nullable String getI18NDisplayName() {
         throw NotImplementedException.createByLazy(ItemStack.class, "getI18NDisplayName");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public int getMaxItemUseDuration() {
         return getItemMeta().maxDurability();
     }
@@ -340,6 +357,7 @@ public class SoakItemStack extends ItemStack {
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable List<String> getLore() {
         var lore = lore();
@@ -354,7 +372,9 @@ public class SoakItemStack extends ItemStack {
                 true);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void setLore(@Nullable List<String> lore) {
         super.setLore(lore);
     }
@@ -394,7 +414,9 @@ public class SoakItemStack extends ItemStack {
         return super.translationKey();
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @NotNull ItemRarity getRarity() {
         return super.getRarity();
     }

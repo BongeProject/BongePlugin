@@ -21,21 +21,19 @@ public class SoakMessageMap {
         return LegacyComponentSerializer.legacySection().deserialize(message);
     }
 
+    @Deprecated
     public static Component toComponent(BaseComponent... components) {
         var jsonText = ComponentSerializer.toString(components);
         return GsonComponentSerializer.gson().deserialize(jsonText);
     }
 
+    @Deprecated
     public static MessageType toComponent(ChatMessageType type) {
-        switch (type) {
-            case CHAT:
-                return MessageType.CHAT;
-            case SYSTEM:
-                return MessageType.SYSTEM;
-            case ACTION_BAR:
-                return MessageType.SYSTEM; //TODO
-            default:
-                throw new RuntimeException("No mapping for " + type.name());
-        }
+        return switch (type) {
+            case CHAT -> MessageType.CHAT;
+            case SYSTEM -> MessageType.SYSTEM;
+            case ACTION_BAR -> MessageType.SYSTEM; //TODO
+            default -> throw new RuntimeException("No mapping for " + type.name());
+        };
     }
 }

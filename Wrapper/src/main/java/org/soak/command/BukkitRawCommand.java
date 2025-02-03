@@ -46,24 +46,25 @@ public class BukkitRawCommand implements Command.Raw {
         } catch (org.bukkit.command.CommandException e) {
             SoakManager.getManager()
                     .displayError(e.getCause(),
-                            this.owningPlugin.getBukkitInstance(),
-                            new BasicEntry<>("type", "Execute"),
-                            new BasicEntry<>("command", command),
-                            new BasicEntry<>("arguments", String.join(" ", args)));
+                                  this.owningPlugin.getBukkitInstance(),
+                                  new BasicEntry<>("type", "Execute"),
+                                  new BasicEntry<>("command", command),
+                                  new BasicEntry<>("arguments", String.join(" ", args)));
             return CommandResult.error(Component.text(e.getMessage()));
         } catch (Throwable e) {
             SoakManager.getManager()
                     .displayError(e,
-                            this.owningPlugin.getBukkitInstance(),
-                            new BasicEntry<>("type", "Execute"),
-                            new BasicEntry<>("command", command),
-                            new BasicEntry<>("arguments", String.join(" ", args)));
+                                  this.owningPlugin.getBukkitInstance(),
+                                  new BasicEntry<>("type", "Execute"),
+                                  new BasicEntry<>("command", command),
+                                  new BasicEntry<>("arguments", String.join(" ", args)));
             return CommandResult.error(Component.text(e.getMessage()));
         }
     }
 
     @Override
-    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
+    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments)
+            throws CommandException {
         if (!(this.command instanceof PluginCommand)) {
             return Collections.emptyList();
         }
@@ -90,10 +91,10 @@ public class BukkitRawCommand implements Command.Raw {
         } catch (Throwable e) {
             SoakManager.getManager()
                     .displayError(e,
-                            this.owningPlugin.getBukkitInstance(),
-                            new BasicEntry<>("type", "Suggest"),
-                            new BasicEntry<>("command", command),
-                            new BasicEntry<>("arguments", String.join(" ", args)));
+                                  this.owningPlugin.getBukkitInstance(),
+                                  new BasicEntry<>("type", "Suggest"),
+                                  new BasicEntry<>("command", command),
+                                  new BasicEntry<>("arguments", String.join(" ", args)));
             return Collections.emptyList();
         }
     }

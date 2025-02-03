@@ -14,7 +14,9 @@ import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 
 public class SoakPlayerChangedWorldEvent extends SoakEvent<RespawnPlayerEvent.SelectWorld, PlayerChangedWorldEvent> {
 
-    public SoakPlayerChangedWorldEvent(Class<PlayerChangedWorldEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerChangedWorldEvent(Class<PlayerChangedWorldEvent> bukkitEvent, EventPriority priority,
+                                       Plugin plugin, Listener listener, EventExecutor executor,
+                                       boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

@@ -45,14 +45,14 @@ public class HelpMapListener {
         var commandSender = SoakSubjectMap.mapToBukkit((Subject) event.commandCause().root());
         var helpMap = SoakManager.<WrapperManager>getManager().getServer().getHelpMap();
         var audience = event.commandCause().audience();
-        helpMap
-                .getHelpTopics()
+        helpMap.getHelpTopics()
                 .stream()
                 .filter(topic -> topic.canSee(commandSender))
                 .sorted(Comparator.comparing(HelpTopic::getName))
                 .forEach(topic -> {
                     Component message = Component.text(topic.getName() + ": ").color(TextColor.color(100, 100, 0));
-                    message = message.append(Component.text(topic.getShortText()).color(TextColor.color(200, 200, 200)));
+                    message = message.append(Component.text(topic.getShortText())
+                                                     .color(TextColor.color(200, 200, 200)));
                     audience.sendMessage(message);
                 });
 

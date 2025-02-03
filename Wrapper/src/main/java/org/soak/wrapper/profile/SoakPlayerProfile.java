@@ -20,18 +20,20 @@ import java.util.stream.Collectors;
 public class SoakPlayerProfile implements PlayerProfile {
 
     private @NotNull GameProfile profile;
-    private boolean fromCached;
+    private final boolean fromCached;
 
     public SoakPlayerProfile(@NotNull GameProfile profile, boolean cached) {
         this.profile = profile;
         this.fromCached = cached;
     }
 
-    public GameProfile profile(){
+    public GameProfile profile() {
         return this.profile;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public @Nullable UUID getUniqueId() {
         return this.profile.uniqueId();
     }
@@ -41,12 +43,13 @@ public class SoakPlayerProfile implements PlayerProfile {
         return this.profile.name().orElse(null);
     }
 
+    @SuppressWarnings("removal")
     @Override
     @Deprecated
     public @NotNull String setName(@Nullable String s) {
         String old = this.profile.name().orElse(null);
         this.profile = this.profile.withName(s);
-        return old;
+        return old != null ? old : "";
     }
 
     @Override
@@ -54,7 +57,9 @@ public class SoakPlayerProfile implements PlayerProfile {
         return this.profile.uniqueId();
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @Nullable UUID setId(@Nullable UUID uuid) {
         UUID old = this.profile.uniqueId();
         if (uuid != null) {
@@ -79,12 +84,13 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public void setTextures(@Nullable PlayerTextures playerTextures) {
-        if(playerTextures == null){
+        if (playerTextures == null) {
             getTextures().clear();
             return;
         }
-        if(!(playerTextures instanceof SoakPlayerTextures spt)){
-            throw new IllegalStateException("PlayerTextures must be SoakPlayerTextures: Found " + playerTextures.getClass().getName());
+        if (!(playerTextures instanceof SoakPlayerTextures spt)) {
+            throw new IllegalStateException("PlayerTextures must be SoakPlayerTextures: Found " + playerTextures.getClass()
+                    .getName());
         }
         getTextures().set(spt);
     }
@@ -96,7 +102,9 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public void setProperties(@NotNull Collection<ProfileProperty> collection) {
-        this.profile.withoutProperties(collection.stream().map(SoakProfilePropertyMap::toSponge).collect(Collectors.toList()));
+        this.profile.withoutProperties(collection.stream()
+                                               .map(SoakProfilePropertyMap::toSponge)
+                                               .collect(Collectors.toList()));
     }
 
     @Override
@@ -140,7 +148,10 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public boolean completeFromCache(boolean b, boolean b1) {
-        throw NotImplementedException.createByLazy(PlayerProfile.class, "completeFromCache", boolean.class, boolean.class);
+        throw NotImplementedException.createByLazy(PlayerProfile.class,
+                                                   "completeFromCache",
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -167,11 +178,11 @@ public class SoakPlayerProfile implements PlayerProfile {
     @Override
     public @NotNull Map<String, Object> serialize() {
         var container = this.profile.toContainer();
-        return container
-                .keys(false)
+        return container.keys(false)
                 .stream()
-                .collect(Collectors.toMap(
-                        query -> query.asString('.'),
-                        query -> container.get(query).orElseThrow(() -> new RuntimeException("No value in '" + query.asString(".") + "'"))));
+                .collect(Collectors.toMap(query -> query.asString('.'),
+                                          query -> container.get(query)
+                                                  .orElseThrow(() -> new RuntimeException("No value in '" + query.asString(
+                                                          ".") + "'"))));
     }
 }

@@ -19,7 +19,9 @@ import org.spongepowered.api.tag.BlockTypeTags;
 
 public class SoakEntityEnterPortalEvent extends SoakEvent<MoveEntityEvent, EntityPortalEnterEvent> {
 
-    public SoakEntityEnterPortalEvent(Class<EntityPortalEnterEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEntityEnterPortalEvent(Class<EntityPortalEnterEvent> bukkitEvent, EventPriority priority,
+                                      Plugin plugin, Listener listener, EventExecutor executor,
+                                      boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

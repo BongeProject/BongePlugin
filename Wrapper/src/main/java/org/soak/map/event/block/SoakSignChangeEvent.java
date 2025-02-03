@@ -17,7 +17,8 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakSignChangeEvent extends SoakEvent<ChangeSignEvent, SignChangeEvent> {
 
-    public SoakSignChangeEvent(Class<SignChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakSignChangeEvent(Class<SignChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

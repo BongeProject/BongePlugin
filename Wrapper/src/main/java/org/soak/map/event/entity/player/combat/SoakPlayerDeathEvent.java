@@ -22,9 +22,11 @@ import org.spongepowered.api.registry.RegistryTypes;
 import java.util.stream.Collectors;
 
 public class SoakPlayerDeathEvent extends SoakEvent<DropItemEvent.Destruct, PlayerDeathEvent> {
+
     private Component deathMessage = Component.empty();
 
-    public SoakPlayerDeathEvent(Class<PlayerDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerDeathEvent(Class<PlayerDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

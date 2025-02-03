@@ -11,6 +11,7 @@ import org.spongepowered.api.data.persistence.InvalidDataException;
 import java.util.Optional;
 
 public class BukkitPersistentDataBuilder implements DataBuilder<BukkitPersistentData> {
+
     @Override
     public Optional<BukkitPersistentData> build(DataView container) throws InvalidDataException {
         BukkitPersistentData data = new BukkitPersistentData();
@@ -38,7 +39,12 @@ public class BukkitPersistentDataBuilder implements DataBuilder<BukkitPersistent
     private <T> Optional<BukkitData<T>> getData(DataView view) {
         Optional<String> opPath = view.getString(BukkitData.PATH);
         Optional<String> opPlugin = view.getString(BukkitData.PLUGIN);
-        Optional<BukkitDataType<T>> opType = view.getString(BukkitData.TYPE).flatMap(typeName -> BukkitDataTypes.TYPES.values().parallelStream().filter(type -> type.typeName().equals(typeName)).findAny().map(t -> (BukkitDataType<T>) t));
+        Optional<BukkitDataType<T>> opType = view.getString(BukkitData.TYPE)
+                .flatMap(typeName -> BukkitDataTypes.TYPES.values()
+                        .parallelStream()
+                        .filter(type -> type.typeName().equals(typeName))
+                        .findAny()
+                        .map(t -> (BukkitDataType<T>) t));
 
         if (opType.isEmpty() || opPath.isEmpty() || opPlugin.isEmpty()) {
             return Optional.empty();

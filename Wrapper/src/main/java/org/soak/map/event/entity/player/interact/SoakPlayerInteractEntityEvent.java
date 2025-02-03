@@ -18,7 +18,9 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakPlayerInteractEntityEvent extends SoakEvent<InteractEntityEvent, PlayerInteractEntityEvent> {
 
-    public SoakPlayerInteractEntityEvent(Class<PlayerInteractEntityEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakPlayerInteractEntityEvent(Class<PlayerInteractEntityEvent> bukkitEvent, EventPriority priority,
+                                         Plugin plugin, Listener listener, EventExecutor executor,
+                                         boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

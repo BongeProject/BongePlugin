@@ -8,6 +8,7 @@ import org.spongepowered.api.data.persistence.DataView;
 import java.util.Optional;
 
 public class BukkitFloatDataType implements BukkitDataType<Float> {
+
     @Override
     public Optional<Float> get(DataView view, DataQuery from) {
         return view.getFloat(from);

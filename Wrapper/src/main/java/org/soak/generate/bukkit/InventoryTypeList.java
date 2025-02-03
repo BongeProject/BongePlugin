@@ -20,9 +20,12 @@ import java.util.concurrent.LinkedTransferQueue;
 /*
 This is not a direct 1-1 mapping
 
-Sponge's ContainerType are the types of inventories that can be displayed, so the Hopper and Dropper both have the same GUI, therefore come under the same ContainerType
-However Bukkit has each of the vanilla's inventories that a player can typically access, however does not have the hidden
-containers, such as GENERIC_9X1 .... there is some messy code to duplicate the vanilla containers where needed and filter
+Sponge's ContainerType are the types of inventories that can be displayed, so the Hopper and Dropper both have the
+same GUI, therefore come under the same ContainerType
+However Bukkit has each of the vanilla's inventories that a player can typically access, however does not have the
+hidden
+containers, such as GENERIC_9X1 .... there is some messy code to duplicate the vanilla containers where needed and
+filter
 out the Sponge ContainerTypes where bukkit doesn't have it. Despite that, modded ContainerTypes should work as intended
  */
 
@@ -31,7 +34,9 @@ public class InventoryTypeList {
     public static Class<? extends Enum<?>> LOADED_CLASS;
     public static Collection<InventoryTypeEntry> INVENTORY_TYPE_MAPPINGS = new LinkedTransferQueue<>();
 
-    public static final InventoryTypeEntry CREATIVE = register(new InventoryTypeEntry("CREATIVE", InventoryHelper.VanillaInventoryIds.PLAYER_INVENTORY::isContainer).setDefaultName(() -> Component.empty()));
+    public static final InventoryTypeEntry CREATIVE = register(new InventoryTypeEntry("CREATIVE",
+                                                                                      InventoryHelper.VanillaInventoryIds.PLAYER_INVENTORY::isContainer).setDefaultName(
+            () -> Component.empty()));
 
     private static InventoryTypeEntry register(InventoryTypeEntry entry) {
         INVENTORY_TYPE_MAPPINGS.add(entry);
@@ -65,16 +70,20 @@ public class InventoryTypeList {
             INVENTORY_TYPE_MAPPINGS.add(InventoryTypeEntry.fromContainerType(name, containerType));
         }
 
-        var classCreator = new ByteBuddy().makeEnumeration(containerTypes).name("org.bukkit.event.inventory.InventoryType");
+        var classCreator = new ByteBuddy().makeEnumeration(containerTypes)
+                .name("org.bukkit.event.inventory.InventoryType");
 
         //register methods
         classCreator = createDefaultTitle(classCreator);
 
-        var slotTypeCreator = SlotTypeList.createSlotTypeList().innerTypeOf(classCreator.toTypeDescription()).asMemberType();
+        var slotTypeCreator = SlotTypeList.createSlotTypeList()
+                .innerTypeOf(classCreator.toTypeDescription())
+                .asMemberType();
         return classCreator.declaredTypes(slotTypeCreator.toTypeDescription()).make().include(slotTypeCreator.make());
     }
 
-    private static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createDefaultTitle(DynamicType.Builder<? extends Enum<?>> classCreator) throws NoSuchMethodException {
+    private static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> createDefaultTitle(DynamicType.Builder<? extends Enum<?>> classCreator)
+            throws NoSuchMethodException {
         return CommonGenerationCode.callMethod(InventoryTypeList.class, classCreator, "defaultTitle", Component.class);
     }
 
@@ -86,11 +95,18 @@ public class InventoryTypeList {
     }
 
     public static <T extends Enum<T>> T value(Container container) {
-        return (T) INVENTORY_TYPE_MAPPINGS.stream().filter(entry -> entry.fromContainer().test(container)).findFirst().map(entry -> entry.toType()).orElseThrow();
+        return (T) INVENTORY_TYPE_MAPPINGS.stream()
+                .filter(entry -> entry.fromContainer().test(container))
+                .findFirst()
+                .map(entry -> entry.toType())
+                .orElseThrow();
     }
 
     public static InventoryTypeEntry getTypeMapping(Enum<?> enumEntry) {
-        return INVENTORY_TYPE_MAPPINGS.stream().filter(entry -> entry.enumId().equals(enumEntry.name())).findFirst().orElseThrow(() -> new RuntimeException("Could not find entry of " + enumEntry.name()));
+        return INVENTORY_TYPE_MAPPINGS.stream()
+                .filter(entry -> entry.enumId().equals(enumEntry.name()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Could not find entry of " + enumEntry.name()));
     }
 
     public static Component defaultTitle(Enum<?> enumEntry) {

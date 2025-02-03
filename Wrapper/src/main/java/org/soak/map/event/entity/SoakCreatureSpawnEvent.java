@@ -18,7 +18,8 @@ import org.spongepowered.api.event.filter.cause.First;
 
 public class SoakCreatureSpawnEvent extends SoakEvent<SpawnEntityEvent, CreatureSpawnEvent> {
 
-    public SoakCreatureSpawnEvent(Class<CreatureSpawnEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakCreatureSpawnEvent(Class<CreatureSpawnEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                  Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 

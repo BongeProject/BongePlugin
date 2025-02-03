@@ -22,7 +22,8 @@ import java.util.List;
 
 public class SoakEndPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All, PortalCreateEvent> {
 
-    public SoakEndPortalCreateEvent(Class<PortalCreateEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+    public SoakEndPortalCreateEvent(Class<PortalCreateEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                    Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
@@ -34,9 +35,11 @@ public class SoakEndPortalCreateEvent extends SoakEvent<ChangeBlockEvent.All, Po
     @Override
     public void handle(ChangeBlockEvent.All spongeEvent) {
         var entity = spongeEvent.cause().first(Entity.class).map(AbstractEntity::wrap).orElse(null);
-        List<BlockState> blocks = spongeEvent
-                .transactions(Operations.PLACE.get())
-                .filter(transaction -> transaction.finalReplacement().state().type().equals(BlockTypes.END_PORTAL.get()))
+        List<BlockState> blocks = spongeEvent.transactions(Operations.PLACE.get())
+                .filter(transaction -> transaction.finalReplacement()
+                        .state()
+                        .type()
+                        .equals(BlockTypes.END_PORTAL.get()))
                 .map(Transaction::finalReplacement)
                 .map(SoakBlockSnapshot::new)
                 .map(SoakBlockSnapshot::getState)

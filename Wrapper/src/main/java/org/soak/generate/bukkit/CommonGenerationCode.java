@@ -24,33 +24,32 @@ public class CommonGenerationCode {
     }
 
 
-    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callMethod(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?> returnType, Class<?>... arguments) throws NoSuchMethodException {
+    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callMethod(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?> returnType, Class<?>... arguments)
+            throws NoSuchMethodException {
         return callMethod(thisClass, builder, method, returnType, extra -> extra, arguments);
     }
 
-    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callMethod(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?> returnType, Function<MethodCall, MethodCall> extra, Class<?>... parameters) throws NoSuchMethodException {
+    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callMethod(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?> returnType, Function<MethodCall, MethodCall> extra, Class<?>... parameters)
+            throws NoSuchMethodException {
         List<Class<?>> arguments = new ArrayList<>();
         arguments.add(Enum.class);
         arguments.addAll(Arrays.asList(parameters));
-        var call = extra.apply(MethodCall
-                .invoke(thisClass
-                        .getMethod(method, arguments.toArray(Class[]::new)))
-                .withThis());
+        var call = extra.apply(MethodCall.invoke(thisClass.getMethod(method, arguments.toArray(Class[]::new)))
+                                       .withThis());
 
-        return builder.defineMethod(method, returnType, Opcodes.ACC_PUBLIC)
-                .withParameters(parameters)
-                .intercept(call);
+        return builder.defineMethod(method, returnType, Opcodes.ACC_PUBLIC).withParameters(parameters).intercept(call);
     }
 
-    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callStaticMethodReturnSelf(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?>... arguments) throws NoSuchMethodException {
+    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callStaticMethodReturnSelf(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Class<?>... arguments)
+            throws NoSuchMethodException {
         return callStaticMethodReturnSelf(thisClass, builder, method, extra -> extra, arguments);
     }
 
-    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callStaticMethodReturnSelf(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Function<MethodCall, MethodCall> extra, Class<?>... parameters) throws NoSuchMethodException {
+    static DynamicType.Builder.MethodDefinition.ReceiverTypeDefinition<? extends Enum<?>> callStaticMethodReturnSelf(Class<?> thisClass, DynamicType.Builder<? extends Enum<?>> builder, String method, Function<MethodCall, MethodCall> extra, Class<?>... parameters)
+            throws NoSuchMethodException {
 
-        var call = extra.apply(MethodCall
-                .invoke(thisClass
-                        .getMethod(method, parameters))).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+        var call = extra.apply(MethodCall.invoke(thisClass.getMethod(method, parameters)))
+                .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
         return builder.defineMethod(method, builder.toTypeDescription(), Opcodes.ACC_STATIC | Opcodes.ACC_PUBLIC)
                 .withParameters(parameters)
                 .intercept(call);
