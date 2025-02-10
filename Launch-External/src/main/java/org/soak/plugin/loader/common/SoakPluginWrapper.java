@@ -4,6 +4,7 @@ import io.leangen.geantyref.TypeToken;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.plugin.Plugin;
 import org.soak.command.BukkitRawCommand;
+import org.soak.map.SoakPermissionMap;
 import org.soak.map.event.AbstractSoakEvent;
 import org.soak.map.event.GeneralSoakEvent;
 import org.soak.plugin.SoakManager;
@@ -23,6 +24,7 @@ import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SoakPluginWrapper {
@@ -48,8 +50,9 @@ public class SoakPluginWrapper {
                 SoakManager.getManager().displayError(e, plugin);
             }
         }
-        Sponge.eventManager().registerListener(EventListenerRegistration.builder(new TypeToken<StartedEngineEvent<Server>>() {
-        }).order(order).listener(this::onPluginEnable).plugin(pluginContainer.getTrueContainer()).build());
+        Sponge.eventManager()
+                .registerListener(EventListenerRegistration.builder(new TypeToken<StartedEngineEvent<Server>>() {
+                }).order(order).listener(this::onPluginEnable).plugin(pluginContainer.getTrueContainer()).build());
     }
 
     public void onPluginsConstructed() {
@@ -57,10 +60,23 @@ public class SoakPluginWrapper {
         if (!earlyPlugins.contains(this.pluginContainer.getBukkitInstance().getName())) {
             return;
         }
+        launch(true);
+    }
+
+    private void launch(boolean early) {
         Plugin plugin = this.pluginContainer.getBukkitInstance();
+        long permissionsRegistered = plugin.getPluginMeta()
+                .getPermissions()
+                .stream()
+                .mapToLong(perm -> SoakPermissionMap.fromBukkit(perm, this.pluginContainer.getTrueContainer()).size())
+                .sum();
+        this.pluginContainer.logger().info("registered " + permissionsRegistered + " permissions");
+
         try {
             plugin.onEnable();
-            SoakPlugin.plugin().logger().info(this.pluginContainer.metadata().id() + " loaded early");
+            SoakPlugin.plugin()
+                    .logger()
+                    .info(this.pluginContainer.metadata().id() + " loaded " + (early ? "early" : "late"));
 
         } catch (Throwable e) {
             SoakManager.getManager().displayError(e, plugin);
@@ -78,7 +94,10 @@ public class SoakPluginWrapper {
     @Listener
     public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
         loadedCommandsEarly = true;
-        this.commands.forEach(cmd -> event.register(this.pluginContainer, new BukkitRawCommand(this.pluginContainer, cmd), cmd.getName(), cmd.getAliases().toArray(String[]::new)));
+        this.commands.forEach(cmd -> event.register(this.pluginContainer,
+                                                    new BukkitRawCommand(this.pluginContainer, cmd),
+                                                    cmd.getName(),
+                                                    cmd.getAliases().toArray(String[]::new)));
     }
 
     @Listener
@@ -99,7 +118,8 @@ public class SoakPluginWrapper {
     }
 
     //issue
-    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything before onEnable is used ....
+    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything
+    // before onEnable is used ....
     //using StartedEngineEvent despite the timing known to be incorrect
     public void onPluginEnable(StartedEngineEvent<Server> event) {
         if (!SoakPlugin.plugin().didClassesGenerate()) {
@@ -112,13 +132,22 @@ public class SoakPluginWrapper {
         Plugin plugin = this.pluginContainer.getBukkitInstance();
         if (!loadedCommandsEarly) {
             //load commands
-            var registerCmd = Sponge.server().commandManager().registrar(Command.Raw.class).orElseThrow(() -> new IllegalStateException("Cannot load the command raw register for " + pluginContainer.metadata().id()));
+            var registerCmd = Sponge.server()
+                    .commandManager()
+                    .registrar(Command.Raw.class)
+                    .orElseThrow(() -> new IllegalStateException("Cannot load the command raw register for " + pluginContainer.metadata()
+                            .id()));
             this.commands.forEach(cmd -> {
                 try {
-                    registerCmd.register(this.pluginContainer, new BukkitRawCommand(this.pluginContainer, cmd), cmd.getName(), cmd.getAliases().toArray(String[]::new));
+                    registerCmd.register(this.pluginContainer,
+                                         new BukkitRawCommand(this.pluginContainer, cmd),
+                                         cmd.getName(),
+                                         cmd.getAliases().toArray(String[]::new));
                 } catch (CommandFailedRegistrationException ex) {
                     try {
-                        registerCmd.register(this.pluginContainer, new BukkitRawCommand(this.pluginContainer, cmd), cmd.getName());
+                        registerCmd.register(this.pluginContainer,
+                                             new BukkitRawCommand(this.pluginContainer, cmd),
+                                             cmd.getName());
                     } catch (CommandFailedRegistrationException ex1) {
                         pluginContainer.logger().warn("Cannot register command, skipping: ", ex1);
                     }
@@ -127,24 +156,36 @@ public class SoakPluginWrapper {
         }
 
         try {
-            plugin.onEnable();
+            launch(false);
 
-            String failedEvents = SoakPlugin.server().getSoakPluginManager().registeredEvents().stream().filter(soakEvent -> soakEvent.plugin().equals(plugin)).filter(soakEvent -> soakEvent instanceof GeneralSoakEvent<?>).map(AbstractSoakEvent::bukkitEvent).filter(clazz -> {
-                String name = clazz.getName();
-                if (name.startsWith("org.bukkit")) {
-                    return true;
-                }
-                if (name.startsWith("com.destroystokyo.paper")) {
-                    return true;
-                }
-                if (name.startsWith("io.papermc.paper")) {
-                    return true;
-                }
-                return name.startsWith("org.spigotmc");
-            }).distinct().map(clazz -> "\n\t- " + clazz.getSimpleName()).sorted().collect(Collectors.joining(" "));
+            String failedEvents = SoakPlugin.server()
+                    .getSoakPluginManager()
+                    .registeredEvents()
+                    .stream()
+                    .filter(soakEvent -> soakEvent.plugin().equals(plugin))
+                    .filter(soakEvent -> soakEvent instanceof GeneralSoakEvent<?>)
+                    .map(AbstractSoakEvent::bukkitEvent)
+                    .filter(clazz -> {
+                        String name = clazz.getName();
+                        if (name.startsWith("org.bukkit")) {
+                            return true;
+                        }
+                        if (name.startsWith("com.destroystokyo.paper")) {
+                            return true;
+                        }
+                        if (name.startsWith("io.papermc.paper")) {
+                            return true;
+                        }
+                        return name.startsWith("org.spigotmc");
+                    })
+                    .distinct()
+                    .map(clazz -> "\n\t- " + clazz.getSimpleName())
+                    .sorted()
+                    .collect(Collectors.joining(" "));
 
             if (!failedEvents.isBlank()) {
-                this.pluginContainer.logger().error("Could not find mappings for the following events: " + failedEvents);
+                this.pluginContainer.logger()
+                        .error("Could not find mappings for the following events: " + failedEvents);
             }
 
             this.pluginContainer.logger().info(this.pluginContainer.metadata().id() + " loaded late");
