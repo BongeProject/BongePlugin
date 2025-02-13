@@ -32,7 +32,7 @@ public class LexSoakModInfo implements IModInfo {
 
     @Override
     public IModFileInfo getOwningFile() {
-        return null;
+        return new LexSoakModFileInfo(this);
     }
 
     @Override
@@ -97,6 +97,6 @@ public class LexSoakModInfo implements IModInfo {
 
     @Override
     public IConfigurable getConfig() {
-        return null;
+        return new LexModInfoConfig();
     }
 }

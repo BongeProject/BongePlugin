@@ -108,7 +108,7 @@ jar {
         return (FileTree) (element.isDirectory() ? element : zipTree(element))
     })
 
-    var insertFolders = new String[]{"../Override/build/libs/", "./Neo/build/libs/"}
+    var insertFolders = new String[]{"../Override/build/libs/", "./Neo/build/libs/", "/Lex/build/libs/"}
     for (var folderPath : insertFolders) {
         var folder = project.file(folderPath);
         var files = folder.listFiles();
@@ -130,7 +130,7 @@ jar {
 
     from(fat).exclude {
         var name = it.toString();
-            return excludeList.contains(name)
+        return excludeList.contains(name)
     }
 }
 

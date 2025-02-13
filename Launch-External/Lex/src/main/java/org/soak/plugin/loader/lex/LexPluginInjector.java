@@ -23,17 +23,21 @@ public class LexPluginInjector {
         var modList = ModList.get();
 
         //Mod Container
-        var currentModContainerList = (List<ModContainer>) modList.getClass().getField("mods").get(modList);
+        var field = modList.getClass().getDeclaredField("mods");
+        field.setAccessible(true);
+        var currentModContainerList = (List<ModContainer>) field.get(modList);
         Collection<ModContainer> modifiedModContainerList = new ArrayList<>(currentModContainerList);
         modifiedModContainerList.addAll(modContainers);
-        modList.getClass().getField("mods").set(modList, modifiedModContainerList);
+        field.set(modList, modifiedModContainerList);
 
         //Sorted Mod Infos
         var currentModInfoList = modList.getMods();
         List<IModInfo> modifiedModInfoList = new ArrayList<>(currentModInfoList);
         modifiedModInfoList.addAll(modInfos);
         modifiedModInfoList.sort(Comparator.comparing(IModInfo::getModId));
-        modList.getClass().getField("mods").set(modList, modifiedModInfoList);
+        var sortedField = modList.getClass().getDeclaredField("sortedList");
+        sortedField.setAccessible(true);
+        sortedField.set(modList, modifiedModInfoList);
     }
 
 }
