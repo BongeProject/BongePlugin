@@ -12,6 +12,7 @@ import org.soak.utils.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class NeoPluginInjector {
@@ -41,8 +42,7 @@ public class NeoPluginInjector {
                     var soakContainer = containers.stream()
                             .filter(container -> container.metadata().id().equals(modInfo.getModId()))
                             .findAny()
-                            .orElseThrow(() -> new RuntimeException("Soak loaded mod '" + modInfo.getModId() + "' but" +
-                                                                            " no plugin is attached"));
+                            .orElseThrow(() -> new RuntimeException("Soak loaded mod '" + modInfo.getModId() + "' " + "but" + " no plugin is attached"));
                     return new NeoSoakModContainer(modInfo, soakContainer);
                 })
                 .filter(container -> modFiles.stream()
@@ -51,7 +51,7 @@ public class NeoPluginInjector {
                 .toList();
 
         modFiles.addAll(modContainers);
-
+        modFiles.sort(Comparator.comparing(ModContainer::getModId));
 
         var method = ModList.class.getDeclaredMethod("setLoadedMods", List.class);
         method.setAccessible(true);

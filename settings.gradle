@@ -22,4 +22,6 @@ include 'Override'
 include 'Launch-External:Neo'
 findProject(':Launch-External:Neo')?.name = 'Neo'
 include 'NMSBounce'
+include 'Launch-External:Lex'
+findProject(':Launch-External:Lex')?.name = 'Lex'
 

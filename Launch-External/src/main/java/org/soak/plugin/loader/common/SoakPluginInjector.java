@@ -19,14 +19,20 @@ public interface SoakPluginInjector {
             try {
                 injectPluginToPlatform("org.soak.plugin.loader.neo.NeoPluginInjector", containers);
             } catch (Throwable ex) {
-                throw new RuntimeException(ex);
+                try {
+                    //load lex forge
+                    injectPluginToPlatform("org.soak.plugin.loader.lex.LexPluginInjector", containers);
+                } catch (Throwable lexEx) {
+                    throw new RuntimeException(lexEx);
+                }
             }
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void injectPluginToPlatform(String className, Collection<SoakPluginContainer> containers) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private static void injectPluginToPlatform(String className, Collection<SoakPluginContainer> containers)
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         var method = Class.forName(className).getDeclaredMethod("injectPluginToPlatform", Collection.class);
         method.invoke(null, containers);
     }
