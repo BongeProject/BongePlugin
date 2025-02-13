@@ -19,7 +19,9 @@ jobs:
           cache: 'gradle'
       - name: Make gradle executable
         run: chmod +x ./gradlew
-      - name: Build Soak
+      - name: Build Soak Libraries
+        run: ./gradlew build
+      - name: Build Soak plugin
         run: ./gradlew build
       - name: Upload plugin
         uses: actions/upload-artifact@v4

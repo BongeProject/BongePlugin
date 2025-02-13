@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.spongepowered:spongeapi:' + property("SPONGE_VERSION")
     implementation 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
 
-    implementation "net.neoforged.fancymodloader:loader:5.0.6"
+    implementation "net.neoforged.fancymodloader:loader:4.0.35"
     implementation "cpw.mods:securejarhandler:3.0.7"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
