@@ -12,7 +12,7 @@ public class LexModContainer extends ModContainer {
     public LexModContainer(SoakPluginContainer container) {
         super(new LexSoakModInfo(container));
         this.contextExtension = () -> null;
-        this.modLoadingStage = ModLoadingStage.COMPLETE;
+        //this.modLoadingStage = ModLoadingStage.DONE;
         this.container = container;
     }
 
