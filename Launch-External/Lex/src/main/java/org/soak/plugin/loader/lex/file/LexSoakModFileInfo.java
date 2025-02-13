@@ -5,20 +5,24 @@ import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class LexSoakModFileInfo implements IModFileInfo {
 
-    private final LexSoakModInfo info;
+    public static final LexSoakModFileInfo MOD_INFO = new LexSoakModFileInfo();
 
-    public LexSoakModFileInfo(LexSoakModInfo info) {
-        this.info = info;
+    private final List<IModInfo> soakPluginsCache = new LinkedList<>();
+
+    public void addMod(LexSoakModInfo info) {
+        this.soakPluginsCache.add(info);
     }
 
     @Override
     public List<IModInfo> getMods() {
-        return List.of(this.info);
+        return Collections.unmodifiableList(this.soakPluginsCache);
     }
 
     @Override
@@ -38,17 +42,17 @@ public class LexSoakModFileInfo implements IModFileInfo {
 
     @Override
     public String getLicense() {
-        return "";
+        return "MIT";
     }
 
     @Override
     public String moduleName() {
-        return "";
+        return "soak";
     }
 
     @Override
     public String versionString() {
-        return this.info.getVersion().toString();
+        return "1.0.0";
     }
 
     @Override
@@ -58,11 +62,12 @@ public class LexSoakModFileInfo implements IModFileInfo {
 
     @Override
     public IModFile getFile() {
-        return null;
+        throw new RuntimeException("not implemented yet");
     }
 
     @Override
     public IConfigurable getConfig() {
-        return null;
+        throw new RuntimeException("not implemented yet");
+
     }
 }

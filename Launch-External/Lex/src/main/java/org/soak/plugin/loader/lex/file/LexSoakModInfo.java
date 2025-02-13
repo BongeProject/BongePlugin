@@ -18,6 +18,7 @@ public class LexSoakModInfo implements IModInfo {
 
     private final SoakPluginContainer file;
 
+
     public LexSoakModInfo(SoakPluginContainer file) {
         this.file = file;
     }
@@ -32,7 +33,7 @@ public class LexSoakModInfo implements IModInfo {
 
     @Override
     public IModFileInfo getOwningFile() {
-        return new LexSoakModFileInfo(this);
+        return LexSoakModFileInfo.MOD_INFO;
     }
 
     @Override
