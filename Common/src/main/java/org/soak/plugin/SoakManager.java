@@ -107,10 +107,16 @@ public interface SoakManager {
                 .container(Platform.Component.API)
                 .metadata()
                 .version());
+        logger.error("|- Implementation version: " + Sponge.platform()
+                .container(Platform.Component.IMPLEMENTATION)
+                .metadata()
+                .version());
 
         if (readEx instanceof ClassCastException) {
             if (readEx.getMessage().contains("org.bukkit.plugin.SimplePluginManager")) {
-                logger.error("|- Common Error Note: Starting on Paper hardfork 1.19.4, SimplePluginManager is being " + "disconnected. This will not be added to soak");
+                logger.error(
+                        "|- Common Error Note: Starting on Paper hardfork 1.19.4, SimplePluginManager is being " +
+                                "disconnected. This will not be added to soak");
             }
         }
         if (readEx instanceof NMSUsageException nmsUsage) {
