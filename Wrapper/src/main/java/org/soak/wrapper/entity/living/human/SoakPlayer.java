@@ -371,7 +371,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey()
+                        .criterion()
+                        .orElseThrow()
+                        .key(RegistryTypes.STATISTIC)
+                        .equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
                 .filter(entry -> {
                     var typedStatistic =
@@ -395,7 +399,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey()
+                        .criterion()
+                        .orElseThrow()
+                        .key(RegistryTypes.STATISTIC)
+                        .equals(spongeKey))
                 .findAny();
     }
 
@@ -412,7 +420,11 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
         return spongeStatistics.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().criterion().isPresent())
-                .filter(entry -> entry.getKey().criterion().orElseThrow().key(RegistryTypes.STATISTIC).equals(spongeKey))
+                .filter(entry -> entry.getKey()
+                        .criterion()
+                        .orElseThrow()
+                        .key(RegistryTypes.STATISTIC)
+                        .equals(spongeKey))
                 .filter(entry -> entry.getKey() instanceof org.spongepowered.api.statistic.Statistic.TypeInstance<?>)
                 .filter(entry -> ((org.spongepowered.api.statistic.Statistic.TypeInstance<?>) entry.getKey()).type()
                         .equals(spongeEntityType))
@@ -2216,7 +2228,7 @@ public class SoakPlayer extends AbstractHumanBase<ServerPlayer> implements Playe
 
     @Override
     public InetSocketAddress getAddress() {
-        throw NotImplementedException.createByLazy(Player.class, "getAddress");
+        return this.spongeEntity().connection().address();
     }
 
     @Override

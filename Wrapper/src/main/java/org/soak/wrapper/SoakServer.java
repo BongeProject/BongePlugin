@@ -519,7 +519,7 @@ public abstract class SoakServer implements Server {
 
     @Override
     public @NotNull Server.Spigot spigot() {
-        throw NotImplementedException.createByLazy(Server.class, "spigot");
+        return new SoakSpigotServer();
     }
 
     @Override

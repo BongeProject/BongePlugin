@@ -27,16 +27,20 @@ import org.jetbrains.annotations.Range;
 import org.soak.Constants;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.SoakBlockMap;
+import org.soak.plugin.SoakManager;
+import org.soak.utils.GeneralHelper;
 import org.soak.wrapper.block.SoakBlock;
 import org.soak.wrapper.damage.SoakDamageSource;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.soak.wrapper.entity.SoakAttributable;
 import org.soak.wrapper.entity.SoakDamageable;
 import org.soak.wrapper.entity.SoakProjectileSource;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.util.blockray.RayTrace;
 import org.spongepowered.api.world.server.ServerWorld;
 
@@ -409,12 +413,22 @@ public abstract class AbstractLivingEntity<E extends Living> extends AbstractEnt
 
     @Override
     public int getNoDamageTicks() {
-        throw NotImplementedException.createByLazy(LivingEntity.class, "getNoDamageTicks");
+        return this.spongeEntity().get(Keys.INVULNERABILITY_TICKS).map(Ticks::ticks).map(Long::intValue).orElse(0);
     }
 
     @Override
     public void setNoDamageTicks(int arg0) {
-        throw NotImplementedException.createByLazy(LivingEntity.class, "setNoDamageTicks", int.class);
+        if (Sponge.server().onMainThread()) {
+            this.spongeEntity().offer(Keys.INVULNERABILITY_TICKS, Ticks.of(arg0));
+            return;
+        }
+        var badPlugin = GeneralHelper.fromStackTrace();
+        SoakManager.getManager()
+                .getLogger()
+                .warn(badPlugin.metadata()
+                              .id() + " attempted to set minecraft data off thread. This should not be done. Moving " +
+                              "action to main thread");
+        Sponge.server().scheduler().executor(badPlugin).submit(() -> setNoDamageTicks(arg0));
     }
 
     @Override

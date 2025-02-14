@@ -45,7 +45,7 @@ public class SoakBukkitScheduler implements BukkitScheduler {
 
     @Override
     public boolean isQueued(int arg0) {
-        throw NotImplementedException.createByLazy(BukkitScheduler.class, "isQueued", int.class);
+        return getPendingTasks().stream().anyMatch(task -> task.getTaskId() == arg0);
     }
 
     @Deprecated
@@ -101,7 +101,16 @@ public class SoakBukkitScheduler implements BukkitScheduler {
 
     @Override
     public @NotNull List<BukkitWorker> getActiveWorkers() {
-        throw NotImplementedException.createByLazy(BukkitScheduler.class, "getActiveWorkers");
+        var builder = CollectionStreamBuilder.builder()
+                .stream(get(sch -> sch.tasks().stream()))
+                .map(stream -> stream.filter(task -> SoakManager.getManager()
+                        .getSoakContainer(task.task().plugin())
+                        .isPresent()).map(t -> (BukkitWorker) new SoakBukkitWorker(t)));
+        return ListMappingUtils.fromStream(builder,
+                                           () -> get((sch) -> sch.tasks().stream()),
+                                           (scheduled, bukkit) -> (((SoakBukkitWorker) bukkit).scheduled()).equals(
+                                                   scheduled),
+                                           Comparator.comparing(Nameable::name)).buildList();
     }
 
     @Override
