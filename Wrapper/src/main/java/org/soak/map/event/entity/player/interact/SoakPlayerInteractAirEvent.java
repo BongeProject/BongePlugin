@@ -15,12 +15,8 @@ import org.soak.plugin.SoakManager;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.EventContextKeys;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.InteractEvent;
-import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.filter.type.Exclude;
 
 public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerInteractEvent> {
 
@@ -40,10 +36,7 @@ public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerI
         if (opSpongePlayer.isEmpty()) {
             return;
         }
-        if (spongeEvent instanceof InteractBlockEvent) {
-            return;
-        }
-        if(spongeEvent instanceof InteractEntityEvent){
+        if (spongeEvent instanceof InteractEntityEvent) {
             return;
         }
         var spongePlayer = opSpongePlayer.get();
@@ -60,7 +53,7 @@ public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerI
         var bukkitEvent = new PlayerInteractEvent(player, action, item, null, clickedFace, hand);
         fireEvent(bukkitEvent);
         if (spongeEvent instanceof Cancellable) {
-            if (bukkitEvent.useInteractedBlock() == Event.Result.DENY) {
+            if (bukkitEvent.useItemInHand() == Event.Result.DENY) {
                 ((Cancellable) spongeEvent).setCancelled(true);
             }
         }
