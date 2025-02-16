@@ -18,6 +18,7 @@ import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.type.Exclude;
 
@@ -40,6 +41,9 @@ public class SoakPlayerInteractAirEvent extends SoakEvent<InteractEvent, PlayerI
             return;
         }
         if (spongeEvent instanceof InteractBlockEvent) {
+            return;
+        }
+        if(spongeEvent instanceof InteractEntityEvent){
             return;
         }
         var spongePlayer = opSpongePlayer.get();
