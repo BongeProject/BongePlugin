@@ -33,7 +33,12 @@ public class SoakPreCommandEvent extends SoakEvent<ExecuteCommandEvent.Pre, Play
             return;
         }
 
-        var command = "/" + event.command() + " " + event.arguments();
+        var cmd = event.command();
+        if(cmd.contains(":")){
+            cmd = cmd.substring(cmd.lastIndexOf(":") + 1);
+        }
+
+        var command = "/" + cmd  + " " + event.arguments();
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(serverPlayer);
 
         var bukkitEvent = new PlayerCommandPreprocessEvent(player, command);
