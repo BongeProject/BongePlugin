@@ -27,8 +27,10 @@ public class PaperPluginLogger extends Logger {
         Logger logger = new PaperPluginLogger(description);
         if (!LogManager.getLogManager().addLogger(logger)) {
             // Disable this if it's going to happen across reloads anyways...
-            //logger.log(Level.WARNING, "Could not insert plugin logger - one was already found: {}", LogManager.getLogManager().getLogger(this.getName()));
-            logger = LogManager.getLogManager().getLogger(description.getPrefix() != null ? description.getPrefix() : description.getName());
+            //logger.log(Level.WARNING, "Could not insert plugin logger - one was already found: {}", LogManager
+            // .getLogManager().getLogger(this.getName()));
+            logger = LogManager.getLogManager()
+                    .getLogger(description.getPrefix() != null ? description.getPrefix() : description.getName());
         }
 
         return logger;

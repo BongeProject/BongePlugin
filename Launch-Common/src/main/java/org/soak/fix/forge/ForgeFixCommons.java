@@ -2,7 +2,6 @@ package org.soak.fix.forge;
 
 
 import org.soak.plugin.SoakManager;
-import org.soak.wrapper.plugin.SoakPluginManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -37,8 +36,7 @@ public class ForgeFixCommons {
         targetPackageFilterField.trySetAccessible();
         var oldValue = (Predicate) targetPackageFilterField.get(classLoader);
         targetPackageFilterField.set(classLoader, (Predicate) o -> {
-            if (o instanceof String) {
-                String classname = (String) o;
+            if (o instanceof String classname) {
                 if (classname.startsWith("org.apache.commons")) {
                     return true;
                 }

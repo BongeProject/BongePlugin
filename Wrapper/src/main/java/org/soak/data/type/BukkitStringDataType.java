@@ -8,6 +8,7 @@ import org.spongepowered.api.data.persistence.DataView;
 import java.util.Optional;
 
 public class BukkitStringDataType implements BukkitDataType<String> {
+
     @Override
     public Optional<String> get(DataView view, DataQuery query) {
         return view.getString(query);

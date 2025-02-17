@@ -40,6 +40,7 @@ public abstract class SoakCommandSender extends SoakPermissible implements Comma
     }
 
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {
         this.audience.sendMessage(identity, message, type);
     }
@@ -59,12 +60,16 @@ public abstract class SoakCommandSender extends SoakPermissible implements Comma
         this.audience.sendMessage(message);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
         this.audience.sendMessage(source, message);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
         this.audience.sendMessage(source, message);
     }
@@ -74,37 +79,51 @@ public abstract class SoakCommandSender extends SoakPermissible implements Comma
         this.audience.sendMessage(message);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identified source, @NotNull Component message) {
         this.audience.sendMessage(source, message);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identity source, @NotNull Component message) {
         this.audience.sendMessage(source, message);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull ComponentLike message, @NotNull MessageType type) {
         this.audience.sendMessage(message, type);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {
         this.audience.sendMessage(source, message, type);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {
         this.audience.sendMessage(source, message, type);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Component message, @NotNull MessageType type) {
         this.audience.sendMessage(message, type);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void sendMessage(@NotNull Identified source, @NotNull Component message, @NotNull MessageType type) {
         this.audience.sendMessage(source, message, type);
     }

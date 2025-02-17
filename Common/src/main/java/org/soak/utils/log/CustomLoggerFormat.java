@@ -6,20 +6,22 @@ import org.jetbrains.annotations.Nullable;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 public class CustomLoggerFormat extends Formatter {
 
-    public static Map<String, String> LEVEL_COLOURS;
+    public static final Map<String, String> LEVEL_COLOURS;
 
     static {
-        LEVEL_COLOURS = Map.of(
-                System.Logger.Level.ERROR.getName(), AnsiEscapeCodes.RED,
-                System.Logger.Level.WARNING.getName(), AnsiEscapeCodes.YELLOW,
-                System.Logger.Level.DEBUG.getName(), AnsiEscapeCodes.CYAN,
-                System.Logger.Level.INFO.getName(), AnsiEscapeCodes.GREEN
-        );
+        LEVEL_COLOURS = Map.of(System.Logger.Level.ERROR.getName(),
+                               AnsiEscapeCodes.RED,
+                               System.Logger.Level.WARNING.getName(),
+                               AnsiEscapeCodes.YELLOW,
+                               System.Logger.Level.DEBUG.getName(),
+                               AnsiEscapeCodes.CYAN,
+                               System.Logger.Level.INFO.getName(), AnsiEscapeCodes.GREEN);
     }
 
     private String formatInt(int value) {
@@ -36,8 +38,10 @@ public class CustomLoggerFormat extends Formatter {
 
         String levelColour = LEVEL_COLOURS.getOrDefault(record.getLevel().getName(), AnsiEscapeCodes.RESET);
 
-        String timeString = "[" + formatInt(time.getHour()) + ":" + formatInt(time.getMinute()) + ":" + formatInt(time.getSecond()) + "]";
-        String threadString = "[" + Thread.currentThread().getName() + "/" + levelColour + record.getLevel().getName() + AnsiEscapeCodes.RESET + "]";
+        String timeString =
+                "[" + formatInt(time.getHour()) + ":" + formatInt(time.getMinute()) + ":" + formatInt(time.getSecond()) + "]";
+        String threadString = "[" + Thread.currentThread().getName() + "/" + levelColour + record.getLevel()
+                .getName() + AnsiEscapeCodes.RESET + "]";
         String loggerName = "[" + record.getLoggerName() + "]";
         String messageColour = (record.getLevel().getName().equalsIgnoreCase("info") ? "" : levelColour);
         String message = (formatMessage(record.getMessage(), record.getParameters())) + "\n";
@@ -45,6 +49,7 @@ public class CustomLoggerFormat extends Formatter {
         return AnsiEscapeCodes.RESET + timeString + " " + threadString + " " + loggerName + ": " + messageColour + message + AnsiEscapeCodes.RESET;
     }
 
+    @SuppressWarnings("deprecation")
     private String formatMessage(String message, @Nullable Object... arguments) {
         message = message.replaceAll(ChatColor.AQUA.toString(), AnsiEscapeCodes.CYAN);
         message = message.replaceAll(ChatColor.BLACK.toString(), AnsiEscapeCodes.BLACK);
@@ -68,7 +73,7 @@ public class CustomLoggerFormat extends Formatter {
         }
         for (int i = 0; i < arguments.length; i++) {
             var argument = arguments[i];
-            message = message.replace("{" + i + "}", stringMapping(argument));
+            message = message.replace("{" + i + "}", stringMapping(Objects.requireNonNull(argument)));
         }
         return message;
     }

@@ -1,55 +1,35 @@
 package org.soak.map.event.entity.player.connection;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-public class SoakPlayerJoinEvent {
+public class SoakPlayerJoinEvent extends SoakEvent<ServerSideConnectionEvent.Join, PlayerJoinEvent> {
 
-    private final EventSingleListenerWrapper<PlayerJoinEvent> singleListenerWrapper;
-
-    public SoakPlayerJoinEvent(EventSingleListenerWrapper<PlayerJoinEvent> singleListenerWrapper) {
-        this.singleListenerWrapper = singleListenerWrapper;
+    public SoakPlayerJoinEvent(Class<PlayerJoinEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ServerSideConnectionEvent.Join spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
+    @Override
+    protected Class<ServerSideConnectionEvent.Join> spongeEventClass() {
+        return ServerSideConnectionEvent.Join.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ServerSideConnectionEvent.Join spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ServerSideConnectionEvent.Join spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ServerSideConnectionEvent.Join spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ServerSideConnectionEvent.Join spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(ServerSideConnectionEvent.Join event, EventPriority priority) {
+    @Override
+    public void handle(ServerSideConnectionEvent.Join event) throws Exception {
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(event.player());
         var message = event.message();
 
         var bukkitEvent = new PlayerJoinEvent(player, message);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         var newJoinMessage = bukkitEvent.joinMessage();
 
         if (newJoinMessage != null && !newJoinMessage.equals(message)) {
@@ -59,5 +39,4 @@ public class SoakPlayerJoinEvent {
             event.setMessageCancelled(true);
         }
     }
-
 }

@@ -5,11 +5,13 @@ import org.apache.logging.log4j.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.soak.plugin.SoakPluginContainer;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 public class AbstractSoakPluginContainer implements SoakPluginContainer {
@@ -21,14 +23,14 @@ public class AbstractSoakPluginContainer implements SoakPluginContainer {
     private final JavaPlugin plugin;
     private final SoakPluginWrapper mainInstance;
 
-    public AbstractSoakPluginContainer(File bukkitPluginFile, JavaPlugin plugin) {
+    public AbstractSoakPluginContainer(File bukkitPluginFile, JavaPlugin plugin, Order order) {
         this.bukkitPluginFile = bukkitPluginFile;
         this.plugin = plugin;
         this.logger = LogManager.getLogger(plugin.getName());
         this.pluginMetadata = SoakPluginMetadata.fromPlugin(plugin);
 
         //temp
-        this.mainInstance = new SoakPluginWrapper(this);
+        this.mainInstance = new SoakPluginWrapper(this, order);
     }
 
     public File getPluginFile() {
@@ -56,19 +58,24 @@ public class AbstractSoakPluginContainer implements SoakPluginContainer {
     }
 
     @Override
-    public SoakPluginWrapper instance() {
+    public @NotNull SoakPluginWrapper instance() {
         return this.mainInstance;
     }
 
     @Override
-    public Optional<URI> locateResource(URI relative) {
-        boolean exists = this.plugin.getResource(relative.getPath()) != null;
+    public Optional<URI> locateResource(String path) {
+        boolean exists = this.plugin.getResource(path) != null;
         if (!exists) {
             return Optional.empty();
         }
 
         URI localPath = this.bukkitPluginFile.toURI();
-        URI ret = localPath.relativize(relative);
+        URI ret;
+        try {
+            ret = localPath.relativize(new URI(path));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         return Optional.of(ret);
     }
 }

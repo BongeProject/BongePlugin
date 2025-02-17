@@ -8,22 +8,14 @@ import org.soak.map.SoakFireworkEffectMap;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackLike;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 
 import java.util.Collections;
 
 public class SoakFireworkEffectMeta extends AbstractItemMeta implements FireworkEffectMeta {
 
-    public SoakFireworkEffectMeta(ItemStack stack) {
-        super(stack);
-    }
-
-    public SoakFireworkEffectMeta(ItemStackSnapshot stack) {
-        super(stack);
-    }
-
-    @Deprecated
-    public SoakFireworkEffectMeta(ValueContainer container) {
+    public SoakFireworkEffectMeta(ItemStackLike container) {
         super(container);
     }
 
@@ -39,7 +31,7 @@ public class SoakFireworkEffectMeta extends AbstractItemMeta implements Firework
                 .container
                 .get(Keys.FIREWORK_EFFECTS)
                 .filter(effects -> !effects.isEmpty())
-                .map(effects -> effects.get(0))
+                .map(effects -> effects.getFirst())
                 .map(SoakFireworkEffectMap::toBukkit)
                 .orElse(null);
     }
@@ -56,6 +48,6 @@ public class SoakFireworkEffectMeta extends AbstractItemMeta implements Firework
 
     @Override
     public @NotNull SoakFireworkEffectMeta clone() {
-        return new SoakFireworkEffectMeta(this.copyToImmutable());
+        return new SoakFireworkEffectMeta(this.container.asImmutable());
     }
 }

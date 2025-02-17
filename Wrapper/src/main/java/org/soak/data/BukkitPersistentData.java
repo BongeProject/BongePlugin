@@ -5,16 +5,29 @@ import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.persistence.DataContainer;
 import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.data.persistence.DataSerializable;
+import org.spongepowered.api.data.persistence.DataView;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.LinkedTransferQueue;
+import java.util.stream.Collectors;
 
 public class BukkitPersistentData implements DataSerializable {
 
-    public static int CONTENT_VERSION = 1;
-    Collection<BukkitData<?>> data = new LinkedTransferQueue<>();
+    public static final int CONTENT_VERSION = 1;
+    final Collection<BukkitData<?>> data = new LinkedTransferQueue<>();
 
+    public Map<String, DataView> toMap() {
+        return data.stream().collect(Collectors.toMap(data -> data.getKey().formatted(), data -> {
+            var dataContainer = DataContainer.createNew();
+            dataContainer.set(DataQuery.of("type"), data.getType().typeName());
+            dataContainer.set(DataQuery.of("value"), data.getValue());
+            return dataContainer;
+        }));
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> Optional<T> getValue(ResourceKey key) {
         return getData(key).map(data -> (T) data.getValue());
     }
@@ -23,12 +36,13 @@ public class BukkitPersistentData implements DataSerializable {
         return this.data.parallelStream().filter(data -> data.getKey().equals(key)).findAny();
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Optional<T> getValue(ResourceKey key, BukkitDataType<T> dataType) {
         return getData(key).filter(data -> data.getType().equals(dataType)).map(data -> (T) data.getValue());
     }
 
     public void removeValue(ResourceKey key) {
-        this.data.parallelStream().filter(data -> data.getKey().equals(key)).forEach(data -> this.data.remove(data));
+        this.data.parallelStream().filter(data -> data.getKey().equals(key)).forEach(this.data::remove);
 
     }
 

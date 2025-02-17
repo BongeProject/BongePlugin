@@ -16,7 +16,7 @@ public class NMSUsageException extends RuntimeException {
     }
 
     public NMSUsageException(@Nullable String developerNotes, @NotNull String classUsed, @NotNull String methodUsed, Object... parametersUsed) {
-        super("NMS required for " + classUsed + "#" + methodUsed + "(" + Stream.of(parametersUsed).map(val -> val.toString()).collect(Collectors.joining(", ")) + ")");
+        super("NMS required for " + classUsed + "#" + methodUsed + "(" + Stream.of(parametersUsed).map(Object::toString).collect(Collectors.joining(", ")) + ")");
         this.developerNotes = developerNotes;
     }
 

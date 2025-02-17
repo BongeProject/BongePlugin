@@ -7,9 +7,13 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.soak.exception.NotImplementedException;
+import org.soak.utils.ReflectionHelper;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Tristate;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 public class SoakPermissible implements Permissible {
@@ -51,6 +55,7 @@ public class SoakPermissible implements Permissible {
 
     @Override
     public boolean hasPermission(@NotNull String arg0) {
+        var permissionService  = Sponge.server().serviceProvider().permissionService();
         return this.subject.hasPermission(arg0);
     }
 
@@ -91,7 +96,21 @@ public class SoakPermissible implements Permissible {
 
     @Override
     public boolean isOp() {
-        throw NotImplementedException.createByLazy(Permissible.class, "isOp");
+        if(this.subject.equals(Sponge.systemSubject())){
+            return true;
+        }
+        if(!(this.subject instanceof Player player)){
+            return false;
+        }
+
+        try {
+            var data = ReflectionHelper.getField(Sponge.server(), "playerList");
+            var profile = ReflectionHelper.getField(player, "gameProfile");
+
+            return ReflectionHelper.runMethod(data, "isOp", profile);
+        } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

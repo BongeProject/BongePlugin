@@ -9,6 +9,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.soak.WrapperManager;
+import org.soak.map.SoakBlockMap;
 import org.soak.map.SoakDirectionMap;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
@@ -53,11 +54,11 @@ public abstract class AbstractBlock<Holder extends DataHolder> implements Block 
 
     @Override
     public @NotNull Material getType() {
-        return Material.getBlockMaterial(this.spongeBlockState().type());
+        return SoakBlockMap.toBukkit(this.spongeBlockState().type());
     }
 
     @Override
-    public void setType(Material arg0) {
+    public void setType(@NotNull Material arg0) {
         this.setType(arg0, true);
     }
 
@@ -119,7 +120,7 @@ public abstract class AbstractBlock<Holder extends DataHolder> implements Block 
     }
 
     @Override
-    public Chunk getChunk() {
+    public @NotNull Chunk getChunk() {
         var spongeLoc = this.spongeLocation();
         var chunkLoc = spongeLoc.chunkPosition();
         var spongeChunk = spongeLoc.world().chunk(chunkLoc);
@@ -143,19 +144,27 @@ public abstract class AbstractBlock<Holder extends DataHolder> implements Block 
 
     @Override
     public boolean isLiquid() {
-        return this.spongeBlockState().get(Keys.MATTER_TYPE).map(type -> type.equals(MatterTypes.LIQUID.get())).orElse(false);
+        return this.spongeBlockState()
+                .get(Keys.MATTER_TYPE)
+                .map(type -> type.equals(MatterTypes.LIQUID.get()))
+                .orElse(false);
     }
 
     @Override
     public boolean isSolid() {
-        return this.spongeBlockState().get(Keys.MATTER_TYPE).map(type -> type.equals(MatterTypes.SOLID.get())).orElse(false);
+        return this.spongeBlockState()
+                .get(Keys.MATTER_TYPE)
+                .map(type -> type.equals(MatterTypes.SOLID.get()))
+                .orElse(false);
     }
 
     @Override
-    public boolean isPreferredTool(ItemStack arg0) {
+    public boolean isPreferredTool(@NotNull ItemStack arg0) {
         var spongeItem = SoakItemStackMap.toSponge(arg0);
         var thisBlockType = this.spongeBlockState().type();
-        return spongeItem.getOrElse(Keys.BREAKABLE_BLOCK_TYPES, Set.of()).stream().anyMatch(blockType -> blockType.equals(thisBlockType));
+        return spongeItem.getOrElse(Keys.BREAKABLE_BLOCK_TYPES, Set.of())
+                .stream()
+                .anyMatch(blockType -> blockType.equals(thisBlockType));
     }
 
 }

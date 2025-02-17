@@ -1,51 +1,35 @@
 package org.soak.map.event.entity.player.interact.move;
 
+import org.bukkit.Server;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.RotateEntityEvent;
-import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.math.vector.Vector3d;
 
-public class SoakPlayerRotateEvent {
+public class SoakPlayerRotateEvent extends SoakEvent<RotateEntityEvent, PlayerMoveEvent> {
 
-    private final EventSingleListenerWrapper<PlayerMoveEvent> singleEventListener;
-
-    public SoakPlayerRotateEvent(EventSingleListenerWrapper<PlayerMoveEvent> listener) {
-        this.singleEventListener = listener;
+    public SoakPlayerRotateEvent(Class<PlayerMoveEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(RotateEntityEvent event, @Getter("entity") ServerPlayer player) {
-        fireEvent(event, player, EventPriority.HIGHEST);
+    @Override
+    protected Class<RotateEntityEvent> spongeEventClass() {
+        return RotateEntityEvent.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(RotateEntityEvent event, @Getter("entity") ServerPlayer player) {
-        fireEvent(event, player, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(RotateEntityEvent event, @Getter("entity") ServerPlayer player) {
-        fireEvent(event, player, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(RotateEntityEvent event, @Getter("entity") ServerPlayer player) {
-        fireEvent(event, player, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(RotateEntityEvent event, @Getter("entity") ServerPlayer player) {
-        fireEvent(event, player, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(RotateEntityEvent event, ServerPlayer spongePlayer, EventPriority priority) {
+    @Override
+    public void handle(RotateEntityEvent event) throws Exception {
+        var entity = event.entity();
+        if (!(entity instanceof ServerPlayer spongePlayer)) {
+            return;
+        }
         var bukkitPlayer = SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongePlayer);
         var originalPosition = bukkitPlayer.getLocation();
         var originalRotation = event.fromRotation();
@@ -59,8 +43,7 @@ public class SoakPlayerRotateEvent {
 
 
         var bukkitEvent = new PlayerMoveEvent(bukkitPlayer, originalPosition, newPosition);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             event.setCancelled(true);
             return;

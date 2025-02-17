@@ -37,11 +37,12 @@ public class SoakServerProperties {
                         e.printStackTrace();
                         return null;
                     }
-                }).filter(Objects::nonNull);
+                })
+                .filter(Objects::nonNull);
     }
 
     private <T extends PropertiesNode<?>> T property(Class<T> type) {
-        return properties().filter(property -> type.isInstance(property))
+        return properties().filter(type::isInstance)
                 .findAny()
                 .map(property -> (T) property)
                 .orElseThrow(() -> new RuntimeException("Unknown property type " + type.getName()));

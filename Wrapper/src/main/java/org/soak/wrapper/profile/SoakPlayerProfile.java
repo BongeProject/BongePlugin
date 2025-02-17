@@ -20,14 +20,20 @@ import java.util.stream.Collectors;
 public class SoakPlayerProfile implements PlayerProfile {
 
     private @NotNull GameProfile profile;
-    private boolean fromCached;
+    private final boolean fromCached;
 
     public SoakPlayerProfile(@NotNull GameProfile profile, boolean cached) {
         this.profile = profile;
         this.fromCached = cached;
     }
 
+    public GameProfile profile() {
+        return this.profile;
+    }
+
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public @Nullable UUID getUniqueId() {
         return this.profile.uniqueId();
     }
@@ -37,12 +43,13 @@ public class SoakPlayerProfile implements PlayerProfile {
         return this.profile.name().orElse(null);
     }
 
+    @SuppressWarnings("removal")
     @Override
     @Deprecated
     public @NotNull String setName(@Nullable String s) {
         String old = this.profile.name().orElse(null);
         this.profile = this.profile.withName(s);
-        return old;
+        return old != null ? old : "";
     }
 
     @Override
@@ -50,17 +57,18 @@ public class SoakPlayerProfile implements PlayerProfile {
         return this.profile.uniqueId();
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public @Nullable UUID setId(@Nullable UUID uuid) {
         UUID old = this.profile.uniqueId();
         if (uuid != null) {
-            Sponge.server().gameProfileManager().profile(uuid).thenAccept(profile -> {
-                this.profile = profile;
-            });
+            Sponge.server().gameProfileManager().profile(uuid).thenAccept(profile -> this.profile = profile);
         } else if (this.profile.name().isPresent()) {
-            Sponge.server().gameProfileManager().profile(this.profile.name().orElseThrow()).thenAccept(profile -> {
-                this.profile = profile;
-            });
+            Sponge.server()
+                    .gameProfileManager()
+                    .profile(this.profile.name().orElseThrow())
+                    .thenAccept(profile -> this.profile = profile);
         } else {
             throw new RuntimeException("GameProfile cannot have no name and ID");
         }
@@ -69,21 +77,21 @@ public class SoakPlayerProfile implements PlayerProfile {
     }
 
     @Override
-    public @NotNull PlayerTextures getTextures() {
-        String textureName = org.spongepowered.api.profile.property.ProfileProperty.TEXTURES;
-        var spongeProperty = this
-                .profile
-                .properties()
-                .stream()
-                .filter(property -> property.name().equals(textureName))
-                .findAny()
-                .orElseGet(() -> org.spongepowered.api.profile.property.ProfileProperty.of(textureName, ""));
-        throw NotImplementedException.createByLazy(PlayerProfile.class, "getTextures");
+    public @NotNull SoakPlayerTextures getTextures() {
+        return new SoakPlayerTextures(this.profile, (profile) -> SoakPlayerProfile.this.profile = profile);
     }
 
     @Override
     public void setTextures(@Nullable PlayerTextures playerTextures) {
-        throw NotImplementedException.createByLazy(PlayerProfile.class, "setTextures");
+        if (playerTextures == null) {
+            getTextures().clear();
+            return;
+        }
+        if (!(playerTextures instanceof SoakPlayerTextures spt)) {
+            throw new IllegalStateException("PlayerTextures must be SoakPlayerTextures: Found " + playerTextures.getClass()
+                    .getName());
+        }
+        getTextures().set(spt);
     }
 
     @Override
@@ -93,7 +101,9 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public void setProperties(@NotNull Collection<ProfileProperty> collection) {
-        this.profile.withoutProperties(collection.stream().map(SoakProfilePropertyMap::toSponge).collect(Collectors.toList()));
+        this.profile.withoutProperties(collection.stream()
+                                               .map(SoakProfilePropertyMap::toSponge)
+                                               .collect(Collectors.toList()));
     }
 
     @Override
@@ -137,7 +147,10 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public boolean completeFromCache(boolean b, boolean b1) {
-        throw NotImplementedException.createByLazy(PlayerProfile.class, "completeFromCache", boolean.class, boolean.class);
+        throw NotImplementedException.createByLazy(PlayerProfile.class,
+                                                   "completeFromCache",
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
@@ -152,7 +165,8 @@ public class SoakPlayerProfile implements PlayerProfile {
 
     @Override
     public @NotNull CompletableFuture<PlayerProfile> update() {
-        throw NotImplementedException.createByLazy(PlayerProfile.class, "update");
+        //profile gets updated
+        return CompletableFuture.completedFuture(this);
     }
 
     @Override
@@ -163,11 +177,11 @@ public class SoakPlayerProfile implements PlayerProfile {
     @Override
     public @NotNull Map<String, Object> serialize() {
         var container = this.profile.toContainer();
-        return container
-                .keys(false)
+        return container.keys(false)
                 .stream()
-                .collect(Collectors.toMap(
-                        query -> query.asString('.'),
-                        query -> container.get(query).orElseThrow(() -> new RuntimeException("No value in '" + query.asString(".") + "'"))));
+                .collect(Collectors.toMap(query -> query.asString('.'),
+                                          query -> container.get(query)
+                                                  .orElseThrow(() -> new RuntimeException("No value in '" + query.asString(
+                                                          ".") + "'"))));
     }
 }

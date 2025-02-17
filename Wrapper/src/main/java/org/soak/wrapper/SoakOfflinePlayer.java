@@ -1,24 +1,25 @@
 package org.soak.wrapper;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import net.kyori.adventure.util.Ticks;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
+import org.soak.map.SoakLocationMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.living.human.SoakPlayer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.ban.Ban;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalTime;
+import java.time.*;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +66,12 @@ public class SoakOfflinePlayer implements OfflinePlayer {
     }
 
     @Override
+    public boolean isConnected() {
+        //TODO find the different between isOnline and isConnected
+        return this.spongeUser().isOnline();
+    }
+
+    @Override
     public SoakPlayer getPlayer() {
         return this.spongeUser()
                 .player()
@@ -85,6 +92,29 @@ public class SoakOfflinePlayer implements OfflinePlayer {
     @Override
     public boolean isBanned() {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "isBanned");
+    }
+
+    @Override
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date,
+                                                                       @Nullable String s1) {
+        return ban(s, date == null ? null : date.toInstant(), s1);
+    }
+
+    @Override
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant,
+                                                                       @Nullable String s1) {
+        var banService = Sponge.server().serviceProvider().banService();
+        var user = this.spongeUser();
+        var ban = Ban.builder().profile(user.profile()).expirationDate(instant).build();
+        banService.add(ban);
+        return null;
+    }
+
+    @Override
+    public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s,
+                                                                       @Nullable Duration duration,
+                                                                       @Nullable String s1) {
+        return ban(s, duration == null ? null : LocalDateTime.now().plus(duration).toInstant(ZoneOffset.UTC), s1);
     }
 
     @Override
@@ -129,106 +159,117 @@ public class SoakOfflinePlayer implements OfflinePlayer {
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0, Material arg1, int arg2) {
-        throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "incrementStatistic",
-                Statistic.class,
-                Material.class,
-                int.class);
+    public @Nullable Location getRespawnLocation() {
+        var user = this.spongeUser();
+        var spawnPoints = user.get(Keys.RESPAWN_LOCATIONS).orElse(Collections.emptyMap());
+        var respawnLocation = spawnPoints.get(user.worldKey());
+        if (respawnLocation == null) {
+            return null;
+        }
+        return respawnLocation.asLocation().map(SoakLocationMap::toBukkit).orElse(null);
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0, Material arg1) {
+    public void incrementStatistic(@NotNull Statistic arg0, @NotNull Material arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "incrementStatistic",
-                Statistic.class,
-                Material.class);
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0, EntityType arg1) {
+    public void incrementStatistic(@NotNull Statistic arg0, @NotNull Material arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "incrementStatistic",
-                Statistic.class,
-                EntityType.class);
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0, EntityType arg1, int arg2) {
+    public void incrementStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "incrementStatistic",
-                Statistic.class,
-                EntityType.class,
-                int.class);
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0) {
+    public void incrementStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1, int arg2) {
+        throw NotImplementedException.createByLazy(OfflinePlayer.class,
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class,
+                                                   int.class);
+    }
+
+    @Override
+    public void incrementStatistic(@NotNull Statistic arg0) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "incrementStatistic", Statistic.class);
     }
 
     @Override
-    public void incrementStatistic(Statistic arg0, int arg1) {
+    public void incrementStatistic(@NotNull Statistic arg0, int arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "incrementStatistic",
-                Statistic.class,
-                int.class);
+                                                   "incrementStatistic",
+                                                   Statistic.class,
+                                                   int.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0) {
+    public void decrementStatistic(@NotNull Statistic arg0) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "decrementStatistic", Statistic.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0, Material arg1, int arg2) {
+    public void decrementStatistic(@NotNull Statistic arg0, @NotNull Material arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "decrementStatistic",
-                Statistic.class,
-                Material.class,
-                int.class);
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0, EntityType arg1) {
+    public void decrementStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "decrementStatistic",
-                Statistic.class,
-                EntityType.class);
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0, EntityType arg1, int arg2) {
+    public void decrementStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "decrementStatistic",
-                Statistic.class,
-                EntityType.class,
-                int.class);
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class,
+                                                   int.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0, int arg1) {
+    public void decrementStatistic(@NotNull Statistic arg0, int arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "decrementStatistic",
-                Statistic.class,
-                int.class);
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   int.class);
     }
 
     @Override
-    public void decrementStatistic(Statistic arg0, Material arg1) {
+    public void decrementStatistic(@NotNull Statistic arg0, @NotNull Material arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "decrementStatistic",
-                Statistic.class,
-                Material.class);
+                                                   "decrementStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
-    public void setStatistic(Statistic arg0, EntityType arg1, int arg2) {
+    public void setStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "setStatistic",
-                Statistic.class,
-                EntityType.class,
-                int.class);
+                                                   "setStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class,
+                                                   int.class);
     }
 
     @Override
@@ -237,38 +278,52 @@ public class SoakOfflinePlayer implements OfflinePlayer {
     }
 
     @Override
-    public void setStatistic(Statistic arg0, int arg1) {
+    public @Nullable Location getLocation() {
+        var user = this.spongeUser();
+        var worldKey = user.worldKey();
+        var world = Bukkit.getWorld(worldKey);
+        var position = user.position();
+        return new Location(world, position.x(), position.y(), position.z());
+    }
+
+    @Override
+    public @NotNull PersistentDataContainerView getPersistentDataContainer() {
+        throw NotImplementedException.createByLazy(OfflinePlayer.class, "getPersistentDataContainer");
+    }
+
+    @Override
+    public void setStatistic(@NotNull Statistic arg0, int arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "setStatistic", Statistic.class, int.class);
     }
 
     @Override
-    public void setStatistic(Statistic arg0, Material arg1, int arg2) {
+    public void setStatistic(@NotNull Statistic arg0, @NotNull Material arg1, int arg2) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "setStatistic",
-                Statistic.class,
-                Material.class,
-                int.class);
+                                                   "setStatistic",
+                                                   Statistic.class,
+                                                   Material.class,
+                                                   int.class);
     }
 
     @Override
-    public int getStatistic(Statistic arg0, Material arg1) {
+    public int getStatistic(@NotNull Statistic arg0, @NotNull Material arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "getStatistic",
-                Statistic.class,
-                Material.class);
+                                                   "getStatistic",
+                                                   Statistic.class,
+                                                   Material.class);
     }
 
     @Override
-    public int getStatistic(Statistic arg0) {
+    public int getStatistic(@NotNull Statistic arg0) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class, "getStatistic", Statistic.class);
     }
 
     @Override
-    public int getStatistic(Statistic arg0, EntityType arg1) {
+    public int getStatistic(@NotNull Statistic arg0, @NotNull EntityType arg1) {
         throw NotImplementedException.createByLazy(OfflinePlayer.class,
-                "getStatistic",
-                Statistic.class,
-                EntityType.class);
+                                                   "getStatistic",
+                                                   Statistic.class,
+                                                   EntityType.class);
     }
 
     @Override

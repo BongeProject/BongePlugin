@@ -1,49 +1,32 @@
 package org.soak.map.event.entity.player.interact.move;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 
-public class SoakPlayerChangedWorldEvent {
+public class SoakPlayerChangedWorldEvent extends SoakEvent<RespawnPlayerEvent.SelectWorld, PlayerChangedWorldEvent> {
 
-    private final EventSingleListenerWrapper<PlayerChangedWorldEvent> singleEventListener;
-
-    public SoakPlayerChangedWorldEvent(EventSingleListenerWrapper<PlayerChangedWorldEvent> listener) {
-        this.singleEventListener = listener;
+    public SoakPlayerChangedWorldEvent(Class<PlayerChangedWorldEvent> bukkitEvent, EventPriority priority,
+                                       Plugin plugin, Listener listener, EventExecutor executor,
+                                       boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(RespawnPlayerEvent.SelectWorld event) {
-        fireEvent(event, EventPriority.HIGHEST);
+    @Override
+    protected Class<RespawnPlayerEvent.SelectWorld> spongeEventClass() {
+        return RespawnPlayerEvent.SelectWorld.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(RespawnPlayerEvent.SelectWorld event) {
-        fireEvent(event, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(RespawnPlayerEvent.SelectWorld event) {
-        fireEvent(event, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(RespawnPlayerEvent.SelectWorld event) {
-        fireEvent(event, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(RespawnPlayerEvent.SelectWorld event) {
-        fireEvent(event, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(RespawnPlayerEvent.SelectWorld event, EventPriority priority) {
+    @Override
+    public void handle(RespawnPlayerEvent.SelectWorld event) throws Exception {
         var spongePlayer = event.entity();
         var spongeFromWorld = spongePlayer.world();
 
@@ -51,8 +34,7 @@ public class SoakPlayerChangedWorldEvent {
         var bukkitWorld = SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongeFromWorld);
         PlayerChangedWorldEvent bukkitEvent = new PlayerChangedWorldEvent(bukkitPlayer, bukkitWorld);
 
-        var soakPlugin = singleEventListener.plugin();
-        var soakContainer = SoakManager.getManager().getContainer(soakPlugin);
-        Sponge.server().scheduler().executor(soakContainer.getTrueContainer()).execute(() -> SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(singleEventListener, bukkitEvent, priority));
+        var soakContainer = SoakManager.getManager().getSoakContainer(this.plugin());
+        Sponge.server().scheduler().executor(soakContainer.getTrueContainer()).execute(() -> fireEvent(bukkitEvent));
     }
 }

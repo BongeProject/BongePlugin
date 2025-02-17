@@ -3,7 +3,9 @@ package org.soak.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ReflectionHelper {
 
@@ -16,9 +18,23 @@ public class ReflectionHelper {
     }
 
     public static <T> T getField(Object obj, String fieldName) throws NoSuchFieldException, IllegalAccessException {
-        return getField(obj.getClass(), obj, fieldName);
+        var target = obj.getClass();
+        NoSuchFieldException ex = null;
+        while (!target.equals(Object.class)) {
+            try {
+                return getField(target, obj, fieldName);
+            } catch (NoSuchFieldException e) {
+                target = target.getSuperclass();
+                ex = e;
+            }
+        }
+        if (ex == null) {
+            throw new RuntimeException("Cannot get fields from " + obj.getClass().getSimpleName());
+        }
+        throw ex;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getField(Class<?> fromClass, Object obj, String fieldName) throws IllegalAccessException, NoSuchFieldException {
         var field = fromClass.getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -28,8 +44,17 @@ public class ReflectionHelper {
     }
 
     public static <T> T runMethod(Object obj, String methodName, Object... parameters) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        Method foundMethod = Arrays
-                .stream(obj.getClass().getDeclaredMethods())
+        Stream<Supplier<Stream<Method>>> stream = Stream.empty();
+        Class<?> target = obj.getClass();
+        while(!target.equals(Object.class)){
+            Class<?> finalTarget = target;
+            Supplier<Stream<Method>> supplier = () -> Stream.of(finalTarget.getDeclaredMethods());
+            stream = Stream.concat(stream, Stream.of(supplier));
+            target = target.getSuperclass();
+        }
+
+        Method foundMethod = stream
+                .flatMap(Supplier::get)
                 .filter(method -> method.getName().equals(methodName))
                 .filter(method -> method.getParameterCount() == parameters.length)
                 .filter(method -> {

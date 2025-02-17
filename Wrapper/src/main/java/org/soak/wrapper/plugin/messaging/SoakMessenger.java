@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class SoakMessenger extends StandardMessenger {
 
-    private ChannelManager manager;
+    private final ChannelManager manager;
 
     public SoakMessenger(ChannelManager manager) {
         this.manager = manager;
@@ -31,55 +31,73 @@ public class SoakMessenger extends StandardMessenger {
 
     @Override
     public void registerOutgoingPluginChannel(@NotNull Plugin plugin, @NotNull String channel) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to register a network channel of '" + channel + "'. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "registerOutgoingPluginChannel", Plugin.class, String.class);
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to register a network channel of '" + channel + "'. Skipping");
     }
 
     @Override
     public void unregisterOutgoingPluginChannel(@NotNull Plugin plugin, @NotNull String channel) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to unregister a network channel of '" + channel + "'. Skipping");
-        // throw NotImplementedException.createByLazy(Messenger.class, "unregisterOutgoingPluginChannel", Plugin.class, String.class);
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to unregister a network channel of '" + channel + "'. Skipping");
     }
 
     @Override
     public void unregisterOutgoingPluginChannel(@NotNull Plugin plugin) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to unregister all its network channels. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "unregisterOutgoingPluginChannel", Plugin.class);
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to unregister all its network channels. Skipping");
     }
 
     @Override
-    public @NotNull PluginMessageListenerRegistration registerIncomingPluginChannel(@NotNull Plugin plugin, @NotNull String channel, @NotNull PluginMessageListener listener) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to register a network channel receiver of '" + channel + "'. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "registerIncomingPluginChannel", Plugin.class, String.class, PluginMessageListener.class);
+    public @NotNull PluginMessageListenerRegistration registerIncomingPluginChannel(@NotNull Plugin plugin,
+                                                                                    @NotNull String channel,
+                                                                                    @NotNull PluginMessageListener listener) {
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to register a network channel receiver of '" + channel + "'. " + "Skipping");
         return new PluginMessageListenerRegistration(this, plugin, channel, listener);
     }
 
     @Override
-    public void unregisterIncomingPluginChannel(@NotNull Plugin plugin, @NotNull String channel, @NotNull PluginMessageListener listener) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to unregister a network channel receiver of '" + channel + "'. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "unregisterIncomingPluginChannel", Plugin.class, String.class, PluginMessageListener.class);
+    public void unregisterIncomingPluginChannel(@NotNull Plugin plugin, @NotNull String channel,
+                                                @NotNull PluginMessageListener listener) {
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to unregister a network channel receiver of '" + channel + "'. " + "Skipping");
     }
 
     @Override
     public void unregisterIncomingPluginChannel(@NotNull Plugin plugin, @NotNull String channel) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to unregister a network channel receiver of '" + channel + "'. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "unregisterIncomingPluginChannel", Plugin.class, String.class);
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to unregister a network channel receiver of '" + channel + "'. " + "Skipping");
     }
 
     @Override
     public void unregisterIncomingPluginChannel(@NotNull Plugin plugin) {
-        SoakManager.getManager().getLogger().warn(plugin.getName() + " attempted to unregister all its network channel receivers. Skipping");
-        //throw NotImplementedException.createByLazy(Messenger.class, "unregisterIncomingPluginChannel", Plugin.class);
+        SoakManager.getManager()
+                .getLogger()
+                .warn(plugin.getName() + " attempted to unregister all its network channel receivers. Skipping");
     }
 
     @Override
     public @NotNull Set<String> getOutgoingChannels() {
-        return CollectionStreamBuilder.builder().collection(this.manager.channels()).basicMap(channel -> channel.key().formatted()).buildSet();
+        return CollectionStreamBuilder.builder()
+                .collection(this.manager.channels())
+                .basicMap(channel -> channel.key().formatted())
+                .buildSet();
     }
 
     @Override
     public @NotNull Set<String> getOutgoingChannels(@NotNull Plugin plugin) {
-        return CollectionStreamBuilder.builder().collection(this.manager.channels()).map(stream -> stream.filter(channel -> channel.key().namespace().equals(plugin.getPluginMeta().getName())).map(channel -> channel.key().formatted())).buildSet();
+        return CollectionStreamBuilder.builder()
+                .collection(this.manager.channels())
+                .map(stream -> stream.filter(channel -> channel.key()
+                        .namespace()
+                        .equals(plugin.getPluginMeta().getName())).map(channel -> channel.key().formatted()))
+                .buildSet();
     }
 
     @Override
@@ -103,7 +121,8 @@ public class SoakMessenger extends StandardMessenger {
     }
 
     @Override
-    public @NotNull Set<PluginMessageListenerRegistration> getIncomingChannelRegistrations(@NotNull Plugin plugin, @NotNull String channel) {
+    public @NotNull Set<PluginMessageListenerRegistration> getIncomingChannelRegistrations(@NotNull Plugin plugin,
+                                                                                           @NotNull String channel) {
         return super.getIncomingChannelRegistrations(plugin, channel);
     }
 
@@ -124,7 +143,11 @@ public class SoakMessenger extends StandardMessenger {
     }
 
     @Override
-    public void dispatchIncomingMessage(@NotNull Player source, @NotNull String channelName, @NotNull byte[] message) {
-        throw NotImplementedException.createByLazy(Messenger.class, "dispatchIncomingMessage", Player.class, String.class, byte[].class);
+    public void dispatchIncomingMessage(@NotNull Player source, @NotNull String channelName, byte[] message) {
+        throw NotImplementedException.createByLazy(Messenger.class,
+                                                   "dispatchIncomingMessage",
+                                                   Player.class,
+                                                   String.class,
+                                                   byte[].class);
     }
 }

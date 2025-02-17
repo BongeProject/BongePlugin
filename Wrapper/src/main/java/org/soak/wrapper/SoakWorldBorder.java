@@ -20,15 +20,17 @@ import java.util.stream.Stream;
 public class SoakWorldBorder implements WorldBorder {
 
     private @NotNull org.spongepowered.api.world.border.WorldBorder sponge;
-    private @Nullable World world;
+    private final @Nullable World world;
 
     public SoakWorldBorder(@NotNull org.spongepowered.api.world.border.WorldBorder sponge, @Nullable World world) {
         this.sponge = sponge;
         this.world = world;
     }
 
-    private void update(Function<org.spongepowered.api.world.border.WorldBorder.Builder, org.spongepowered.api.world.border.WorldBorder.Builder> function) {
-        this.sponge = function.apply(org.spongepowered.api.world.border.WorldBorder.builder().from(this.sponge)).build();
+    private void update(Function<org.spongepowered.api.world.border.WorldBorder.Builder,
+            org.spongepowered.api.world.border.WorldBorder.Builder> function) {
+        this.sponge = function.apply(org.spongepowered.api.world.border.WorldBorder.builder().from(this.sponge))
+                .build();
         var world = this.spongeWorld();
         if (world != null) {
             world.setBorder(this.sponge);
@@ -74,7 +76,8 @@ public class SoakWorldBorder implements WorldBorder {
 
     @Override
     public void setSize(double size, @NotNull TimeUnit timeUnit, long units) {
-        update(builder -> builder.targetDiameter(size).timeToTargetDiameter(Duration.of(units, timeUnit.toChronoUnit())));
+        update(builder -> builder.targetDiameter(size)
+                .timeToTargetDiameter(Duration.of(units, timeUnit.toChronoUnit())));
     }
 
     @Override
@@ -149,7 +152,10 @@ public class SoakWorldBorder implements WorldBorder {
         }
 
         //this doesnt work with default world border
-        var worldBorderCenter = new Location(location.getWorld(), this.sponge.center().x(), location.getY(), this.sponge.center().y());
+        var worldBorderCenter = new Location(location.getWorld(),
+                                             this.sponge.center().x(),
+                                             location.getY(),
+                                             this.sponge.center().y());
         var distance = location.distance(worldBorderCenter);
         var radius = this.sponge.safeZone() / 2;
         return radius <= distance;

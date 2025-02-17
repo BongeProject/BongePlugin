@@ -1,53 +1,32 @@
 package org.soak.map.event.inventory.action;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
-import org.soak.wrapper.inventory.SoakInventoryView;
-import org.spongepowered.api.event.Listener;
+import org.soak.wrapper.inventory.view.AbstractInventoryView;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 
-public class SoakInventoryCloseEvent {
+public class SoakInventoryCloseEvent extends SoakEvent<InteractContainerEvent.Close, InventoryCloseEvent> {
 
-    private final EventSingleListenerWrapper<InventoryCloseEvent> singleEventListener;
-
-    public SoakInventoryCloseEvent(EventSingleListenerWrapper<InventoryCloseEvent> singleEventListener) {
-        this.singleEventListener = singleEventListener;
+    public SoakInventoryCloseEvent(Class<InventoryCloseEvent> bukkitEvent, EventPriority priority, Plugin plugin, Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(InteractContainerEvent.Close spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
+    @Override
+    protected Class<InteractContainerEvent.Close> spongeEventClass() {
+        return InteractContainerEvent.Close.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(InteractContainerEvent.Close spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(InteractContainerEvent.Close spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(InteractContainerEvent.Close spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(InteractContainerEvent.Close spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(InteractContainerEvent.Close spongeEvent, EventPriority priority) {
-        var inventoryView = new SoakInventoryView(spongeEvent.container());
+    @Override
+    public void handle(InteractContainerEvent.Close event) throws Exception {
+        var inventoryView = AbstractInventoryView.wrap(event.container());
         InventoryCloseEvent bukkitEvent = new InventoryCloseEvent(inventoryView);
-
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
+        fireEvent(bukkitEvent);
     }
 }

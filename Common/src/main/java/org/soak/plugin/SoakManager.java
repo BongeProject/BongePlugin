@@ -3,28 +3,27 @@ package org.soak.plugin;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.bukkit.plugin.Plugin;
-import org.soak.Compatibility;
+import org.jetbrains.annotations.NotNull;
 import org.soak.exception.NMSUsageException;
+import org.soak.plugin.paper.loader.FoundClassLoader;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.ConsoleHandler;
 import java.util.stream.Stream;
 
 public interface SoakManager {
 
-    public static <SM extends SoakManager> SM getManager() {
+    static <SM extends SoakManager> SM getManager() {
         return (SM) GlobalSoakData.MANAGER_INSTANCE;
     }
 
-    public static <SM extends SoakManager, V> Optional<V> ifManager(Class<SM> clazz, Function<SM, V> function) {
+    static <SM extends SoakManager, V> Optional<V> ifManager(Class<SM> clazz, Function<SM, V> function) {
         if (!clazz.isInstance(GlobalSoakData.MANAGER_INSTANCE)) {
             return Optional.empty();
         }
@@ -33,7 +32,11 @@ public interface SoakManager {
 
     Logger getLogger();
 
-    Stream<SoakPluginContainer> getBukkitContainers();
+    Collection<Class<?>> generatedClasses();
+
+    Stream<SoakPluginContainer> getBukkitSoakContainers();
+
+    Stream<PluginContainer> getBukkitPluginContainers();
 
     PluginContainer getOwnContainer();
 
@@ -43,27 +46,31 @@ public interface SoakManager {
 
     ArtifactVersion getVersion();
 
-    Compatibility getCompatibility();
+    @NotNull FoundClassLoader getSoakClassLoader(@NotNull SoakPluginContainer container);
 
-    default SoakPluginContainer getContainer(Plugin plugin) {
-        return getBukkitContainers().filter(pc -> pc.getBukkitInstance().equals(plugin)).findAny().orElseThrow(() -> new RuntimeException("A plugin instance was created for " + plugin.getName() + " but no container could be found"));
+    default SoakPluginContainer getSoakContainer(Plugin plugin) {
+        return getBukkitSoakContainers().filter(pc -> pc.getBukkitInstance().equals(plugin))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("A plugin instance was created for " + plugin.getName() + " " + "but no container could be found"));
     }
 
-    default Optional<SoakPluginContainer> getContainer(PluginContainer plugin){
-        return getBukkitContainers().filter(pc -> pc.equals(plugin) || pc.getTrueContainer().equals(plugin)).findAny();
+    default Optional<SoakPluginContainer> getSoakContainer(PluginContainer plugin) {
+        return getBukkitSoakContainers().filter(pc -> pc.equals(plugin) || pc.getTrueContainer().equals(plugin))
+                .findAny();
     }
 
     default void displayError(Throwable e, File pluginFile) {
         displayError(e, Map.of("Plugin file", pluginFile.getPath()));
     }
 
-    default void displayError(Throwable e, Plugin plugin, Map.Entry<String, String>... additions) {
+    default void displayError(Throwable e, Plugin plugin) {
+        displayError(e, plugin, Collections.emptyMap());
+    }
+
+    default void displayError(Throwable e, Plugin plugin, Map<String, String> additions) {
         Map<String, String> pluginData = new HashMap<>();
         pluginData.put("Plugin name", plugin.getName());
-        for (Map.Entry<String, String> entry : additions) {
-            pluginData.put(entry.getKey(), entry.getValue());
-        }
-
+        pluginData.putAll(additions);
         displayError(e, pluginData);
     }
 
@@ -93,35 +100,36 @@ public interface SoakManager {
         var logger = getLogger();
 
         logger.error("|------------------------|");
-        pluginData.forEach((key, value) -> {
-            logger.error("|- " + key + ": " + value);
-        });
+        pluginData.forEach((key, value) -> logger.error("|- " + key + ": " + value));
         logger.error("|- Soak version: " + this.getVersion().toString());
-        logger.error("|- Compatibility: " + this.getCompatibility().getName());
-        logger.error("|- Compatibility version: " + this.getCompatibility().getVersion());
-        logger.error("|- Compatibility Minecraft version: " + this.getCompatibility().getTargetMinecraftVersion());
         logger.error("|- Minecraft version: " + Sponge.platform().minecraftVersion().name());
         logger.error("|- Sponge API version: " + Sponge.platform()
                 .container(Platform.Component.API)
+                .metadata()
+                .version());
+        logger.error("|- Implementation version: " + Sponge.platform()
+                .container(Platform.Component.IMPLEMENTATION)
                 .metadata()
                 .version());
 
         if (readEx instanceof ClassCastException) {
             if (readEx.getMessage().contains("org.bukkit.plugin.SimplePluginManager")) {
                 logger.error(
-                        "|- Common Error Note: Starting on Paper hardfork 1.19.4, SimplePluginManager is being disconnected. This will not be added to soak");
+                        "|- Common Error Note: Starting on Paper hardfork 1.19.4, SimplePluginManager is being " +
+                                "disconnected. This will not be added to soak");
             }
         }
         if (readEx instanceof NMSUsageException nmsUsage) {
-            logger.error("|- Common Error Note: A plugin attempted to use NMS which is not supported by soak. This can only be fixed by the plugin developer");
-            nmsUsage.getDeveloperNotes().ifPresent(message -> {
-                logger.error("|- For Plugin Developer: " + message);
-            });
+            logger.error("|- Common Error Note: A plugin attempted to use NMS which is not supported by soak. This " + "can " + "only be fixed by the plugin developer");
+            nmsUsage.getDeveloperNotes().ifPresent(message -> logger.error("|- For Plugin Developer: " + message));
         }
         if (readEx instanceof NoClassDefFoundError || readEx instanceof ClassCastException || readEx instanceof ClassNotFoundException) {
             if (e.getMessage().contains("net/minecraft/") || e.getMessage().contains("net.minecraft.")) {
-                logger.error("|- Common Error Note: Error is caused due the crashing plugin using NMS. This is something Soak does not prioritise on fixing.");
-                logger.error("   It is up to plugin devs to use the Spigot/Paper API to create a work around for when NMS cannot be used.");
+                logger.error(
+                        "|- Common Error Note: Error is caused due the crashing plugin using NMS. This is something " + "Soak does not prioritise on fixing.");
+                logger.error(
+                        "   It is up to plugin devs to use the Spigot/Paper API to create a work around for when NMS "
+                                + "cannot be used.");
             }
         }
 

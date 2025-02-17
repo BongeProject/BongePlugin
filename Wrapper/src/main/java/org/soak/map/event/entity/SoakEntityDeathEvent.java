@@ -1,65 +1,56 @@
 package org.soak.map.event.entity;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
+import org.soak.wrapper.damage.SoakDamageSource;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.soak.wrapper.entity.living.AbstractLivingEntity;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.stream.Collectors;
 
-public class SoakEntityDeathEvent {
-    private final EventSingleListenerWrapper<EntityDeathEvent> singleListenerWrapper;
+public class SoakEntityDeathEvent extends SoakEvent<DropItemEvent.Destruct, EntityDeathEvent> {
 
-    public SoakEntityDeathEvent(EventSingleListenerWrapper<EntityDeathEvent> singleListenerWrapper) {
-        this.singleListenerWrapper = singleListenerWrapper;
+    public SoakEntityDeathEvent(Class<EntityDeathEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(DropItemEvent.Destruct spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
+    @Override
+    protected Class<DropItemEvent.Destruct> spongeEventClass() {
+        return DropItemEvent.Destruct.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(DropItemEvent.Destruct spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(DropItemEvent.Destruct spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(DropItemEvent.Destruct spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(DropItemEvent.Destruct spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(DropItemEvent.Destruct event, EventPriority priority) {
-        var root = event.cause().root();
-        if (!(root instanceof Living)) {
+    @Override
+    public void handle(DropItemEvent.Destruct event) throws Exception {
+        var opBukkitEntity = event.cause()
+                .first(Living.class)
+                .filter(living -> !(living instanceof ServerPlayer))
+                .map(AbstractEntity::wrap);
+        if (opBukkitEntity.isEmpty()) {
             return;
         }
-        if (root instanceof ServerPlayer) {
-            //bukkit has a different event for this
+        var entity = opBukkitEntity.get();
+        var opSpongeDamageCause = event.cause().first(DamageSource.class);
+        if (opSpongeDamageCause.isEmpty()) {
             return;
         }
-        var entity = (AbstractLivingEntity<?>) AbstractEntity.wrap((Living) root);
+        var bukkitDamageCause = new SoakDamageSource(opSpongeDamageCause.get(),
+                                                     (ServerWorld) entity.spongeEntity().world());
         var items = event.entities()
                 .parallelStream()
                 .map(itemEntity -> itemEntity.get(Keys.ITEM_STACK_SNAPSHOT)
@@ -68,13 +59,10 @@ public class SoakEntityDeathEvent {
                 .map(SoakItemStackMap::toBukkit)
                 .collect(Collectors.toList());
         //TODO -> find exp
-        var bukkitEvent = new EntityDeathEvent(entity, items);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleListenerWrapper, bukkitEvent, priority);
-
+        var bukkitEvent = new EntityDeathEvent(entity, bukkitDamageCause, items);
+        fireEvent(bukkitEvent);
         //TODO -> spawn the entity back in if event is cancelled
         //TODO -> cancel death sounds .... that sounds like a hassle
 
-
     }
-
 }

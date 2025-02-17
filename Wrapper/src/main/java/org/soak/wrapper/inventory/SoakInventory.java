@@ -15,17 +15,20 @@ import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.SoakLocationMap;
 import org.soak.map.item.SoakItemStackMap;
+import org.soak.map.item.inventory.SoakInventoryMap;
 import org.soak.plugin.SoakManager;
 import org.soak.utils.ListMappingUtils;
 import org.soak.utils.ReflectionHelper;
+import org.soak.wrapper.block.state.AbstractBlockState;
+import org.soak.wrapper.entity.AbstractEntity;
 import org.soak.wrapper.entity.living.human.SoakPlayer;
+import org.spongepowered.api.block.entity.carrier.CarrierBlockEntity;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.entity.PlayerInventory;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
-import org.spongepowered.api.item.inventory.type.BlockEntityInventory;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.item.inventory.type.ViewableInventory;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -63,32 +66,44 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         return this.spongeInventory;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
-    public @NotNull ItemStack[] getContents() {
+    @NotNull
+    public ItemStack[] getContents() {
         return items().toArray(ItemStack[]::new);
     }
 
     @Override
-    public void setContents(ItemStack[] arg0) {
+    public void setContents(@SuppressWarnings("NullableProblems") @NotNull ItemStack[] arg0) {
         throw NotImplementedException.createByLazy(Inventory.class, "setContents", ItemStack[].class);
     }
 
     //why ..... why is it a hashmap rather than a normal interface map .... i cant mock that
     @Override
-    public @NotNull HashMap<Integer, ? extends ItemStack> all(@NotNull Material material) throws IllegalArgumentException {
-        var map = slotsMatching(spongeSlot -> material.asItem().map(itemType -> itemType.equals(spongeSlot.peek().type())).orElse(false));
+    public @NotNull HashMap<Integer, ? extends ItemStack> all(@NotNull Material material)
+            throws IllegalArgumentException {
+        var map = slotsMatching(spongeSlot -> SoakItemStackMap.toSponge(material)
+                .map(itemType -> itemType.equals(spongeSlot.peek().type()))
+                .orElse(false));
         return new HashMap<>(map);
     }
 
     //why ..... why is it a hashmap rather than a normal interface map .... i cant mock that
     @Override
     public @NotNull HashMap<Integer, ? extends ItemStack> all(@Nullable ItemStack item) {
-        var map = slotsMatching(spongeSlot -> item == null || SoakItemStackMap.toSponge(item).equals(spongeSlot.peek()));
+        var map = slotsMatching(spongeSlot -> item == null || SoakItemStackMap.toSponge(item)
+                .equals(spongeSlot.peek()));
         return new HashMap<>(map);
     }
 
     private Map<Integer, ? extends ItemStack> slotsMatching(Predicate<Slot> slotMatch) {
-        return this.sponge().slots().stream().filter(slotMatch).collect(Collectors.toMap(slot -> slot.getInt(Keys.SLOT_INDEX).orElseThrow(() -> new IllegalStateException("Cannot get slot index for inventory: " + this.sponge().toString())), slot -> SoakItemStackMap.toBukkit(slot.peek())));
+        return this.sponge()
+                .slots()
+                .stream()
+                .filter(slotMatch)
+                .collect(Collectors.toMap(slot -> slot.getInt(Keys.SLOT_INDEX)
+                        .orElseThrow(() -> new IllegalStateException("Cannot get slot index for inventory: " + this.sponge()
+                                .toString())), slot -> SoakItemStackMap.toBukkit(slot.peek())));
     }
 
     private org.spongepowered.api.item.inventory.Inventory asJustStack(ItemStack stack) {
@@ -97,7 +112,7 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     }
 
     private org.spongepowered.api.item.inventory.Inventory asJustType(Material material) {
-        var itemType = material.asItem()
+        var itemType = SoakItemStackMap.toSponge(material)
                 .orElseThrow(() -> new RuntimeException("Material " + material.name() + " has no itemtype"));
         return this.spongeInventory.query(QueryTypes.ITEM_TYPE.get().of(itemType));
     }
@@ -178,7 +193,7 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         if (slots.isEmpty()) {
             return -1;
         }
-        return slots.get(0).get(Keys.SLOT_INDEX).orElse(-1);
+        return slots.getFirst().get(Keys.SLOT_INDEX).orElse(-1);
     }
 
     @Override
@@ -187,7 +202,7 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         if (slots.isEmpty()) {
             return -1;
         }
-        return slots.get(0).get(Keys.SLOT_INDEX).orElse(-1);
+        return slots.getFirst().get(Keys.SLOT_INDEX).orElse(-1);
     }
 
     @Override
@@ -215,7 +230,8 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         if (sponge instanceof Container container) {
             return Optional.of(container.viewer());
         }
-        if (sponge instanceof ViewableInventory customInventory && customInventory.hasViewers() && customInventory.viewers().size() == 1) {
+        if (sponge instanceof ViewableInventory customInventory && customInventory.hasViewers() && customInventory.viewers()
+                .size() == 1) {
             return Optional.of(customInventory.viewers().iterator().next());
         }
         if (!(sponge instanceof PlayerInventory playerInventory)) {
@@ -234,7 +250,7 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
         if (!(spongeInventory instanceof Container)) {
             throw new RuntimeException("Sponge inventory is not a Container, unknown inventory type");
         }
-        return InventoryType.container((Container) this.spongeInventory);
+        return SoakInventoryMap.toBukkit((Container) this.spongeInventory);
     }
 
     @Override
@@ -293,22 +309,26 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     }
 
     @Override
-    public @NotNull HashMap<Integer, ItemStack> removeItem(@NotNull ItemStack... items) throws IllegalArgumentException {
+    public @NotNull HashMap<Integer, ItemStack> removeItem(@NotNull ItemStack... items)
+            throws IllegalArgumentException {
         throw NotImplementedException.createByLazy(Inventory.class, "removeItem", ItemStack[].class);
     }
 
     @Override
-    public @NotNull HashMap<Integer, ItemStack> removeItemAnySlot(@NotNull ItemStack... items) throws IllegalArgumentException {
+    public @NotNull HashMap<Integer, ItemStack> removeItemAnySlot(@NotNull ItemStack... items)
+            throws IllegalArgumentException {
         throw NotImplementedException.createByLazy(Inventory.class, "removeItemAnySlot", ItemStack[].class);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
+    @NotNull
     public ItemStack[] getStorageContents() {
         throw NotImplementedException.createByLazy(Inventory.class, "getStorageContents");
     }
 
     @Override
-    public void setStorageContents(ItemStack[] arg0) {
+    public void setStorageContents(@SuppressWarnings("NullableProblems") @NotNull ItemStack[] arg0) {
         throw NotImplementedException.createByLazy(Inventory.class, "setStorageContents", ItemStack[].class);
     }
 
@@ -320,11 +340,9 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     @Override
     public int firstEmpty() {
         var sponge = sponge();
-        return IntStream
-                .range(0, sponge.capacity())
+        return IntStream.range(0, sponge.capacity())
                 .boxed()
-                .filter(index -> sponge
-                        .slot(index)
+                .filter(index -> sponge.slot(index)
                         .map(slot -> slot.peek().equals(org.spongepowered.api.item.inventory.ItemStack.empty()))
                         .orElse(false))
                 .findFirst()
@@ -334,11 +352,6 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     @Override
     public @NotNull List<HumanEntity> getViewers() {
         var sponge = sponge();
-        var isMenu = sponge instanceof org.spongepowered.api.item.inventory.menu.InventoryMenu;
-        var isViewableInventory = sponge instanceof ViewableInventory;
-        var isCarried = sponge instanceof CarriedInventory;
-        var isBlockEntity = sponge instanceof BlockEntityInventory;
-        var isContainer = sponge instanceof Container;
         var opViewable = sponge.asViewable();
         if (opViewable.isPresent()) {
             var viewers = opViewable.get().viewers();
@@ -351,28 +364,66 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
                 }
             }
             if (!viewers.isEmpty()) {
-                return ListMappingUtils.fromStream(CollectionStreamBuilder
-                                        .builder()
-                                        .collection(viewers, human -> ((SoakPlayer) human).spongeEntity())
-                                        .basicMap(serverPlayer -> (HumanEntity) SoakManager.<WrapperManager>getManager().getMemoryStore().get(serverPlayer)),
-                                viewers::stream,
-                                (spongePlayer, bukkitPlayer) -> spongePlayer.uniqueId().equals(bukkitPlayer.getUniqueId()), Comparator.comparing(Nameable::name))
-                        .buildList();
+                return ListMappingUtils.fromStream(CollectionStreamBuilder.builder()
+                                                           .collection(viewers,
+                                                                       human -> ((SoakPlayer) human).spongeEntity())
+                                                           .basicMap(serverPlayer -> (HumanEntity) SoakManager.<WrapperManager>getManager()
+                                                                   .getMemoryStore()
+                                                                   .get(serverPlayer)),
+                                                   viewers::stream,
+                                                   (spongePlayer, bukkitPlayer) -> spongePlayer.uniqueId()
+                                                           .equals(bukkitPlayer.getUniqueId()),
+                                                   Comparator.comparing(Nameable::name)).buildList();
             }
 
         }
 
-        return playerOwner().stream().map(player -> (HumanEntity) SoakManager.<WrapperManager>getManager().getMemoryStore().get(player)).toList();
+        return playerOwner().stream()
+                .map(player -> (HumanEntity) SoakManager.<WrapperManager>getManager().getMemoryStore().get(player))
+                .toList();
     }
 
     @Override
+    @Nullable
     public InventoryHolder getHolder() {
-        throw NotImplementedException.createByLazy(Inventory.class, "getHolder");
+        return getHolder(false);
     }
 
     @Override
-    public InventoryHolder getHolder(boolean arg0) {
-        throw NotImplementedException.createByLazy(Inventory.class, "getHolder", boolean.class);
+    @Nullable
+    public InventoryHolder getHolder(boolean asSnapshot) {
+        if (!(this.spongeInventory instanceof CarriedInventory<?> inv)) {
+            return null;
+        }
+        var opCarrier = inv.carrier();
+        if (opCarrier.isEmpty()) {
+            return null;
+        }
+        var carrier = opCarrier.get();
+        if (carrier instanceof CarrierBlockEntity blockCarrier) {
+            try {
+                if (asSnapshot) {
+                    return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(),
+                                                                     blockCarrier.block().copy(),
+                                                                     true);
+                } else {
+                    return (InventoryHolder) AbstractBlockState.wrap(blockCarrier.serverLocation(),
+                                                                     blockCarrier.block(),
+                                                                     false);
+                }
+            } catch (ClassCastException ex) {
+                throw new RuntimeException("Cannot get the holder of an inventory due to " + blockCarrier.block()
+                        .type()
+                        .key(RegistryTypes.BLOCK_TYPE)
+                        .formatted() + " Bukkit's blockstate is not of InventoryHolder. Check AbstractBlockState#wrap",
+                                           ex);
+            }
+        }
+        if (!(carrier instanceof org.spongepowered.api.entity.Entity carrierEntity)) {
+            //TODO user
+            throw NotImplementedException.createByLazy(Inventory.class, "getHolder", boolean.class);
+        }
+        return (InventoryHolder) AbstractEntity.wrap(carrierEntity);
     }
 
     @Override
@@ -404,7 +455,11 @@ public class SoakInventory<Inv extends org.spongepowered.api.item.inventory.Inve
     @Override
     public int hashCode() {
         int title = this.requestedTitle == null ? 0 : this.requestedTitle.hashCode();
-        int content = Integer.parseInt(this.sponge().slots().stream().map(slot -> slot.peek().hashCode() + "").collect(Collectors.joining("")));
+        int content = Integer.parseInt(this.sponge()
+                                               .slots()
+                                               .stream()
+                                               .map(slot -> slot.peek().hashCode() + "")
+                                               .collect(Collectors.joining("")));
         return title + content;
     }
 }

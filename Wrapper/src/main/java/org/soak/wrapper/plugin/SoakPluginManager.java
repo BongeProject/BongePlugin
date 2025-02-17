@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permissible;
@@ -18,12 +19,14 @@ import org.mosestream.MoseStream;
 import org.soak.exception.NotImplementedException;
 import org.soak.map.SoakMessageMap;
 import org.soak.map.SoakPermissionMap;
+import org.soak.map.event.AbstractSoakEvent;
 import org.soak.map.event.EventClassMapping;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.GeneralSoakEvent;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.plugin.SoakPluginContainer;
 import org.soak.plugin.paper.SoakPluginProviderContext;
-import org.soak.utils.GenericHelper;
+import org.soak.utils.GeneralHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -31,8 +34,7 @@ import org.spongepowered.api.util.Tristate;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,7 +44,7 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     private final Supplier<PluginManager> spongePluginManager;
     private final Map<PluginProviderContext, JavaPlugin> loaders = new LinkedHashMap<>();
-    private final Collection<EventSingleListenerWrapper<?>> events = new HashSet<>();
+    private final Collection<AbstractSoakEvent<?>> events = new HashSet<>();
 
     public SoakPluginManager(Supplier<PluginManager> manager) {
         this.spongePluginManager = manager;
@@ -52,9 +54,13 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
         return this.spongePluginManager.get();
     }
 
+    public Collection<AbstractSoakEvent<?>> registeredEvents() {
+        return Collections.unmodifiableCollection(this.events);
+    }
 
     @Override
-    public @Nullable JavaPlugin loadPlugin(@NotNull File file) throws InvalidPluginException, InvalidDescriptionException, UnknownDependencyException {
+    public @Nullable JavaPlugin loadPlugin(@NotNull File file)
+            throws InvalidPluginException, InvalidDescriptionException, UnknownDependencyException {
         var context = new SoakPluginProviderContext(file);
         try {
             context.init();
@@ -69,9 +75,7 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     }
 
     public SoakPluginProviderContext getContext(JavaPlugin plugin) {
-        return this
-                .loaders
-                .entrySet()
+        return this.loaders.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().equals(plugin))
                 .findAny()
@@ -91,6 +95,11 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     }
 
     @Override
+    public @NotNull Plugin[] loadPlugins(@NotNull File[] files) {
+        return MoseStream.stream(files).map(this::loadPlugin).toArray(JavaPlugin[]::new);
+    }
+
+    @Override
     public void disablePlugins() {
 
     }
@@ -102,7 +111,8 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     @Override
     public boolean isPluginEnabled(@Nullable Plugin plugin) {
-        return SoakManager.getManager().getBukkitContainers()
+        return SoakManager.getManager()
+                .getBukkitSoakContainers()
                 .anyMatch(container -> container.getBukkitInstance().equals(plugin));
     }
 
@@ -113,16 +123,25 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     @Override
     public @Nullable Plugin getPlugin(@NotNull String s) {
-        return Arrays.stream(getPlugins()).filter(plugin -> plugin.getPluginMeta().getName().equals(s)).findAny().orElse(null);
+        return Arrays.stream(getPlugins())
+                .filter(plugin -> plugin.getPluginMeta().getName().equals(s))
+                .findAny()
+                .orElse(null);
     }
 
     public @Nullable JavaPlugin getPlugin(PluginMeta meta) {
-        return this.loaders.entrySet().stream().filter(entry -> entry.getValue().getName().equals(meta.getName())).findAny().map(Map.Entry::getValue).orElse(null);
+        return this.loaders.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().getName().equals(meta.getName()))
+                .findAny()
+                .map(Map.Entry::getValue)
+                .orElse(null);
     }
 
     @Override
     public @NotNull Plugin[] getPlugins() {
-        return SoakManager.getManager().getBukkitContainers()
+        return SoakManager.getManager()
+                .getBukkitSoakContainers()
                 .map(SoakPluginContainer::getBukkitInstance)
                 .toArray(Plugin[]::new);
     }
@@ -142,89 +161,83 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
         }
     }
 
-    public void callEvent(@NotNull Event event, EventPriority priority) throws IllegalStateException {
-        this
-                .events
-                .stream()
-                .filter(wrapper -> wrapper.event().getName().equals(event.getClass().getName()))
+    public <E extends Event> void callEvent(@NotNull E event, EventPriority priority) throws IllegalStateException {
+        this.events.stream()
+                .filter(wrapper -> wrapper.bukkitEvent() == event.getClass())
+                .map(wrapper -> (SoakEvent<?, E>) wrapper)
                 .filter(wrapper -> wrapper.priority().equals(priority))
-                .forEach(wrapper -> callEvent(wrapper, event, priority));
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Event> void callEvent(EventSingleListenerWrapper<?> wrapper, T event, EventPriority priority) {
-        try {
-            ((EventSingleListenerWrapper<T>) wrapper).invoke(event, priority);
-        } catch (Exception e) {
-            SoakManager.getManager()
-                    .displayError(e,
-                            wrapper.plugin(),
-                            Map.entry("Event", wrapper.event().getSimpleName()),
-                            Map.entry("PluginListener", wrapper.listener().getClass().getSimpleName()),
-                            Map.entry("Priority", wrapper.priority().name()),
-                            Map.entry("Ignore if cancelled", wrapper.ignoreCancelled() + ""));
-        }
+                .forEach(wrapper -> wrapper.fireEvent(event));
     }
 
     @Override
     public void registerEvents(@NotNull Listener listener, @NotNull Plugin plugin) {
-        Collection<EventSingleListenerWrapper<?>> events = EventSingleListenerWrapper.findEventHandlers(plugin,
-                listener);
-        for (var wrapper : events) {
-            registerEvent(wrapper);
-        }
+        Stream.of(listener.getClass().getDeclaredFields())
+                .filter(field -> Modifier.isPublic(field.getModifiers()))
+                .filter(field -> EventExecutor.class.isAssignableFrom(field.getType()))
+                .map(field -> {
+                    try {
+                        return (EventExecutor) field.get(listener);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .forEach(executor -> registerEvent(Event.class, listener, EventPriority.NORMAL, executor, plugin));
+
+        var methods = listener.getClass().getDeclaredMethods();
+        Stream.of(methods)
+                .filter(method -> method.isAnnotationPresent(EventHandler.class))
+                .filter(method -> method.getParameterCount() == 1)
+                .forEach(method -> {
+                    var bukkitEvent = (Class<? extends Event>) method.getParameterTypes()[0];
+                    var executor = EventExecutor.create(method, bukkitEvent);
+                    var eventPriority = method.getAnnotation(EventHandler.class).priority();
+                    var ignoreCancelled = method.getAnnotation(EventHandler.class).ignoreCancelled();
+                    registerEvent(bukkitEvent, listener, eventPriority, executor, plugin, ignoreCancelled);
+                });
     }
 
     @Override
-    public void registerEvent(@NotNull Class<? extends Event> aClass, @NotNull Listener listener, @NotNull EventPriority eventPriority, @NotNull EventExecutor eventExecutor, @NotNull Plugin plugin) {
+    public void registerEvent(@NotNull Class<? extends Event> aClass, @NotNull Listener listener,
+                              @NotNull EventPriority eventPriority, @NotNull EventExecutor eventExecutor,
+                              @NotNull Plugin plugin) {
         this.registerEvent(aClass, listener, eventPriority, eventExecutor, plugin, false);
     }
 
     @Override
-    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled) {
-        EventSingleListenerWrapper<?> wrapper = new EventSingleListenerWrapper<>(listener,
-                plugin,
-                event,
-                priority,
-                ignoreCancelled);
-        registerEvent(wrapper);
+    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener,
+                              @NotNull EventPriority priority, @NotNull EventExecutor executor,
+                              @NotNull Plugin plugin, boolean ignoreCancelled) {
+        registerSpecificEvent(event, listener, priority, executor, plugin, ignoreCancelled);
+    }
+
+    private <E extends Event> void registerSpecificEvent(Class<E> event, Listener listener, EventPriority priority,
+                                                         EventExecutor executor, Plugin plugin,
+                                                         boolean ignoreCancelled) {
+        try {
+            var spongeEvents = EventClassMapping.soakEventClass(event);
+            var initSpongeEvents = spongeEvents.stream()
+                    .map(creator -> creator.create(event, listener, priority, executor, plugin, ignoreCancelled))
+                    .toList();
+            initSpongeEvents.forEach(e -> {
+                var spongeEvent = e.spongeEvent();
+                Sponge.eventManager().registerListener(spongeEvent);
+            });
+            this.events.addAll(initSpongeEvents);
+        } catch (RuntimeException ex) {
+            if (ex.getClass() == RuntimeException.class) {
+                var mappingEvent = new GeneralSoakEvent<>(event, priority, plugin, listener, executor, ignoreCancelled);
+                this.events.add(mappingEvent);
+                return;
+            }
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void enablePlugin(@NotNull Plugin plugin) {
 
-    }
-
-    private void registerEvent(EventSingleListenerWrapper<?> eventWrapper) {
-        this.events.add(eventWrapper);
-        SoakPluginContainer pluginContainer = SoakManager.getManager().getContainer(eventWrapper.plugin());
-        Class<?>[] soakEventClasses;
-        try {
-            soakEventClasses = EventClassMapping.soakEventClass(eventWrapper.event());
-        } catch (RuntimeException e) {
-            String className = eventWrapper.event().getName();
-            if (!(
-                    className.startsWith("org.bukkit") ||
-                            className.startsWith("com.destroystokyo.paper") ||
-                            className.startsWith("io.papermc") ||
-                            className.startsWith("org.spigotmc"))) {
-                return;
-            }
-            SoakManager.getManager().getLogger()
-                    .error("Could not register event for " + eventWrapper.plugin().getName() + ": " + e.getMessage());
-            return;
-        }
-        for (Class<?> soakEventClass : soakEventClasses) {
-            try {
-                var soakEvent = soakEventClass.getDeclaredConstructor(EventSingleListenerWrapper.class)
-                        .newInstance(eventWrapper);
-                var lookup = MethodHandles.lookup();
-                Sponge.eventManager().registerListeners(pluginContainer, soakEvent, lookup);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                     NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     @Override
@@ -234,24 +247,26 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     @Override
     public @Nullable Permission getPermission(@NotNull String name) {
-        throw NotImplementedException.createByLazy(SoakPluginManager.class, "getPermission", String.class);
+        return permissionService().flatMap(service -> service.descriptions()
+                .stream()
+                .filter(d -> d.id().equals(name))
+                .findAny()).map(SoakPermissionMap::toBukkit).orElse(null);
     }
 
     @Override
     public void addPermission(@NotNull Permission perm) {
         permissionService().ifPresent(service -> {
-            var pluginContainer = GenericHelper.fromStackTrace();
+            var pluginContainer = GeneralHelper.fromStackTrace();
             Tristate permissionDefault = switch (perm.getDefault()) {
-                case TRUE -> Tristate.TRUE;
+                case TRUE, OP -> Tristate.TRUE;
                 case FALSE -> Tristate.FALSE;
-                case OP -> Tristate.TRUE;
                 case NOT_OP -> Tristate.UNDEFINED;
             };
-            service
-                    .newDescriptionBuilder(pluginContainer)
+            service.newDescriptionBuilder(pluginContainer)
                     .id(perm.getName())
                     .description(SoakMessageMap.toComponent(perm.getDescription()))
-                    .defaultValue(permissionDefault).register();
+                    .defaultValue(permissionDefault)
+                    .register();
         });
     }
 
@@ -275,15 +290,15 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     }
 
     private Optional<PermissionService> permissionService() {
-        return Sponge.serviceProvider()
-                .provide(PermissionService.class);
+        return Sponge.serviceProvider().provide(PermissionService.class);
     }
 
     @Override
     public void recalculatePermissionDefaults(@NotNull Permission perm) {
         var opService = permissionService();
         if (opService.isEmpty()) {
-            SoakManager.getManager().getLogger()
+            SoakManager.getManager()
+                    .getLogger()
                     .warn("A Bukkit plugin attempted to recalculate permissions without a permissions plugin loaded");
             return;
         }
@@ -292,7 +307,8 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
         if (opDescription.isEmpty()) {
             return;
         }
-        SoakManager.getManager().getLogger()
+        SoakManager.getManager()
+                .getLogger()
                 .error("A plugin attempted to change the permissions defaults to " + opDescription.get()
                         .id() + " however this is not supported by Sponge. Ignoring request");
     }
@@ -300,17 +316,17 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     @Override
     public void subscribeToPermission(@NotNull String permission, @NotNull Permissible permissible) {
         throw NotImplementedException.createByLazy(SoakPluginManager.class,
-                "subscribeFromPermission",
-                String.class,
-                Permissible.class);
+                                                   "subscribeFromPermission",
+                                                   String.class,
+                                                   Permissible.class);
     }
 
     @Override
     public void unsubscribeFromPermission(@NotNull String permission, @NotNull Permissible permissible) {
         throw NotImplementedException.createByLazy(SoakPluginManager.class,
-                "unsubscribeFromPermission",
-                String.class,
-                Permissible.class);
+                                                   "unsubscribeFromPermission",
+                                                   String.class,
+                                                   Permissible.class);
     }
 
     @Override
@@ -330,34 +346,38 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
     @Override
     public void subscribeToDefaultPerms(boolean op, @NotNull Permissible permissible) {
         throw NotImplementedException.createByLazy(SoakPluginManager.class,
-                "subscribeToDefaultPerms",
-                boolean.class,
-                Permissible.class);
+                                                   "subscribeToDefaultPerms",
+                                                   boolean.class,
+                                                   Permissible.class);
     }
 
     @Override
     public void unsubscribeFromDefaultPerms(boolean op, @NotNull Permissible permissible) {
         throw NotImplementedException.createByLazy(SoakPluginManager.class,
-                "unsubscribeFromDefaultPerms",
-                boolean.class,
-                Permissible.class);
+                                                   "unsubscribeFromDefaultPerms",
+                                                   boolean.class,
+                                                   Permissible.class);
     }
 
     @Override
     public @NotNull Set<Permissible> getDefaultPermSubscriptions(boolean op) {
         throw NotImplementedException.createByLazy(SoakPluginManager.class,
-                "getDefaultPermSubscriptions",
-                boolean.class);
+                                                   "getDefaultPermSubscriptions",
+                                                   boolean.class);
     }
 
     @Override
     public @NotNull Set<Permission> getPermissions() {
-        return this.permissionService().stream().flatMap(service -> service.descriptions().stream()).map(description -> SoakPermissionMap.toBukkit(description)).collect(Collectors.toSet());
+        return this.permissionService()
+                .stream()
+                .flatMap(service -> service.descriptions().stream())
+                .map(SoakPermissionMap::toBukkit)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public void addPermissions(@NotNull List<Permission> list) {
-        list.forEach(permission -> addPermission(permission));
+        list.forEach(this::addPermission);
     }
 
     @Override
@@ -372,11 +392,17 @@ public class SoakPluginManager implements org.bukkit.plugin.PluginManager {
 
     @Override
     public boolean isTransitiveDependency(PluginMeta pluginMeta, PluginMeta pluginMeta1) {
-        throw NotImplementedException.createByLazy(PluginManager.class, "isTransitiveDependency", PluginMeta.class, PluginMeta.class);
+        throw NotImplementedException.createByLazy(PluginManager.class,
+                                                   "isTransitiveDependency",
+                                                   PluginMeta.class,
+                                                   PluginMeta.class);
     }
 
     @Override
     public void overridePermissionManager(@NotNull Plugin plugin, @Nullable PermissionManager permissionManager) {
-        throw NotImplementedException.createByLazy(PluginManager.class, "isTransitiveDependency", Plugin.class, PermissionManager.class);
+        throw NotImplementedException.createByLazy(PluginManager.class,
+                                                   "isTransitiveDependency",
+                                                   Plugin.class,
+                                                   PermissionManager.class);
     }
 }

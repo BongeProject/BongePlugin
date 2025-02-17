@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.soak.exception.NotImplementedException;
-import org.soak.wrapper.inventory.meta.SoakFireworkMeta;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.projectile.explosive.FireworkRocket;
@@ -19,6 +19,10 @@ import java.util.UUID;
 
 public class SoakFirework extends AbstractProjectile<FireworkRocket> implements Firework {
 
+    public SoakFirework(FireworkRocket entity) {
+        this(Sponge.systemSubject(), Sponge.systemSubject(), entity);
+    }
+
     public SoakFirework(Subject subject, Audience audience, FireworkRocket entity) {
         super(subject, audience, entity);
     }
@@ -26,7 +30,8 @@ public class SoakFirework extends AbstractProjectile<FireworkRocket> implements 
     @Override
     public @NotNull FireworkMeta getFireworkMeta() {
         //TODO double check this
-        return new SoakFireworkMeta(this.spongeEntity());
+        throw NotImplementedException.createByLazy(Firework.class, "getFireworkMeta");
+        //return new SoakFireworkMeta(this.spongeEntity());
     }
 
     @Override
@@ -44,22 +49,30 @@ public class SoakFirework extends AbstractProjectile<FireworkRocket> implements 
         throw NotImplementedException.createByLazy(Firework.class, "getAttachedTo");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public boolean setLife(int i) {
         throw NotImplementedException.createByLazy(Firework.class, "setLife", int.class);
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public int getLife() {
         throw NotImplementedException.createByLazy(Firework.class, "getLife");
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public boolean setMaxLife(int i) {
         throw NotImplementedException.createByLazy(Firework.class, "setMaxLife", int.class);
     }
 
+    @SuppressWarnings("removal")
     @Override
+    @Deprecated(forRemoval = true)
     public int getMaxLife() {
         throw NotImplementedException.createByLazy(Firework.class, "getMaxLife");
     }
@@ -89,7 +102,9 @@ public class SoakFirework extends AbstractProjectile<FireworkRocket> implements 
         return this.spongeEntity().creator().map(Value::get).orElse(null);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public LivingEntity getBoostedEntity() {
         throw NotImplementedException.createByLazy(Firework.class, "getBoostedEntity");
     }

@@ -24,29 +24,21 @@ public class SoakItemFlagMap {
             return ItemFlag.HIDE_PLACED_ON;
         }
         if (Keys.HIDE_MISCELLANEOUS.equals(key)) {
-            return ItemFlag.HIDE_POTION_EFFECTS;
+            return ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
         }
         throw new RuntimeException("Unknown mapping from sponge key to ItemFlag of " + key.key().formatted());
     }
 
     public static Key<Value<Boolean>> toSponge(ItemFlag flag) {
-        switch (flag) {
-            case HIDE_ENCHANTS:
-                return Keys.HIDE_ENCHANTMENTS;
-            case HIDE_ATTRIBUTES:
-                return Keys.HIDE_ATTRIBUTES;
-            case HIDE_UNBREAKABLE:
-                return Keys.HIDE_UNBREAKABLE;
-            case HIDE_DESTROYS:
-                return Keys.HIDE_CAN_DESTROY;
-            case HIDE_PLACED_ON:
-                return Keys.HIDE_CAN_PLACE;
-            case HIDE_POTION_EFFECTS:
-                return Keys.HIDE_MISCELLANEOUS;
-            case HIDE_DYE:
-                throw new IllegalStateException("Unknown key map for HIDE_DYE on ItemFlag");
-            default:
-                throw new RuntimeException("Unknown ItemFlag of " + flag.name());
-        }
+        return switch (flag) {
+            case HIDE_ENCHANTS -> Keys.HIDE_STORED_ENCHANTMENTS;
+            case HIDE_ATTRIBUTES -> Keys.HIDE_ATTRIBUTES;
+            case HIDE_UNBREAKABLE -> Keys.HIDE_UNBREAKABLE;
+            case HIDE_DESTROYS -> Keys.HIDE_CAN_DESTROY;
+            case HIDE_PLACED_ON -> Keys.HIDE_CAN_PLACE;
+            case HIDE_ADDITIONAL_TOOLTIP -> Keys.HIDE_MISCELLANEOUS;
+            case HIDE_DYE -> Keys.HIDE_ENCHANTMENTS;
+            default -> throw new RuntimeException("Unknown ItemFlag of " + flag.name());
+        };
     }
 }

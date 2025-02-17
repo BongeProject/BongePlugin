@@ -1,65 +1,48 @@
 package org.soak.map.event.command;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.living.human.SoakPlayer;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.command.ExecuteCommandEvent;
 
-public class SoakPreCommandEvent {
+public class SoakPreCommandEvent extends SoakEvent<ExecuteCommandEvent.Pre, PlayerCommandPreprocessEvent> {
 
-    private final EventSingleListenerWrapper<PlayerCommandPreprocessEvent> singleEventListener;
-
-    public SoakPreCommandEvent(EventSingleListenerWrapper<PlayerCommandPreprocessEvent> singleEventListener) {
-        this.singleEventListener = singleEventListener;
+    public SoakPreCommandEvent(Class<PlayerCommandPreprocessEvent> bukkitEvent, EventPriority priority, Plugin plugin
+            , Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ExecuteCommandEvent.Pre spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
+    @Override
+    protected Class<ExecuteCommandEvent.Pre> spongeEventClass() {
+        return ExecuteCommandEvent.Pre.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ExecuteCommandEvent.Pre spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ExecuteCommandEvent.Pre spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ExecuteCommandEvent.Pre spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ExecuteCommandEvent.Pre spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-
-    private void fireEvent(ExecuteCommandEvent.Pre event, EventPriority priority) {
+    @Override
+    public void handle(ExecuteCommandEvent.Pre event) throws Exception {
         var root = event.commandCause().root();
-        if (!(root instanceof ServerPlayer)) {
+        if (!(root instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        var serverPlayer = (ServerPlayer) root;
 
-        var command = event.command() + " " + event.arguments();
+        var cmd = event.command();
+        if(cmd.contains(":")){
+            cmd = cmd.substring(cmd.lastIndexOf(":") + 1);
+        }
+
+        var command = "/" + cmd  + " " + event.arguments();
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(serverPlayer);
 
         var bukkitEvent = new PlayerCommandPreprocessEvent(player, command);
-        SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+        fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             event.setCancelled(true);
         }
@@ -83,7 +66,7 @@ public class SoakPreCommandEvent {
             try {
                 Sponge.server().commandManager().process(newBukkitPlayer.spongeEntity(), newArguments);
             } catch (CommandException e) {
-                SoakManager.getManager().displayError(e, this.singleEventListener.plugin());
+                SoakManager.getManager().displayError(e, this.plugin());
             }
         }
     }

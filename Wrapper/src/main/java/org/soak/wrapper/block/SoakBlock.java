@@ -19,11 +19,11 @@ import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
+import org.soak.map.SoakBlockMap;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.data.CommonBlockData;
 import org.soak.wrapper.block.state.AbstractBlockState;
-import org.soak.wrapper.block.state.generic.GenericBlockSnapshotState;
 import org.soak.wrapper.world.SoakWorld;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.world.BlockChangeFlags;
@@ -67,12 +67,12 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public float getDestroySpeed(ItemStack arg0, boolean arg1) {
+    public float getDestroySpeed(@NotNull ItemStack arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(Block.class, "getDestroySpeed", ItemStack.class, boolean.class);
     }
 
     @Override
-    public void setBlockData(BlockData arg0) {
+    public void setBlockData(@NotNull BlockData arg0) {
         if (!(arg0 instanceof CommonBlockData)) {
             throw new RuntimeException(arg0.getClass().getName() + " does not implement CommonBlockData");
         }
@@ -85,35 +85,38 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public boolean isValidTool(ItemStack arg0) {
+    public boolean isValidTool(@NotNull ItemStack arg0) {
         var spongeItem = SoakItemStackMap.toSponge(arg0);
-        return spongeItem.getOrElse(Keys.BREAKABLE_BLOCK_TYPES, Set.of()).stream().anyMatch(blockType -> this.block.blockType().equals(blockType));
+        return spongeItem.getOrElse(Keys.BREAKABLE_BLOCK_TYPES, Set.of())
+                .stream()
+                .anyMatch(blockType -> this.block.blockType().equals(blockType));
     }
 
     @Override
-    public void setBlockData(BlockData arg0, boolean arg1) {
+    public void setBlockData(@NotNull BlockData arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(Block.class, "setBlockData", BlockData.class, boolean.class);
     }
 
     @Override
-    public void setType(Material arg0, boolean arg1) {
-        var blockType = arg0.asBlock().orElseThrow(() -> new RuntimeException(arg0.name() + " is not a block"));
+    public void setType(@NotNull Material arg0, boolean arg1) {
+        var blockType = SoakBlockMap.toSponge(arg0)
+                .orElseThrow(() -> new RuntimeException(arg0.name() + " is not a block"));
         var blockChangeFlag = arg1 ? BlockChangeFlags.ALL : BlockChangeFlags.NOTIFY_CLIENTS;
         this.block.setBlockType(blockType, blockChangeFlag);
     }
 
     @Override
-    public BlockFace getFace(Block arg0) {
+    public BlockFace getFace(@NotNull Block arg0) {
         throw NotImplementedException.createByLazy(Block.class, "getFace", Block.class);
     }
 
     @Override
-    public Biome getBiome() {
+    public @NotNull Biome getBiome() {
         throw NotImplementedException.createByLazy(Block.class, "getBiome");
     }
 
     @Override
-    public void setBiome(Biome arg0) {
+    public void setBiome(@NotNull Biome arg0) {
         throw NotImplementedException.createByLazy(Block.class, "setBiome", Biome.class);
     }
 
@@ -123,17 +126,17 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public boolean isBlockFacePowered(BlockFace arg0) {
+    public boolean isBlockFacePowered(@NotNull BlockFace arg0) {
         throw NotImplementedException.createByLazy(Block.class, "isBlockFacePowered", BlockFace.class);
     }
 
     @Override
-    public boolean isBlockFaceIndirectlyPowered(BlockFace arg0) {
+    public boolean isBlockFaceIndirectlyPowered(@NotNull BlockFace arg0) {
         throw NotImplementedException.createByLazy(Block.class, "isBlockFaceIndirectlyPowered", BlockFace.class);
     }
 
     @Override
-    public int getBlockPower(BlockFace arg0) {
+    public int getBlockPower(@NotNull BlockFace arg0) {
         throw NotImplementedException.createByLazy(Block.class, "getBlockPower", BlockFace.class);
     }
 
@@ -163,17 +166,26 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public boolean breakNaturally(ItemStack arg0, boolean arg1) {
+    public boolean breakNaturally(@NotNull ItemStack arg0, boolean arg1) {
         throw NotImplementedException.createByLazy(Block.class, "breakNaturally", ItemStack.class, boolean.class);
     }
 
     @Override
     public boolean breakNaturally(@NotNull ItemStack itemStack, boolean b, boolean b1) {
-        throw NotImplementedException.createByLazy(Block.class, "breakNaturally", ItemStack.class, boolean.class, boolean.class);
+        throw NotImplementedException.createByLazy(Block.class,
+                                                   "breakNaturally",
+                                                   ItemStack.class,
+                                                   boolean.class,
+                                                   boolean.class);
     }
 
     @Override
     public void tick() {
+        throw NotImplementedException.createByLazy(Block.class, "tick");
+    }
+
+    @Override
+    public void fluidTick() {
         throw NotImplementedException.createByLazy(Block.class, "tick");
     }
 
@@ -198,22 +210,22 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public boolean applyBoneMeal(BlockFace arg0) {
+    public boolean applyBoneMeal(@NotNull BlockFace arg0) {
         throw NotImplementedException.createByLazy(Block.class, "applyBoneMeal", BlockFace.class);
     }
 
     @Override
-    public Collection getDrops(ItemStack arg0, Entity arg1) {
+    public @NotNull Collection<ItemStack> getDrops(ItemStack arg0, Entity arg1) {
         throw NotImplementedException.createByLazy(Block.class, "getDrops", ItemStack.class, Entity.class);
     }
 
     @Override
-    public Collection getDrops() {
+    public @NotNull Collection<ItemStack> getDrops() {
         throw NotImplementedException.createByLazy(Block.class, "getDrops");
     }
 
     @Override
-    public Collection getDrops(ItemStack arg0) {
+    public @NotNull Collection<ItemStack> getDrops(ItemStack arg0) {
         throw NotImplementedException.createByLazy(Block.class, "getDrops", ItemStack.class);
     }
 
@@ -223,7 +235,7 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public BoundingBox getBoundingBox() {
+    public @NotNull BoundingBox getBoundingBox() {
         throw NotImplementedException.createByLazy(Block.class, "getBoundingBox");
     }
 
@@ -253,13 +265,14 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public RayTraceResult rayTrace(Location arg0, Vector arg1, double arg2, FluidCollisionMode arg3) {
+    public RayTraceResult rayTrace(@NotNull Location arg0, @NotNull Vector arg1, double arg2,
+                                   @NotNull FluidCollisionMode arg3) {
         throw NotImplementedException.createByLazy(Block.class,
-                "rayTrace",
-                Location.class,
-                Vector.class,
-                double.class,
-                FluidCollisionMode.class);
+                                                   "rayTrace",
+                                                   Location.class,
+                                                   Vector.class,
+                                                   double.class,
+                                                   FluidCollisionMode.class);
     }
 
     @Override
@@ -268,7 +281,7 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public PistonMoveReaction getPistonMoveReaction() {
+    public @NotNull PistonMoveReaction getPistonMoveReaction() {
         throw NotImplementedException.createByLazy(Block.class, "getPistonMoveReaction");
     }
 
@@ -283,15 +296,13 @@ public class SoakBlock extends AbstractBlock<ServerLocation> {
     }
 
     @Override
-    public BlockState getState(boolean arg0) {
+    public @NotNull BlockState getState(boolean arg0) {
         throw NotImplementedException.createByLazy(Block.class, "getState", boolean.class);
     }
 
     @Override
-    public BlockState getState() {
-        return this.block.blockEntity()
-                .map(entity -> (BlockState) AbstractBlockState.wrap(entity, false))
-                .orElseGet(() -> new GenericBlockSnapshotState(this.block.createSnapshot()));
+    public @NotNull BlockState getState() {
+        return AbstractBlockState.wrap(this.spongeLocation(), this.block.block(), false);
     }
 
     @Override

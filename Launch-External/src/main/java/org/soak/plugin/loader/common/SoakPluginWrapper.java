@@ -1,14 +1,22 @@
 package org.soak.plugin.loader.common;
 
+import io.leangen.geantyref.TypeToken;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.plugin.Plugin;
 import org.soak.command.BukkitRawCommand;
+import org.soak.map.SoakPermissionMap;
+import org.soak.map.event.AbstractSoakEvent;
+import org.soak.map.event.GeneralSoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.plugin.SoakPlugin;
 import org.soak.plugin.SoakPluginContainer;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.manager.CommandFailedRegistrationException;
+import org.spongepowered.api.event.EventListenerRegistration;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
@@ -16,6 +24,8 @@ import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SoakPluginWrapper {
 
@@ -24,8 +34,9 @@ public class SoakPluginWrapper {
     private final SoakPluginContainer pluginContainer;
     private final Collection<org.bukkit.command.Command> commands = new LinkedHashSet<>();
     private boolean hasRunShutdown;
+    private boolean loadedCommandsEarly;
 
-    public SoakPluginWrapper(SoakPluginContainer pluginContainer) {
+    public SoakPluginWrapper(SoakPluginContainer pluginContainer, Order order) {
         this.pluginContainer = pluginContainer;
 
         Plugin plugin = this.pluginContainer.getBukkitInstance();
@@ -39,6 +50,9 @@ public class SoakPluginWrapper {
                 SoakManager.getManager().displayError(e, plugin);
             }
         }
+        Sponge.eventManager()
+                .registerListener(EventListenerRegistration.builder(new TypeToken<StartedEngineEvent<Server>>() {
+                }).order(order).listener(this::onPluginEnable).plugin(pluginContainer.getTrueContainer()).build());
     }
 
     public void onPluginsConstructed() {
@@ -46,9 +60,24 @@ public class SoakPluginWrapper {
         if (!earlyPlugins.contains(this.pluginContainer.getBukkitInstance().getName())) {
             return;
         }
+        launch(true);
+    }
+
+    private void launch(boolean early) {
         Plugin plugin = this.pluginContainer.getBukkitInstance();
+        long permissionsRegistered = plugin.getPluginMeta()
+                .getPermissions()
+                .stream()
+                .mapToLong(perm -> SoakPermissionMap.fromBukkit(perm, this.pluginContainer.getTrueContainer()).size())
+                .sum();
+        this.pluginContainer.logger().info("registered " + permissionsRegistered + " permissions");
+
         try {
             plugin.onEnable();
+            SoakPlugin.plugin()
+                    .logger()
+                    .info(this.pluginContainer.metadata().id() + " loaded " + (early ? "early" : "late"));
+
         } catch (Throwable e) {
             SoakManager.getManager().displayError(e, plugin);
         }
@@ -64,14 +93,18 @@ public class SoakPluginWrapper {
 
     @Listener
     public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
+        loadedCommandsEarly = true;
         this.commands.forEach(cmd -> event.register(this.pluginContainer,
-                new BukkitRawCommand(this.pluginContainer, cmd),
-                cmd.getName(),
-                cmd.getAliases().toArray(String[]::new)));
+                                                    new BukkitRawCommand(this.pluginContainer, cmd),
+                                                    cmd.getName(),
+                                                    cmd.getAliases().toArray(String[]::new)));
     }
 
     @Listener
     public void onPluginLoad(StartingEngineEvent<Server> event) {
+        if (!SoakPlugin.plugin().didClassesGenerate()) {
+            return;
+        }
         var earlyPlugins = SoakPlugin.plugin().config().getLoadingEarlyPlugins();
         if (earlyPlugins.contains(this.pluginContainer.getBukkitInstance().getName())) {
             return;
@@ -85,17 +118,77 @@ public class SoakPluginWrapper {
     }
 
     //issue
-    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything before onEnable is used ....
+    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything
+    // before onEnable is used ....
     //using StartedEngineEvent despite the timing known to be incorrect
-    @Listener
     public void onPluginEnable(StartedEngineEvent<Server> event) {
+        if (!SoakPlugin.plugin().didClassesGenerate()) {
+            return;
+        }
         var earlyPlugins = SoakPlugin.plugin().config().getLoadingEarlyPlugins();
         if (earlyPlugins.contains(this.pluginContainer.getBukkitInstance().getName())) {
             return;
         }
         Plugin plugin = this.pluginContainer.getBukkitInstance();
+        if (!loadedCommandsEarly) {
+            //load commands
+            var registerCmd = Sponge.server()
+                    .commandManager()
+                    .registrar(Command.Raw.class)
+                    .orElseThrow(() -> new IllegalStateException("Cannot load the command raw register for " + pluginContainer.metadata()
+                            .id()));
+            this.commands.forEach(cmd -> {
+                try {
+                    registerCmd.register(this.pluginContainer,
+                                         new BukkitRawCommand(this.pluginContainer, cmd),
+                                         cmd.getName(),
+                                         cmd.getAliases().toArray(String[]::new));
+                } catch (CommandFailedRegistrationException ex) {
+                    try {
+                        registerCmd.register(this.pluginContainer,
+                                             new BukkitRawCommand(this.pluginContainer, cmd),
+                                             cmd.getName());
+                    } catch (CommandFailedRegistrationException ex1) {
+                        pluginContainer.logger().warn("Cannot register command, skipping: ", ex1);
+                    }
+                }
+            });
+        }
+
         try {
-            plugin.onEnable();
+            launch(false);
+
+            String failedEvents = SoakPlugin.server()
+                    .getSoakPluginManager()
+                    .registeredEvents()
+                    .stream()
+                    .filter(soakEvent -> soakEvent.plugin().equals(plugin))
+                    .filter(soakEvent -> soakEvent instanceof GeneralSoakEvent<?>)
+                    .map(AbstractSoakEvent::bukkitEvent)
+                    .filter(clazz -> {
+                        String name = clazz.getName();
+                        if (name.startsWith("org.bukkit")) {
+                            return true;
+                        }
+                        if (name.startsWith("com.destroystokyo.paper")) {
+                            return true;
+                        }
+                        if (name.startsWith("io.papermc.paper")) {
+                            return true;
+                        }
+                        return name.startsWith("org.spigotmc");
+                    })
+                    .distinct()
+                    .map(clazz -> "\n\t- " + clazz.getSimpleName())
+                    .sorted()
+                    .collect(Collectors.joining(" "));
+
+            if (!failedEvents.isBlank()) {
+                this.pluginContainer.logger()
+                        .error("Could not find mappings for the following events: " + failedEvents);
+            }
+
+            this.pluginContainer.logger().info(this.pluginContainer.metadata().id() + " loaded late");
         } catch (Throwable e) {
             SoakManager.getManager().displayError(e, plugin);
         }
@@ -103,6 +196,9 @@ public class SoakPluginWrapper {
 
     @Listener
     public void onPluginDisable(StoppingEngineEvent<Server> event) {
+        if (!SoakPlugin.plugin().didClassesGenerate()) {
+            return;
+        }
         if (hasRunShutdown) {
             return;
         }

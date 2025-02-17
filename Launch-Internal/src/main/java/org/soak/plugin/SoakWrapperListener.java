@@ -34,7 +34,8 @@ public class SoakWrapperListener {
         try {
             pluginMain.loadPlugin();
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            this.pluginMain.getLogger().error("The JavaPlugin instance must have a public empty argument constructor", e);
+            this.pluginMain.getLogger()
+                    .error("The JavaPlugin instance must have a public empty argument constructor", e);
         } catch (InvocationTargetException | InstantiationException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +45,10 @@ public class SoakWrapperListener {
     public void onPluginCommandRegister(RegisterCommandEvent<Command.Raw> event) {
         var bukkitCommands = PluginCommandYamlParser.parse(pluginMain.getPlugin());
         pluginMain.commands.addAll(bukkitCommands);
-        bukkitCommands.forEach(cmd -> event.register(pluginMain.container, new BukkitRawCommand(pluginMain.soakPluginContainer, cmd), cmd.getName(), cmd.getAliases().toArray(String[]::new)));
+        bukkitCommands.forEach(cmd -> event.register(pluginMain.container,
+                                                     new BukkitRawCommand(pluginMain.soakPluginContainer, cmd),
+                                                     cmd.getName(),
+                                                     cmd.getAliases().toArray(String[]::new)));
     }
 
     @Listener
@@ -58,7 +62,8 @@ public class SoakWrapperListener {
     }
 
     //issue
-    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything before onEnable is used ....
+    //Bukkit plugins assume everything is loaded when onEnable is run, this is because Craftbukkit loads everything
+    // before onEnable is used ....
     //using StartedEngineEvent despite the timing known to be incorrect
     @Listener
     public void onPluginEnable(StartedEngineEvent<Server> event) {
@@ -74,9 +79,9 @@ public class SoakWrapperListener {
     @Listener
     public void dataRegister(RegisterDataEvent event) {
         DataStore dataStore = DataStore.of(SoakKeys.BUKKIT_DATA,
-                DataQuery.of("soak"),
-                ItemStack.class,
-                ItemStackSnapshot.class); //TODO -> find more
+                                           DataQuery.of("soak"),
+                                           ItemStack.class,
+                                           ItemStackSnapshot.class); //TODO -> find more
         DataRegistration registration = DataRegistration.builder()
                 .dataKey(SoakKeys.BUKKIT_DATA)
                 .store(dataStore)
@@ -89,8 +94,6 @@ public class SoakWrapperListener {
 
     @Listener(order = Order.FIRST)
     public void startingPlugin(StartingEngineEvent<Server> event) {
-        SoakRegister.startEnchantmentTypes(pluginMain.getLogger());
-        SoakRegister.startPotionEffects(pluginMain.getLogger());
         PortalCooldownCustomData.createTickScheduler();
     }
 
@@ -103,24 +106,12 @@ public class SoakWrapperListener {
     public void endingPlugin(StoppingEngineEvent<Server> event) {
         Sponge.server().scheduler().executor(pluginMain.container).shutdown();
         Sponge.asyncScheduler().executor(pluginMain.container).shutdown();
-        /*MoseStream.stream(plugins)
-                .map(plugin -> SoakPlugin
-                        .server()
-                        .getPluginManager()
-                        .getContext(plugin.getBukkitInstance()))
-                .forEach(context -> {
-                    var loader = context.loader();
-                    try {
-                        logger.debug("Closing: " + context.getConfiguration().getName());
-                        loader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-        plugins.forEach(SoakPluginInjector::removePluginFromPlatform);*/
 
         var thread = new Thread(() -> {
-            while (Thread.getAllStackTraces().keySet().stream().anyMatch(mainThread -> mainThread.getName().equals("server thread"))) {
+            while (Thread.getAllStackTraces()
+                    .keySet()
+                    .stream()
+                    .anyMatch(mainThread -> mainThread.getName().equals("server thread"))) {
                 try {
                     Thread.currentThread().wait(100);
                 } catch (InterruptedException e) {

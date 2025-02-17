@@ -1,10 +1,13 @@
 package org.soak.map.event.block;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
 import org.soak.map.SoakActionMap;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.map.item.SoakItemStackMap;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.SoakBlock;
@@ -12,48 +15,38 @@ import org.soak.wrapper.block.SoakBlockSnapshot;
 import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.ContextValue;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.item.inventory.ItemStackLike;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.util.blockray.RayTrace;
 
-public class SoakBlockPlaceEvent {
+public class SoakBlockPlaceEvent extends SoakEvent<ChangeBlockEvent.All, BlockPlaceEvent> {
 
-    private final EventSingleListenerWrapper<BlockPlaceEvent> singleEventListener;
-
-    public SoakBlockPlaceEvent(EventSingleListenerWrapper<BlockPlaceEvent> wrapper) {
-        this.singleEventListener = wrapper;
+    public SoakBlockPlaceEvent(Class<BlockPlaceEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                               Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ChangeBlockEvent.All spongeEvent, @First ServerPlayer player, @ContextValue("USED_ITEM") ItemStackSnapshot snapshot) {
-        fireEvent(spongeEvent, player, snapshot, EventPriority.HIGHEST);
+    @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ChangeBlockEvent.All spongeEvent, @First ServerPlayer player, @ContextValue("USED_ITEM") ItemStackSnapshot snapshot) {
-        fireEvent(spongeEvent, player, snapshot, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ChangeBlockEvent.All spongeEvent, @First ServerPlayer player, @ContextValue("USED_ITEM") ItemStackSnapshot snapshot) {
-        fireEvent(spongeEvent, player, snapshot, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ChangeBlockEvent.All spongeEvent, @First ServerPlayer player, @ContextValue("USED_ITEM") ItemStackSnapshot snapshot) {
-        fireEvent(spongeEvent, player, snapshot, EventPriority.HIGHEST);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ChangeBlockEvent.All spongeEvent, @First ServerPlayer player, @ContextValue("USED_ITEM") ItemStackSnapshot snapshot) {
-        fireEvent(spongeEvent, player, snapshot, EventPriority.HIGHEST);
-    }
-
-    private void fireEvent(ChangeBlockEvent.All spongeEvent, ServerPlayer spongePlayer, ItemStackSnapshot usedItemSnapshot, EventPriority priority) {
+    @Override
+    public void handle(ChangeBlockEvent.All event) throws Exception {
+        var opSpongePlayer = event.cause().first(ServerPlayer.class);
+        if (opSpongePlayer.isEmpty()) {
+            return;
+        }
+        var opUsedItem = event.context().get(EventContextKeys.USED_ITEM);
+        if (opUsedItem.isEmpty()) {
+            return;
+        }
+        var spongePlayer = opSpongePlayer.get();
+        var usedItemSnapshot = opUsedItem.get();
         var player = SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongePlayer);
         var opRaytrace = RayTrace.block()
                 .direction(spongePlayer)
@@ -65,30 +58,28 @@ public class SoakBlockPlaceEvent {
             return;
         }
         var placedAgainst = new SoakBlock(opRaytrace.get().selectedObject().serverLocation());
-
         if (opRaytrace.isEmpty()) {
             return;
         }
         var usedItem = SoakItemStackMap.toBukkit(usedItemSnapshot);
         var canBuild = true; //always true?
-        var usedHand = spongeEvent.context()
+        var usedHand = event.context()
                 .get(EventContextKeys.USED_HAND)
                 .map(SoakActionMap::toBukkit)
                 .orElseThrow(() -> new RuntimeException("Cannot get the used hand to place the block"));
 
-        spongeEvent.transactions(Operations.PLACE.get()).forEach(transaction -> {
+        event.transactions(Operations.PLACE.get()).forEach(transaction -> {
             var originalBlock = new SoakBlockSnapshot(transaction.original());
             var newBlock = new SoakBlockSnapshot(transaction.custom().orElseGet(transaction::finalReplacement));
 
             var bukkitEvent = new BlockPlaceEvent(originalBlock,
-                    newBlock.getState(),
-                    placedAgainst,
-                    usedItem,
-                    player,
-                    canBuild,
-                    usedHand);
-            SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+                                                  newBlock.getState(),
+                                                  placedAgainst,
+                                                  usedItem,
+                                                  player,
+                                                  canBuild,
+                                                  usedHand);
+            fireEvent(bukkitEvent);
             if (bukkitEvent.isCancelled()) {
                 transaction.invalidate();
             }

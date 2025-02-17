@@ -1,6 +1,8 @@
 package org.soak.wrapper.entity.living.human;
 
 import net.kyori.adventure.audience.Audience;
+import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -20,6 +22,11 @@ public class SoakHumanEntity extends AbstractHumanBase<Human> {
     @Override
     public @NotNull PlayerInventory getInventory() {
         throw NotImplementedException.createByLazy(SoakHumanEntity.class, "getInventory");
+    }
+
+    @Override
+    public @NotNull Inventory getEnderChest() {
+        throw NotImplementedException.createByLazy(SoakHumanEntity.class, "getEnderChest");
     }
 
     @Override

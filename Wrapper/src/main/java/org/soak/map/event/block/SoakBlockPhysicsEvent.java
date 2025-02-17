@@ -1,56 +1,37 @@
 package org.soak.map.event.block;
 
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.Plugin;
 import org.soak.WrapperManager;
-import org.soak.map.event.EventSingleListenerWrapper;
+import org.soak.map.event.SoakEvent;
 import org.soak.plugin.SoakManager;
 import org.soak.wrapper.block.SoakBlockSnapshot;
 import org.spongepowered.api.block.transaction.Operations;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 
-public class SoakBlockPhysicsEvent {
+public class SoakBlockPhysicsEvent extends SoakEvent<ChangeBlockEvent.All, BlockPhysicsEvent> {
 
-    private final EventSingleListenerWrapper<BlockPhysicsEvent> singleEventListener;
-
-    public SoakBlockPhysicsEvent(EventSingleListenerWrapper<BlockPhysicsEvent> wrapper) {
-        this.singleEventListener = wrapper;
+    public SoakBlockPhysicsEvent(Class<BlockPhysicsEvent> bukkitEvent, EventPriority priority, Plugin plugin,
+                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {
+        super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
     }
 
-    @Listener(order = Order.FIRST)
-    public void firstEvent(ChangeBlockEvent.All spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGHEST);
+    @Override
+    protected Class<ChangeBlockEvent.All> spongeEventClass() {
+        return ChangeBlockEvent.All.class;
     }
 
-    @Listener(order = Order.EARLY)
-    public void earlyEvent(ChangeBlockEvent.All spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.HIGH);
-    }
-
-    @Listener(order = Order.DEFAULT)
-    public void normalEvent(ChangeBlockEvent.All spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.NORMAL);
-    }
-
-    @Listener(order = Order.LATE)
-    public void lateEvent(ChangeBlockEvent.All spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOW);
-    }
-
-    @Listener(order = Order.LAST)
-    public void lastEvent(ChangeBlockEvent.All spongeEvent) {
-        fireEvent(spongeEvent, EventPriority.LOWEST);
-    }
-
-    private void fireEvent(ChangeBlockEvent.All spongeEvent, EventPriority priority) {
+    @Override
+    public void handle(ChangeBlockEvent.All spongeEvent) {
         spongeEvent.transactions(Operations.MODIFY.get()).forEach(transaction -> { //used modify .... may not be correct
             var original = new SoakBlockSnapshot(transaction.original());
             var newBlock = new SoakBlockSnapshot(transaction.custom().orElseGet(transaction::finalReplacement));
             var bukkitEvent = new BlockPhysicsEvent(original, newBlock.getBlockData()); //todo get source block
-            SoakManager.<WrapperManager>getManager().getServer().getSoakPluginManager().callEvent(this.singleEventListener, bukkitEvent, priority);
-
+            fireEvent(bukkitEvent);
             if (bukkitEvent.isCancelled()) {
                 transaction.invalidate();
             }

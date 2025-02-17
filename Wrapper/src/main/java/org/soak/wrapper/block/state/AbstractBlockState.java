@@ -17,148 +17,231 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.soak.WrapperManager;
 import org.soak.exception.NotImplementedException;
+import org.soak.map.SoakBlockMap;
+import org.soak.map.SoakLocationMap;
 import org.soak.plugin.SoakManager;
+import org.soak.utils.KeyValuePair;
 import org.soak.wrapper.block.SoakBlock;
-import org.soak.wrapper.block.state.bed.SoakBedBlockEntity;
-import org.soak.wrapper.block.state.capture.CapturedAbstractBlockState;
-import org.soak.wrapper.block.state.sign.SoakSignBlockEntity;
-import org.spongepowered.api.block.entity.Bed;
+import org.soak.wrapper.block.data.AbstractBlockData;
+import org.soak.wrapper.block.data.SoakBlockData;
 import org.spongepowered.api.block.entity.BlockEntity;
-import org.spongepowered.api.block.entity.Sign;
-import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.value.Value;
+import org.spongepowered.api.tag.BlockTypeTags;
+import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
-public abstract class AbstractBlockState<TileEntity extends BlockEntity> implements BlockState {
+public abstract class AbstractBlockState implements BlockState {
 
-    protected final TileEntity blockEntity;
+    private final LinkedBlockingQueue<KeyValuePair<?>> toApply = new LinkedBlockingQueue<>();
+    private final @Nullable ServerLocation location;
+    private @NotNull org.spongepowered.api.block.BlockState state;
 
-    public AbstractBlockState(TileEntity blockEntity) {
-        this.blockEntity = blockEntity;
+    public AbstractBlockState(@NotNull ServerLocation location) {
+        this(location, location.block());
     }
 
-    private static <T extends BlockEntity> AbstractBlockState<T> wrap(T blockEntity) {
-        if (blockEntity instanceof Sign sign) {
-            return (AbstractBlockState<T>) new SoakSignBlockEntity(sign);
+    public AbstractBlockState(@Nullable ServerLocation location, @NotNull org.spongepowered.api.block.BlockState state) {
+        this.location = location;
+        this.state = state;
+    }
+
+    public @NotNull org.spongepowered.api.block.BlockState spongeState() {
+        return this.state;
+    }
+
+    public @Nullable ServerLocation spongeLocation() {
+        return this.location;
+    }
+
+    public Optional<? extends BlockEntity> spongeEntity() {
+        if (this.location == null) {
+            return Optional.empty();
         }
-        if (blockEntity instanceof Bed bed) {
-            return (AbstractBlockState<T>) new SoakBedBlockEntity(bed);
+        return this.location.blockEntity();
+    }
+
+    public static AbstractBlockState wrap(@Nullable ServerLocation location, org.spongepowered.api.block.BlockState state, boolean isSnapshot) {
+        if (state.type().is(BlockTypeTags.ALL_SIGNS)) {
+            return new SignBlockState(location, state, isSnapshot);
         }
-        throw new RuntimeException("No mapping found for BlockEntity of " + blockEntity.getClass().getName());
+        return new BasicBlockState(location, state);
     }
 
-    public static <T extends BlockEntity> BlockState wrap(T blockEntity, boolean snapshot) {
-        var live = wrap(blockEntity);
-        if (snapshot) {
-            return live.asSnapshot();
-        }
-        return live;
-    }
+    protected abstract AbstractBlockState createCopy(@Nullable ServerLocation location, @NotNull org.spongepowered.api.block.BlockState state);
 
-    public TileEntity sponge() {
-        return this.blockEntity;
-    }
+    protected abstract void onPostApply(@NotNull ServerLocation location);
 
-    public abstract CapturedAbstractBlockState<?> asSnapshot();
-
-
-    @Override
-    public @NotNull BlockData getBlockData() {
-        var spongeBlockState = this.blockEntity.block();
-        return SoakManager.<WrapperManager>getManager().getMemoryStore().get(spongeBlockState);
-    }
-
-    @Override
-    public void setBlockData(@NotNull BlockData arg0) {
-        throw NotImplementedException.createByLazy(BlockState.class, "setBlockData", BlockData.class);
-    }
-
-    @Override
-    public byte getLightLevel() {
-        throw NotImplementedException.createByLazy(BlockState.class, "getLightLevel");
-    }
-
-    @Override
-    public @NotNull World getWorld() {
-        return SoakManager.<WrapperManager>getManager().getMemoryStore().get((ServerWorld) this.blockEntity.world());
-    }
-
-    @Override
-    public int getX() {
-        return this.blockEntity.blockPosition().x();
-    }
-
-    @Override
-    public int getY() {
-        return this.blockEntity.blockPosition().y();
-    }
-
-    @Override
-    public int getZ() {
-        return this.blockEntity.blockPosition().z();
-    }
-
-    @Override
-    public @NotNull Chunk getChunk() {
-        throw NotImplementedException.createByLazy(BlockState.class, "getChunk");
-    }
-
-    @Deprecated
-    @Override
-    public byte getRawData() {
-        throw NotImplementedException.createByLazy(BlockState.class, "getRawData");
-    }
-
-    @Deprecated
-    @Override
-    public void setRawData(byte arg0) {
-        throw NotImplementedException.createByLazy(BlockState.class, "setRawData", byte.class);
-    }
-
-    @Override
-    public boolean isPlaced() {
-        return this.blockEntity.serverLocation()
-                .blockEntity()
-                .map(entity -> entity.equals(this.blockEntity))
-                .orElse(false);
+    public @Nullable ServerLocation location() {
+        return this.location;
     }
 
     @Override
     public @NotNull Block getBlock() {
-        return new SoakBlock(this.blockEntity.serverLocation());
+        return new SoakBlock(this.location);
     }
 
+    @SuppressWarnings("removal")
     @Override
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public @NotNull MaterialData getData() {
         throw NotImplementedException.createByLazy(BlockState.class, "getData");
     }
 
+    @SuppressWarnings("removal")
     @Override
-    @Deprecated
-    public void setData(@NotNull MaterialData arg0) {
+    @Deprecated(forRemoval = true)
+    public void setData(@NotNull MaterialData materialData) {
         throw NotImplementedException.createByLazy(BlockState.class, "setData", MaterialData.class);
     }
 
     @Override
-    public Location getLocation(Location arg0) {
-        throw NotImplementedException.createByLazy(BlockState.class, "getLocation", Location.class);
+    public @NotNull BlockData getBlockData() {
+        return SoakBlockData.internalCreateBlockData(this.state);
     }
 
     @Override
-    public @NotNull Location getLocation() {
-        return new Location(getWorld(), this.getX(), this.getY(), this.getZ());
+    public void setBlockData(@NotNull BlockData blockData) {
+        this.state = ((AbstractBlockData) blockData).sponge();
+    }
+
+    @Override
+    public @NotNull BlockState copy() {
+        return copy(location);
+    }
+
+    @Override
+    public @NotNull BlockState copy(@NotNull Location location) {
+        return copy(SoakLocationMap.toSponge(location));
+    }
+
+    public @NotNull BlockState copy(@Nullable ServerLocation location) {
+        var copy = createCopy(location, this.state);
+        this.toApply.stream().map(KeyValuePair::clone).collect(Collectors.toCollection(() -> copy.toApply));
+        return copy;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <Val> Optional<KeyValuePair<Val>> key(Key<? extends Value<Val>> key) {
+        return this.toApply.stream().filter(pair -> pair.getKey().equals(key)).map(t -> (KeyValuePair<Val>) t).findAny();
+    }
+
+    public <Val> void offer(Key<? extends Value<Val>> key, Val value) {
+        var opPair = key(key);
+        if (opPair.isPresent()) {
+            opPair.get().setValue(value);
+            return;
+        }
+        var pair = new KeyValuePair<>(key, value);
+        this.toApply.offer(pair);
     }
 
     @Override
     public @NotNull Material getType() {
-        return Material.getBlockMaterial(this.blockEntity.block().type());
+        return SoakBlockMap.toBukkit(this.state.type());
     }
 
     @Override
-    public void setType(@NotNull Material arg0) {
-        throw NotImplementedException.createByLazy(BlockState.class, "setType", Material.class);
+    public void setType(@NotNull Material material) {
+        setBlockData(material.createBlockData());
+    }
+
+    @Override
+    public byte getLightLevel() {
+        return this.state.get(Keys.BLOCK_LIGHT).orElseThrow(() -> new RuntimeException("Probably wrong key")).byteValue();
+    }
+
+    @Override
+    public @NotNull World getWorld() {
+        return SoakManager.<WrapperManager>getManager().getMemoryStore().get(this.location.world());
+    }
+
+    @Override
+    public int getX() {
+        return this.location.blockX();
+    }
+
+    @Override
+    public int getY() {
+        return this.location.blockY();
+    }
+
+    @Override
+    public int getZ() {
+        return this.location.blockZ();
+    }
+
+    @Override
+    public @NotNull Location getLocation() {
+        return SoakLocationMap.toBukkit(this.location);
+    }
+
+    @Override
+    public @Nullable Location getLocation(@Nullable Location location) {
+        throw NotImplementedException.createByLazy(BlockState.class, "getLocation", Location.class);
+    }
+
+    @Override
+    public @NotNull Chunk getChunk() {
+        var chunkPosition = this.location.chunkPosition();
+        return getWorld().getChunkAt(chunkPosition.x(), chunkPosition.z());
+    }
+
+    @Override
+    public boolean update() {
+        return update(false, true);
+    }
+
+    @Override
+    public boolean update(boolean force) {
+        return update(false, true);
+    }
+
+    @Override
+    public boolean update(boolean force, boolean applyPhysics) {
+        if (!force && !isPlaced()) {
+            return false;
+        }
+        if (this.location == null) {
+            return false;
+        }
+        this.toApply.forEach(pair -> pair.apply(this.location));
+        onPostApply(this.location);
+        return true;
+    }
+
+    @Override
+    public byte getRawData() {
+        return 0;
+    }
+
+    @Override
+    public void setRawData(byte b) {
+
+    }
+
+    @Override
+    public boolean isPlaced() {
+        if(this.location == null){
+            return false;
+        }
+        return this.location.block().type().equals(this.state.type());
+    }
+
+    @Override
+    public boolean isCollidable() {
+        throw NotImplementedException.createByLazy(BlockState.class, "isCollidable");
+    }
+
+    @Override
+    public @Unmodifiable @NotNull Collection<ItemStack> getDrops(@Nullable ItemStack itemStack, @Nullable Entity entity) {
+        return List.of();
     }
 
     @Override
@@ -182,20 +265,5 @@ public abstract class AbstractBlockState<TileEntity extends BlockEntity> impleme
     @Override
     public void removeMetadata(@NotNull String metadataKey, @NotNull Plugin owningPlugin) {
         throw NotImplementedException.createByLazy(AbstractBlockState.class, "metadataKey", String.class, Plugin.class);
-    }
-
-    @Override
-    public @Unmodifiable @NotNull Collection<ItemStack> getDrops() {
-        throw NotImplementedException.createByLazy(BlockState.class, "getDrops");
-    }
-
-    @Override
-    public @Unmodifiable @NotNull Collection<ItemStack> getDrops(@Nullable ItemStack itemStack) {
-        throw NotImplementedException.createByLazy(BlockState.class, "getDrops", ItemStack.class);
-    }
-
-    @Override
-    public @Unmodifiable @NotNull Collection<ItemStack> getDrops(@NotNull ItemStack itemStack, @Nullable Entity entity) {
-        throw NotImplementedException.createByLazy(BlockState.class, "getDrops", ItemStack.class, Entity.class);
     }
 }
