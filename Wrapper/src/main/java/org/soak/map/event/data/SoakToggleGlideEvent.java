@@ -1,13 +1,10 @@
-package org.soak.map.event.entity.player.data;
+package org.soak.map.event.data;
 
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
-import org.soak.WrapperManager;
-import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Key;
@@ -21,11 +18,6 @@ public class SoakToggleGlideEvent extends AbstractDataEvent<Boolean, EntityToggl
     public SoakToggleGlideEvent(Class<EntityToggleGlideEvent> bukkitEvent, EventPriority priority, Plugin plugin,
                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
-    }
-
-    @Override
-    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
-        return ChangeDataHolderEvent.ValueChange.class;
     }
 
     @Override

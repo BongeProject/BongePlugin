@@ -1,4 +1,4 @@
-package org.soak.map.event.entity.player.data;
+package org.soak.map.event.data;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventPriority;
@@ -6,9 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
-import org.soak.WrapperManager;
 import org.soak.map.item.SoakItemStackMap;
-import org.soak.plugin.SoakManager;
 import org.soak.wrapper.entity.AbstractEntity;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Key;
@@ -23,11 +21,6 @@ public class SoakFoodLevelChangeEvent extends AbstractDataEvent<Integer, FoodLev
     public SoakFoodLevelChangeEvent(Class<FoodLevelChangeEvent> bukkitEvent, EventPriority priority, Plugin plugin,
                                     Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
-    }
-
-    @Override
-    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
-        return ChangeDataHolderEvent.ValueChange.class;
     }
 
     @Override

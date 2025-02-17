@@ -28,6 +28,7 @@ import org.soak.map.event.block.portal.SoakEndPortalCreateEvent;
 import org.soak.map.event.block.portal.SoakNetherPortalCreateEvent;
 import org.soak.map.event.command.SoakPreCommandEvent;
 import org.soak.map.event.command.SoakServerCommandEvent;
+import org.soak.map.event.data.*;
 import org.soak.map.event.entity.SoakCreatureSpawnEvent;
 import org.soak.map.event.entity.SoakEntityDeathEvent;
 import org.soak.map.event.entity.SoakEntityExplosionEvent;
@@ -41,7 +42,6 @@ import org.soak.map.event.entity.player.connection.SoakPlayerJoinEvent;
 import org.soak.map.event.entity.player.connection.SoakPlayerKickEvent;
 import org.soak.map.event.entity.player.connection.SoakPlayerQuitEvent;
 import org.soak.map.event.entity.player.connection.SoakPreJoinEvent;
-import org.soak.map.event.entity.player.data.*;
 import org.soak.map.event.entity.player.interact.SoakPlayerInteractAirEvent;
 import org.soak.map.event.entity.player.interact.SoakPlayerInteractBlockEvent;
 import org.soak.map.event.entity.player.interact.SoakPlayerInteractEntityEvent;
@@ -168,6 +168,9 @@ public class EventClassMapping {
         }
         if (name.equals(FoodLevelChangeEvent.class.getName())) {
             return reflection(SoakFoodLevelChangeEvent.class);
+        }
+        if (name.equals(EntityAirChangeEvent.class.getName())) {
+            return reflection(SoakEntityAirChangeEvent.class);
         }
         if (name.equals(PlayerExpChangeEvent.class.getName())) {
             return reflection(SoakExpChangeEvent.class);

@@ -1,4 +1,4 @@
-package org.soak.map.event.entity.player.data;
+package org.soak.map.event.data;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -38,6 +38,10 @@ public abstract class AbstractDataEvent<T, BE extends Event> extends SoakEvent<C
         fireEvent(event, holder, changedTo, original);
     }
 
+    @Override
+    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
+        return ChangeDataHolderEvent.ValueChange.class;
+    }
 
     protected abstract void fireEvent(ChangeDataHolderEvent.ValueChange spongeEvent, DataHolder.Mutable player,
                                       T changedTo, T changedFrom);

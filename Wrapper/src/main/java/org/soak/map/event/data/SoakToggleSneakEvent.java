@@ -1,8 +1,7 @@
-package org.soak.map.event.entity.player.data;
+package org.soak.map.event.data;
 
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
@@ -20,11 +19,6 @@ public class SoakToggleSneakEvent extends AbstractDataEvent<Boolean, PlayerToggl
     public SoakToggleSneakEvent(Class<PlayerToggleSneakEvent> bukkitEvent, EventPriority priority, Plugin plugin,
                                 Listener listener, EventExecutor executor, boolean ignoreCancelled) {
         super(bukkitEvent, priority, plugin, listener, executor, ignoreCancelled);
-    }
-
-    @Override
-    protected Class<ChangeDataHolderEvent.ValueChange> spongeEventClass() {
-        return ChangeDataHolderEvent.ValueChange.class;
     }
 
     @Override
