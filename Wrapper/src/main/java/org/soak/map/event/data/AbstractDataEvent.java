@@ -28,11 +28,15 @@ public abstract class AbstractDataEvent<T, BE extends Event> extends SoakEvent<C
             return;
         }
         var result = event.endResult();
-        var opData = result.successfulValue(keyValue());
+        var opData = result.successfulData()
+                .stream()
+                .filter(immutable -> immutable.key().equals(keyValue()))
+                .findAny()
+                .map(imm -> (T)imm.get());
         if (opData.isEmpty()) {
             return;
         }
-        var changedTo = opData.get().get();
+        var changedTo = opData.get();
         var original = event.originalChanges().successfulValue(keyValue()).map(Value::get).orElse(null);
 
         fireEvent(event, holder, changedTo, original);

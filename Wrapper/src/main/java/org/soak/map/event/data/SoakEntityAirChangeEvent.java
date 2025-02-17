@@ -40,10 +40,15 @@ public class SoakEntityAirChangeEvent extends AbstractDataEvent<Integer, EntityA
         fireEvent(bukkitEvent);
         if (bukkitEvent.isCancelled()) {
             spongeEvent.setCancelled(true);
+            spongeEvent.proposeChanges(DataTransactionResult.builder()
+                                               .result(DataTransactionResult.Type.CANCELLED)
+                                               .replace(Value.immutableOf(keyValue(), changedFrom))
+                                               .build());
             return;
         }
-        if (bukkitEvent.getAmount() == changedFrom) {
+        if (bukkitEvent.getAmount() != changedFrom) {
             spongeEvent.proposeChanges(DataTransactionResult.builder()
+                                               .result(DataTransactionResult.Type.SUCCESS)
                                                .success(Value.immutableOf(keyValue(), bukkitEvent.getAmount()))
                                                .build());
         }
